@@ -1,0 +1,19 @@
+tracker_type: bytetrack
+
+# Detection confidence thresholds for first and second association passes
+track_high_thresh: 0.5
+track_low_thresh: 0.1
+
+# Minimum confidence to initialise a new tracklet
+new_track_thresh: 0.6
+
+# Frames to keep a lost tracklet alive before discarding.
+# At 30 fps this is ~2 seconds; ultralytics scales it internally by fps/30
+# so the 2-second window holds approximately across frame rates.
+track_buffer: 60
+
+# IoU threshold for matching detections to existing tracklets
+match_thresh: 0.8
+
+# Fuse detection score into the matching cost
+fuse_score: True

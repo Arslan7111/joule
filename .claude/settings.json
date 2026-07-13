@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 --version)",
+      "Bash(pip3 list *)",
+      "Bash(mkdir -p /Users/AhmedArslan/Documents/joule/src && ls /Users/AhmedArslan/Documents/joule/)",
+      "Bash(pip3 install *)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python -)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --output /tmp/joule_smoke/)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python -c ' *)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --sources nonexistent.mp4)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --sources a.mp4 b.mp4 --names same same)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --output /tmp/joule_smoke2/ --dashboard --port 5199)",
+      "Read(//tmp/**)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python -c \"import json; d=json.load\\(open\\('/tmp/joule_smoke2/merged.json'\\)\\); print\\('merged.json valid:', list\\(d.keys\\(\\)\\)\\)\")",
+      "Read(//Users/AhmedArslan/Downloads/**)",
+      "Bash(mdfind -name \"65675-515098514_medium.mp4\")",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --sources /Users/AhmedArslan/Downloads/65675-515098514_medium.mp4 --names test_station --exercises both --output results/ --dashboard --visualise)",
+      "Bash(lsof -nP -iTCP:5000 -sTCP:LISTEN)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --sources /Users/AhmedArslan/Downloads/65675-515098514_medium.mp4 --names test_station --exercises both --output results/ --dashboard --port 8080 --visualise)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python -c \"from src.state_machine import StateMachine; sm=StateMachine\\(\\); print\\('adaptive =', sm.adaptive\\)\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --sources /Users/AhmedArslan/Downloads/65675-515098514_medium.mp4 --names test_station --exercises both --output results/)",
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/python pipeline.py --sources /Users/AhmedArslan/Downloads/65675-515098514_medium.mp4 --names test_station --exercises both --output results/ --visualise)",
+      "Bash(open /Users/AhmedArslan/Documents/joule/results/test_station_annotated.mp4)"
+    ],
+    "additionalDirectories": [
+      "/Users/AhmedArslan/Documents/joule"
+    ]
+  }
+}

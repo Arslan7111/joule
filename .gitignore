@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.DS_Store
+
+# Model weights (downloaded, large)
+*.pt
+*.task
+models/*.npz
+
+# Video assets and outputs (large / regenerable)
+test_videos/
+results/
+results_validation/
+*.mp4
+
+# Calibration outputs (site-specific)
+calibration/
