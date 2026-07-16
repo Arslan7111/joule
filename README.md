@@ -156,6 +156,22 @@ Calibrate a camera pair once with [tools/calibrate.py](tools/calibrate.py)
 (checkerboard, both cameras simultaneously). Test data: CMU Panoptic sample
 in `test_videos/panoptic/`.
 
+**Live fused mode** — run all sources as synchronized views of one station:
+
+```bash
+python pipeline.py \
+  --sources viewA.mp4 viewB.mp4 viewC.mp4 \
+  --fuse rig.npz --names squat_rack --exercises auto \
+  --output results/ --dashboard
+```
+
+Cross-view person association runs through the Re-ID gallery (the same
+person in two views re-identifies to one person_id). Persons seen by ≥2
+views get true 3D angles plus `left/right_knee_valgus` series in the JSON;
+a person visible in only one view falls back to 2D so analysis never stops.
+Sources must be pre-synchronized (clap-aligned recordings; the rig `.npz`
+may include an `up` vector if the world frame is not Z-up).
+
 ## Improving pose robustness
 
 Run with `--collect-hard` to save person crops where pose estimation failed or

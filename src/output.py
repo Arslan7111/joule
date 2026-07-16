@@ -115,7 +115,7 @@ def build_track_dict(person_id, td: dict, exercise: str = 'both') -> dict:
         'risk_assessment': risk,
         'angle_series': {
             joint: _downsample_series(td['angles'].get(joint, []), OUTPUT_FPS)
-            for joint in _ALL_ANGLES
+            for joint in sorted(set(_ALL_ANGLES) | set(td['angles'].keys()))
         },
     }
     if exercise == 'auto':

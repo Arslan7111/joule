@@ -124,6 +124,11 @@ def main() -> None:
         help='Disable session person re-identification',
     )
     parser.add_argument(
+        '--fuse', metavar='RIG_NPZ', default=None,
+        help='Treat ALL sources as synchronized views of ONE station and '
+             'triangulate 3D (rig calibration .npz; see tools/calibrate.py)',
+    )
+    parser.add_argument(
         '--visualise', action='store_true',
         help='Render annotated MP4 for each camera source',
     )
@@ -182,8 +187,28 @@ def main() -> None:
     } if args.live else {}
 
     stop_event = threading.Event()
-    processors: list[CameraProcessor] = []
+    processors = []
     threads: list[threading.Thread] = []
+
+    if args.fuse:
+        from src.fusion import FusedCameraProcessor
+        cam_id = args.names[0] if args.names else 'fused_station'
+        exercise = args.exercises[0] if args.exercises else 'both'
+        proc = FusedCameraProcessor(
+            camera_id=cam_id,
+            sources=sources,
+            rig_path=args.fuse,
+            output_dir=str(output_dir),
+            visualise=args.visualise,
+            exercise=exercise,
+            display_queue=display_queues.get(cam_id),
+            dashboard=dashboard,
+            stop_event=stop_event,
+            gallery=gallery,
+        )
+        processors.append(proc)
+        threads.append(threading.Thread(target=proc.run, name=cam_id, daemon=False))
+        sources = []          # all sources consumed by the fused station
 
     for i, src in enumerate(sources):
         cam_id = args.names[i] if i < len(args.names) else f"cam_{i}"

@@ -71,7 +71,16 @@
       "Bash(ls /opt/miniconda3/bin/git /opt/miniconda3/envs/*/bin/git /usr/local/bin/git /opt/homebrew/bin/git 2>/dev/null; which -a brew conda 2>/dev/null)",
       "Read(//opt/miniconda3/envs/**)",
       "Bash(/opt/miniconda3/bin/conda install *)",
-      "Bash(/opt/miniconda3/envs/hurricane_env/bin/git --version)"
+      "Bash(/opt/miniconda3/envs/hurricane_env/bin/git --version)",
+      "Bash(/opt/miniconda3/bin/gh auth *)",
+      "Bash(ssh -o ConnectTimeout=15 perceptron 'echo \"sweep running: $\\(pgrep -f gen_reg_sweep.py >/dev/null && echo YES || echo NO\\)\"; echo \"--- reg.log tail ---\"; grep -vE \"it/s\\\\]|warning|Remark|directory|_backT|\\\\^|Nothing to be done\" ~/reg.log 2>/dev/null | tail -16')",
+      "Bash(ssh -o ConnectTimeout=15 perceptron 'echo \"running: $\\(pgrep -f gen_reg_sweep.py >/dev/null && echo YES || echo NO\\)\"; echo \"GPU mem: $\\(nvidia-smi --query-gpu=memory.used --format=csv,noheader\\)\"; grep -vE \"it/s\\\\]|warning|Remark|directory|_backT|\\\\^|Nothing to be done\" ~/regU.log 2>/dev/null | tail -6')",
+      "Bash(nslookup perceptron.inf.susx.ac.uk)",
+      "Bash(ping -c 5 -t 8 perceptron.inf.susx.ac.uk)",
+      "Bash(ping -c 2 -t 8 www.sussex.ac.uk)",
+      "Bash(ping -c 2 -t 8 8.8.8.8)",
+      "Bash(ssh -o ConnectTimeout=10 -T git@github.com)",
+      "Bash(chmod +x /private/tmp/claude-501/-Users-AhmedArslan-Documents-joule/f35da3c8-e35e-4c61-9c4c-f890c1a5d865/scratchpad/autolaunch100.sh)"
     ],
     "additionalDirectories": [
       "/tmp",

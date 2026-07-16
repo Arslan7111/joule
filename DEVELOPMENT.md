@@ -131,12 +131,21 @@ Test assets: Pexels stock clips in `test_videos/`, CMU Panoptic sample
 - Jetson budget: roughly 2–4 cameras per Orin Nano at reduced frame rates;
   detector/model/imgsz knobs in `src/config.py` trade accuracy for throughput.
 
+**Phase 7 — Live multi-camera fusion.** `--fuse rig.npz` mode
+(src/fusion.py): N synchronized sources processed as one station —
+independent detection per view, cross-view person association via the Re-ID
+gallery (validated live: 3 views matched to one person at sims 0.83–0.84),
+per-person triangulation with single-view 2D fallback, valgus series in
+output, world up-axis configurable in the rig file (Panoptic is Y-down).
+End-to-end on Panoptic: fused left-elbow vs mocap mean 4.4°; trunk lean
+1.6° median on an upright subject; valgus 3.5–4.8° median (no valgus,
+correct); 100% frame coverage on all joints from 3 views.
+
 ## Roadmap
 
 1. Real gym footage validation (highest information value per hour)
 2. Camera layout plan from actual floor plan; on-site sight-line checks
-3. Two-camera fusion glue for live pipeline (sync + cross-view Re-ID matching;
-   measurement core already validated)
-4. Trained exercise classifier from labeled footage
-5. Kiosk/QR check-in integration
+3. Trained exercise classifier from labeled footage
+4. Kiosk/QR check-in integration
+5. Timestamp-based sync for live RTSP multi-camera streams
 6. Jetson port and throughput tuning

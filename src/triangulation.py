@@ -122,10 +122,16 @@ def triangulate_skeleton(
     return out
 
 
+WORLD_UP = np.array([0.0, 0.0, 1.0])   # default world vertical (Z up).
+                                        # Panoptic uses Y-down: up = (0, -1, 0).
+
+
 def compute_trunk_lean_3d(
-    kps3d: np.ndarray, conf_thresh: float = POSE_CONF_THRESHOLD
+    kps3d: np.ndarray,
+    conf_thresh: float = POSE_CONF_THRESHOLD,
+    up: np.ndarray = WORLD_UP,
 ) -> float | None:
-    """Angle of the hip→shoulder line from world vertical (Z up), degrees."""
+    """Angle of the hip→shoulder line from world vertical, degrees."""
     ls = kps3d[KEYPOINT_IDX['left_shoulder']]
     rs = kps3d[KEYPOINT_IDX['right_shoulder']]
     lh = kps3d[KEYPOINT_IDX['left_hip']]
@@ -136,12 +142,14 @@ def compute_trunk_lean_3d(
     n = np.linalg.norm(trunk)
     if n < 1e-9:
         return None
-    cos_val = np.dot(trunk / n, np.array([0.0, 0.0, 1.0]))
+    cos_val = np.dot(trunk / n, up / np.linalg.norm(up))
     return float(np.degrees(np.arccos(np.clip(cos_val, -1.0, 1.0))))
 
 
 def compute_all_angles_3d(
-    kps3d: np.ndarray, conf_thresh: float = POSE_CONF_THRESHOLD
+    kps3d: np.ndarray,
+    conf_thresh: float = POSE_CONF_THRESHOLD,
+    up: np.ndarray = WORLD_UP,
 ) -> dict[str, float | None]:
     """True 3D joint angles from a triangulated (17, 4) skeleton.
     Same joints as the 2D path, so downstream code is unchanged."""
@@ -154,14 +162,17 @@ def compute_all_angles_3d(
             angles[name] = None
         else:
             angles[name] = compute_angle(a[:3], b[:3], c[:3])
-    angles['trunk_lean'] = compute_trunk_lean_3d(kps3d, conf_thresh)
+    angles['trunk_lean'] = compute_trunk_lean_3d(kps3d, conf_thresh, up)
     return angles
 
 
 # ── Frontal-plane injury signals (only measurable in 3D) ────────────────────
 
 def knee_valgus_angle(
-    kps3d: np.ndarray, side: str, conf_thresh: float = POSE_CONF_THRESHOLD
+    kps3d: np.ndarray,
+    side: str,
+    conf_thresh: float = POSE_CONF_THRESHOLD,
+    up: np.ndarray = WORLD_UP,
 ) -> float | None:
     """
     Frontal-plane knee deviation in degrees: the hip–knee–ankle angle
@@ -186,10 +197,10 @@ def knee_valgus_angle(
     if n < 1e-9:
         return None
     ml /= n
-    up = np.array([0.0, 0.0, 1.0])
+    up_n = up / np.linalg.norm(up)
 
     def frontal(p: np.ndarray) -> np.ndarray:
-        return np.array([np.dot(p, ml), np.dot(p, up)])
+        return np.array([np.dot(p, ml), np.dot(p, up_n)])
 
     a2 = compute_angle(frontal(hip[:3]), frontal(knee[:3]), frontal(ankle[:3]))
     if a2 is None:
