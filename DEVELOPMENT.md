@@ -150,7 +150,16 @@ trained on RepCount: MAE 0.443) and beats every published method's
 off-by-one accuracy (TransRAC 29.1%, RepNet ~1%). Dominant failure mode
 is exercise *misclassification* routing the counter to the wrong joint
 family (pull-ups read as hinge/press → 0 counts), not miscounting —
-trained classifier is the fix. Held-out triangulation validation on a
+trained classifier is the fix. Full 152-video test set (all 9 classes,
+incl. out-of-scope ones): MAE 0.687 / OBO 22.4% (TransRAC, trained:
+0.443/29.1%). Per-class OBO: squat 50%, front raise 39%, pull-up 37%,
+push-up 25%, sit-up 20%, bench press 10.5% (13/19 misclassified as
+squat — lying posture with bent knees), jump jacks 4% (locomotion filter
+suppresses gait-frequency cycles, as designed), pommel horse 0%
+(partial body, violates feet-in-frame rule). Confusion matrix: squats
+89% correctly classified; upper-body classes scatter across
+press/pullup/hinge — family-correct is what counting needs, exact label
+is not. Benchmark data + per-video JSONs in test_videos/repcount/. Held-out triangulation validation on a
 second, untuned CMU Panoptic sequence (171204_pose2, 3 views, 2036
 frames, full fused pipeline) via tools/validate_panoptic.py (rebuilds
 rig from calibration JSON, auto frame-offset search): **mean 6.1°,
