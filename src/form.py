@@ -16,6 +16,13 @@ so they tolerate camera perspective the same way the adaptive rep counter does.
 
 import numpy as np
 
+from .config import (
+    REFERENCE_MAX_CUES,
+    REFERENCE_PENALTY,
+    REFERENCE_PENALTY_CAP,
+)
+from .signature import compare_to_reference, load_reference
+
 # Penalty weights (points deducted at full severity)
 _PENALTY = {
     'depth': 25,
@@ -125,10 +132,27 @@ def score_rep(
             )
             fired.append('consistency')
 
+    cues = [CORRECTIVE_CUES[k] for k in fired]
+
+    # ── reference signature (when a reference exists for this exercise) ──
+    # Only the worst deviations are reported — a flooded cue list coaches
+    # nothing (measured: cross-view scoring produced 18 issues on one rep).
+    reference = load_reference(exercise_class)
+    if reference is not None:
+        deviations = compare_to_reference(angle_series, t0, t1, reference)
+        penalty = min(
+            REFERENCE_PENALTY_CAP,
+            sum(REFERENCE_PENALTY * d['severity'] for d in deviations),
+        )
+        score -= penalty
+        for d in deviations[:REFERENCE_MAX_CUES]:
+            issues.append(f"vs reference: {d['cue']}")
+            cues.append(d['cue'])
+
     return {
         'score': int(max(0.0, round(score))),
         'issues': issues,
-        'cues': [CORRECTIVE_CUES[k] for k in fired],
+        'cues': cues,
     }
 
 

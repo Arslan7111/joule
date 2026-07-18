@@ -141,6 +141,35 @@ End-to-end on Panoptic: fused left-elbow vs mocap mean 4.4°; trunk lean
 1.6° median on an upright subject; valgus 3.5–4.8° median (no valgus,
 correct); 100% frame coverage on all joints from 3 views.
 
+**Phase 8 — External benchmarks + reference scoring.**
+RepCount Part-A test split (HF mirror momo321654/RepCountA-videos: 1041
+YouTube workout videos, per-cycle rep annotations) benchmarked via
+tools/benchmark_repcount.py — 37 squat/pull-up test videos: **MAE 0.452,
+43.2% within ±1 rep, zero training** — matches TransRAC (CVPR'22 oral,
+trained on RepCount: MAE 0.443) and beats every published method's
+off-by-one accuracy (TransRAC 29.1%, RepNet ~1%). Dominant failure mode
+is exercise *misclassification* routing the counter to the wrong joint
+family (pull-ups read as hinge/press → 0 counts), not miscounting —
+trained classifier is the fix. Held-out triangulation validation on a
+second, untuned CMU Panoptic sequence (171204_pose2, 3 views, 2036
+frames, full fused pipeline) via tools/validate_panoptic.py (rebuilds
+rig from calibration JSON, auto frame-offset search): **mean 6.1°,
+median 4.0° vs mocap** across 9 joints; trunk lean 3.4° mean at 100%
+coverage; right elbow coverage 39% (side arc of the 3 chosen cameras) —
+vs 3.7° mean on the original 5-camera tuned sequence. Ported two
+AIFit ideas (src/signature.py): active/passive joint mining by
+motion-energy ranking (median-smoothed — raw Σ|Δθ| let elbow jitter
+outrank squatting knees; primaries pinned from the known exercise class)
+and reference signatures (tools/build_reference.py → per-rep min/max /
+mean/std / L-R correlation with CRITIC_DELTA-scaled tolerances, wired
+into form.py as extra deviation cues, worst-3 only). Self-consistency
+validated: 14/14 reference-video reps score 100 vs own reference;
+cross-view scoring floods with perspective artifacts → references must
+be same-camera or 3D (documented). InfiniteRep is dead (Infinity AI
+defunct; the HF "rescue" holds segmentation masks only). Fit3D and M3GYM
+need registration (academic-only licenses — validation OK, shipped-model
+training not).
+
 ## Roadmap
 
 1. Real gym footage validation (highest information value per hour)

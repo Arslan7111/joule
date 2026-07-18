@@ -89,6 +89,23 @@ left/right symmetry (>18° flagged), and ROM consistency vs the set median.
 Each triggered check adds a corrective coaching `cue`. Weights, limits, and cue
 text live in [src/form.py](src/form.py).
 
+**Reference-based scoring** (optional, AIFit-style): record a trainer
+performing the exercise well, run the pipeline on it, then
+
+```bash
+python tools/build_reference.py results/squat_rack_1.json --exercise squat
+```
+
+This mines which joints drive the movement vs which should stay still
+(motion-energy ranking) and stores per-rep statistics in
+`models/references/squat.json`. Subsequent runs score every squat rep
+against the reference and add the worst deviations as extra cues
+("extend the left knee more at the top (12° short of reference)").
+`CRITIC_DELTA` in [src/config.py](src/config.py) sets strictness
+(0 harsh → 1 relaxed). Build the reference from the same camera it will
+score — or from 3D fused angles — single-view angles are
+viewpoint-specific. Delete the reference file to turn it off.
+
 Each track also gets a `risk_assessment` per exercise — set-level injury-risk
 signals (low/moderate/high): fatigue form decline, ROM degradation, tempo
 collapse, chronic asymmetry ([src/risk.py](src/risk.py)). These are

@@ -106,6 +106,22 @@ PROGRESS_LOG_FRAMES = 300          # log processing progress every N frames
 CLASSIFY_INTERVAL_SECONDS = 2.0    # re-classify each track this often
 CLASSIFY_WINDOW_SECONDS = 6.0      # trailing window of angle data to classify on
 
+# Reference-based form comparison (AIFit-style, src/signature.py).
+# References are built from recorded good executions with
+# tools/build_reference.py; when models/references/<exercise>.json exists,
+# form scoring adds per-rep deviations from the reference on top of the
+# rule-based checks.  CRITIC_DELTA scales every tolerance: 0 = harsh
+# (flag small deviations), 1 = relaxed (beginners).
+# NOTE: single-view angles are viewpoint-specific — build a reference from
+# the same station's camera it will score, or from 3D fused angles (which
+# are viewpoint-free).  A reference from a different camera angle reads
+# perspective differences as form deviations.
+REFERENCE_DIR = 'models/references'
+CRITIC_DELTA = 0.5
+REFERENCE_PENALTY = 12         # points deducted per deviation × severity
+REFERENCE_PENALTY_CAP = 30     # max total deduction from reference deviations
+REFERENCE_MAX_CUES = 3         # only the worst deviations become cues
+
 # Locomotion rejection: walking/running produces long runs of fast uniform
 # knee cycles that the rep counter would otherwise count as squats.
 # Validated on treadmill footage (22 cycles @ 0.42s) vs drop sets (4 @ 0.6s):
