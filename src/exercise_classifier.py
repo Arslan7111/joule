@@ -28,14 +28,17 @@ logger = logging.getLogger(__name__)
 MODEL_PATH = Path(__file__).parent.parent / 'models' / 'exercise_clf.npz'
 
 CLASSES = ['squat', 'lunge', 'hinge', 'curl', 'press', 'pullup', 'row',
-           'cardio', 'unknown']
+           'pushup', 'raise', 'situp', 'cardio', 'unknown']
 
 # Which rep state machine drives the count for each class.
-# 'none' = no rep counting (locomotion/cardio is not a rep exercise).
+# 'none' = no rep counting (locomotion/cardio is not a rep exercise;
+# sit-ups are hip-driven — honest 'none' until a hip counter exists).
 CLASS_FAMILY = {
     'squat': 'squat', 'lunge': 'squat', 'hinge': 'squat',
     'curl': 'upper_body', 'press': 'upper_body',
     'pullup': 'upper_body', 'row': 'upper_body',
+    'pushup': 'upper_body', 'raise': 'upper_body',
+    'situp': 'none',
     'cardio': 'none',
     'unknown': 'both',
 }
@@ -72,6 +75,12 @@ def classify_heuristic(vec: np.ndarray) -> str:
     if lower_active and knee_freq >= 0.6:
         return 'cardio'
 
+    # NOTE: a lying-posture rule (trunk_mean ≥ 65 → bench press) was tried
+    # and reverted: RepCount bench-press videos are shot from the head/foot
+    # of the bench, so the foreshortened 2D trunk reads *upright* (measured
+    # 6–22°) while the bent legs fake large knee ROM.  Lying exercises are
+    # not separable by trunk thresholds across viewpoints — the trained
+    # classifier owns them.
     if lower_active and (knee >= hip * 0.6 or knee > 40):
         # Knee-dominant lower-body movement.  (Lunge is only distinguishable
         # by the trained classifier — side-view occlusion makes the

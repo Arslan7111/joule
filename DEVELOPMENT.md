@@ -179,6 +179,27 @@ defunct; the HF "rescue" holds segmentation masks only). Fit3D and M3GYM
 need registration (academic-only licenses — validation OK, shipped-model
 training not).
 
+**Phase 9 — Trained exercise classifier (RepCount train split).**
+280 stratified train-split videos (40 × 7 classes) processed through the
+pipeline → training_data/<class>/*.json → tools/train_classifier.py
+(4848 window samples, 57.2% window-level holdout accuracy — video-level
+routing is what matters). New classes pushup/raise/situp added to the
+taxonomy (situp → family 'none': no counting beats wrong counting until
+a hip-driven counter exists). Full 152-video re-benchmark, heuristic →
+trained: **every gym-core class improved** — squat 50→55.6% OBO,
+front raise 38.9→50%, pull-up 36.8→42.1%, push-up 25→43.8% (MAE
+0.59→0.48); gym-core aggregate 32→40% OBO. Jump jacks/sit-ups now
+classify correctly and *deliberately* count zero (cardio/no-counter), so
+their benchmark rows read worse while product behavior is right. Bench
+press classification is fixed (15/19 routed to upper-body family vs
+3/19) but counting stays poor (10.5% OBO): head-on lying pose gives a
+weak/occluded elbow signal — a pose-quality limitation, not a routing
+one. A heuristic lying-posture rule was tried first and reverted:
+foreshortened 2D trunk reads *upright* (6–22°) from the head/foot of a
+bench. Model: models/exercise_clf.npz (6 KB, force-added past the
+*.npz ignore). Training JSONs regenerable from the HF mirror; dataset
+videos deleted after each run (laptop disk policy).
+
 ## Roadmap
 
 1. Real gym footage validation (highest information value per hour)
