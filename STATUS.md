@@ -2,7 +2,8 @@
 
 Where the project stands and what's left. For full technical detail and
 dated entries, see [DEVELOPMENT.md](DEVELOPMENT.md); for usage, see
-[README.md](README.md).
+[README.md](README.md); for the phased execution plan behind the items
+below, see [ROADMAP.md](ROADMAP.md).
 
 ## Done
 
