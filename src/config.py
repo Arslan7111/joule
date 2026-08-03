@@ -150,6 +150,19 @@ REID_MATCH_THRESHOLD = 0.75    # cosine similarity to accept an identity match
 REID_EMA_ALPHA = 0.10          # gallery embedding update rate
 REID_SAMPLE_INTERVAL_SECONDS = 1.0   # extract an embedding this often per track
 
+# An identity match must also beat the *second*-best candidate by this much
+# cosine similarity — an ambiguous best-vs-second-best case (more likely as
+# the gallery grows, e.g. many members in similar gym clothing) enrolls a
+# new anonymous person instead of guessing between two plausible matches.
+REID_MATCH_MARGIN = 0.05
+
+# People not updated within this long are excluded from match candidacy
+# (though kept in the gallery for check-in / dashboard listing) — an old
+# embedding from early in the session should not keep competing with
+# recently-seen people. Someone returning after this long enrolls as a new
+# person rather than risk a stale match.
+REID_STALE_SECONDS = 1800.0    # 30 min
+
 # A track's identity is committed once, from an average of several early
 # embedding samples rather than the very first one — a single occluded or
 # blurry birth crop must not lock the wrong person for an entire set.

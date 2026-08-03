@@ -55,10 +55,23 @@ assets, and directly protects the value of the first real capture session.
   download URL/script is actually preserved in this repo despite
   HANDOVER.md implying one is documented; flagged as a `DEVELOPMENT.md` gap
   worth fixing under Phase B).
-- **A2. Re-ID match confidence.** Replace the flat 0.75 threshold with a
-  margin test (best match vs. second-best) so an ambiguous match enrolls a
-  new anonymous person instead of guessing; add gallery time-decay so stale
-  embeddings from earlier in the session stop competing with current ones.
+- **A2. Re-ID match confidence.** ✅ Implemented and validated (2026-08-03).
+  `src/session.py`'s `identify()` used to accept any match clearing the flat
+  0.75 threshold, even when a second candidate was nearly as close (more
+  likely as the gallery grows — many members in similar gym clothing).
+  Added `REID_MATCH_MARGIN` (0.05): a match must beat the runner-up by this
+  much or the track enrolls as a new anonymous person instead of guessing.
+  Also added `REID_STALE_SECONDS` (30 min): people not updated within that
+  window are excluded from match candidacy (but kept in the gallery for
+  check-in/dashboard) so an old embedding from early in the session can't
+  keep competing with people seen recently. Validated with unit tests
+  against the real `SessionGallery` class: an engineered ambiguous
+  best-vs-second-best case (both candidates individually clear the raw
+  threshold, margin ≈ 0) correctly enrolls a new person instead of
+  guessing; a clearly-closer case still matches correctly; a 31-minute-old
+  person is correctly excluded from candidacy yet remains listed in
+  `gallery.people()`. Regression-checked against the same real test clip
+  used for A1 — identical correct result (4 fragmented tracks → 1 person).
 - **A3. Epipolar check in fusion.** `src/fusion.py` currently associates
   views by appearance similarity alone despite calibration already being
   loaded. Add an epipolar consistency check so two similarly-dressed people

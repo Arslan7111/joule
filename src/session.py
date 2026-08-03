@@ -5,14 +5,22 @@ One gallery is shared by every camera thread.  Each person has an
 EMA-updated appearance embedding.  When a new track appears anywhere,
 its embedding is matched against the gallery:
 
-  similarity ≥ REID_MATCH_THRESHOLD → existing person (identity carries over
-      across frame exits, station changes, and cameras)
+  best similarity ≥ REID_MATCH_THRESHOLD, and beats the second-best
+  candidate by ≥ REID_MATCH_MARGIN → existing person (identity carries
+      over across frame exits, station changes, and cameras)
   otherwise → a new person is enrolled (person_1, person_2, …)
+
+People not updated within REID_STALE_SECONDS are excluded from match
+candidacy (but not deleted — they stay in the gallery for check-in and the
+dashboard) so an old embedding from earlier in the session cannot keep
+competing with people seen more recently; someone returning after that long
+enrolls as a new person rather than risk a stale match.
 
 Check-in binds a real name to a person id (kiosk/QR integration later;
 GET /checkin on the dashboard for now).  Mis-attribution is the worst
-failure mode, so matching is deliberately conservative: below-threshold
-tracks stay anonymous rather than guessing.
+failure mode, so matching is deliberately conservative throughout: below
+threshold, too ambiguous, or too stale all fall back to a fresh identity
+rather than guessing.
 """
 
 import logging
@@ -22,7 +30,12 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .config import REID_EMA_ALPHA, REID_MATCH_THRESHOLD
+from .config import (
+    REID_EMA_ALPHA,
+    REID_MATCH_MARGIN,
+    REID_MATCH_THRESHOLD,
+    REID_STALE_SECONDS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -53,16 +66,24 @@ class SessionGallery:
     def identify(self, embedding: np.ndarray, camera_id: str = '') -> tuple[str, float]:
         """
         Match an embedding against the gallery; enroll a new person when no
-        match clears the threshold.  Returns (person_id, similarity).
+        match clears the threshold with enough margin over the runner-up.
+        Returns (person_id, similarity).
         """
         with self._lock:
+            now = time.time()
             best_id, best_sim = None, -1.0
+            second_sim = -1.0
             for pid, person in self._people.items():
+                if now - person.last_seen > REID_STALE_SECONDS:
+                    continue    # stale — don't let it compete with fresh candidates
                 sim = float(np.dot(embedding, person.embedding))
                 if sim > best_sim:
-                    best_id, best_sim = pid, sim
+                    best_id, best_sim, second_sim = pid, sim, best_sim
+                elif sim > second_sim:
+                    second_sim = sim
 
-            if best_id is not None and best_sim >= self.match_threshold:
+            margin_ok = (best_sim - second_sim) >= REID_MATCH_MARGIN
+            if best_id is not None and best_sim >= self.match_threshold and margin_ok:
                 self._update_locked(best_id, embedding, camera_id)
                 return best_id, best_sim
 
@@ -71,7 +92,13 @@ class SessionGallery:
             self._people[pid] = Person(
                 person_id=pid, embedding=embedding.copy(), last_camera=camera_id
             )
-            logger.info(f"Gallery: enrolled {pid} (best existing sim {best_sim:.2f})")
+            reason = (
+                'below threshold' if best_sim < self.match_threshold else 'ambiguous margin'
+            )
+            logger.info(
+                f"Gallery: enrolled {pid} (best existing sim {best_sim:.2f}, "
+                f"second {second_sim:.2f}, {reason})"
+            )
             return pid, 1.0
 
     def update(self, person_id: str, embedding: np.ndarray, camera_id: str = '') -> None:
