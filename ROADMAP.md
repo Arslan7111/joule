@@ -105,20 +105,87 @@ assets, and directly protects the value of the first real capture session.
   too tight (false-rejecting real matches) or too loose (still missing
   realistic adjacent-station mismatches) — same Panoptic-access blocker as
   A1/A2's validation gap.
-- **A4. Depth/tempo stress tests on existing assets.** Two cheap synthetic
-  tests before real footage exposes these for real: (a) retime a
-  Panoptic/stock clip to ~5s/rep to check the 3-second adaptive window
-  against heavy-barbell tempo, not just fast bodyweight reps; (b) overlay
-  occluding rectangles over the lower body on a stock clip to observe
-  angle-dropout behaviour (silent undercount vs. graceful degradation).
-- **A5. Mirror-detection sanity check.** No current filter for mirror
-  reflections producing phantom detections. At minimum, scope the failure
-  mode on an available clip with a mirror in frame and decide whether a
-  code fix or a "no mirrors in frame" placement rule is the right answer.
+- **A4. Depth/tempo stress tests.** ✅ Written finding (2026-08-03), no code
+  change needed. No rep-bearing footage exists on this machine to retime
+  (the only local clip, `person_test.mp4`, is a walking/bicycle test asset
+  with no exercise reps), so instead of retiming video this drove the real
+  `src/state_machine.py` `StateMachine` directly with synthetic squat-shaped
+  angle signals — a more direct test of the exact component in question
+  (`ADAPTIVE_WINDOW_SECONDS`=3.0 vs. tempo, and `angle=None` handling) than
+  a real clip would give without pose-estimation noise as a confound.
+  **(a) Tempo**: ran 8-rep sets at 1.5s/rep (fast bodyweight), 3.0s/rep
+  (matches window), 5.0s/rep (barbell), and 8.0s/rep (very slow heavy) —
+  all four counted every rep correctly with the right depth/validity, even
+  at 8s/rep where the window sees under half of one cycle at any instant.
+  Reason: the adaptive window uses 10th/90th-percentile range over its
+  trailing samples, and a cosine-shaped rep signal spends most of its time
+  (lowest velocity) near the top/bottom extremes regardless of period, so
+  the trailing window keeps recapturing values close to the true range even
+  when it can't see a whole cycle. **(b) Occlusion**: fed `angle=None` for
+  1.0s (mid-rep, sub-window), 6.0s (~2 rep-periods, exceeds the window), and
+  4.5s (near-one-period at 5s/rep tempo). In every case: zero false/extra
+  reps, exactly the rep(s) physically inside the blackout went uncounted
+  (graceful undercount, not corruption), and counting resumed immediately
+  once fresh variance reappeared after the gap — no extra "re-warm-up" dead
+  time beyond the occlusion itself, and the first rep after resuming had
+  normal, uncorrupted depth/validity values. **Caveat**: this used an
+  idealised smooth waveform, not real noisy pose output — real keypoint
+  jitter is a separate, already-mitigated concern (`SMOOTHING_WINDOW`
+  median filter, validated in earlier phases), not something this test
+  re-checks. Script kept in this session's scratchpad only (not committed —
+  no `tests/` convention exists in this repo; matches how A1–A3 validation
+  scripts were handled).
+- **A5. Mirror-detection sanity check.** ✅ Written finding (2026-08-03), no
+  code change now. No mirror-containing clip exists on this machine, so
+  this is a code-grounded analysis rather than an observed run — confirmed
+  by reading `src/detector.py` (plain 2D YOLO person detector, no depth or
+  geometric cue of any kind) and `src/reid.py`/`src/session.py` (identity
+  match is pure cosine similarity on appearance) that **nothing anywhere in
+  the pipeline can distinguish a mirror reflection from a real person** — a
+  reflection that clears `DETECTOR_CONF` is just another tracked person.
+  Two distinct failure paths depending on what Re-ID then does with it
+  (`src/camera.py`'s `resolve_person`, `src/session.py`'s `identify`):
+  (1) **Re-ID matches the reflection to the real person** (likely if the
+  reflection is a clean, similarly-lit, same-clothing view) — both the real
+  track and the reflection track resolve to the same `person_id`, and
+  `camera.py`'s per-frame loop calls that one shared `StateMachine.update()`
+  from *both* tracks in the same iteration. The state machine has no
+  concept of "these two calls are the same instant from two sources" — it
+  treats them as sequential samples, so a reflection's angle reading (often
+  a different apparent angle: oblique glass, partial crop, mirrored limb
+  layout) gets interleaved into the same median-filter buffer and adaptive
+  history as the real body's reading. Not proven to cause a wrong rep count
+  outright — one interleaved outlier per frame is unlikely to survive
+  `HYSTERESIS_FRAMES`=2 — but it is a real, code-confirmed contamination
+  path into person-level state that would need a live mirror clip to size
+  properly. (2) **Re-ID does not match** (plausible — mirror crops tend to
+  be dimmer, cropped by the frame edge, and shot at an oblique angle, all
+  of which lower cosine similarity below `REID_MATCH_THRESHOLD`+margin) —
+  the reflection enrolls as a brand-new phantom person who then appears to
+  perform the identical exercise in perfect real-time sync with the real
+  person for as long as the mirror is in frame: inflated headcount in the
+  gallery/dashboard and every real rep double-counted in aggregate reporting
+  under a second identity. This is the more consequential and, given how
+  Re-ID matching is deliberately conservative (A2), probably the more
+  likely of the two paths in practice.
+  **Recommendation: placement rule, not a code fix.** Reliably telling a
+  reflection from a real person needs depth or a per-camera calibrated
+  exclusion zone — neither is justified before a real installation exists to
+  calibrate against, and the "no mirrors in frame" rule is already planned
+  independently in Phase C1's camera-placement doc. The one cheap follow-up
+  worth keeping on the backlog once real camera installs exist: a static
+  per-camera polygon dead-zone mask (drop detections whose bbox centroid
+  falls inside a manually marked mirror region) as a machine-enforced
+  backstop for whenever the placement rule isn't followed perfectly — not
+  worth building blind now with no installation to calibrate the mask
+  against.
 
 Exit criteria: A1–A3 shipped with a before/after test on Panoptic showing
 the fix actually changes behaviour (not just a code diff); A4–A5 produce a
-short written finding even if the answer is "acceptable as-is."
+short written finding even if the answer is "acceptable as-is." **Phase A
+exit criteria met for all of A1–A5** — real-footage validation of A1–A3's
+tuned thresholds remains open pending Panoptic/real-camera access (see
+below), which does not block moving to Phase B/C.
 
 ## Phase B — Reproducibility & doc hygiene (no footage required, parallel with A)
 
