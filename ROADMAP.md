@@ -274,18 +274,35 @@ mismatches over maximizing pass-rate.
 Low effort, currently makes every headline number in the docs unverifiable
 from a fresh clone.
 
-- **B1.** Panoptic half ✅ done (2026-08-03, third session same day) — the
-  real CMU Panoptic dataset arrived and was used for Phase A's real
-  validation anyway (see A1/A3 above), producing a genuine, current
-  `validation_results/val.json` + `merged.json` (5-camera sequence, current
-  post-A1–A3-hardened code) — force-committed despite the blanket
+- **B1.** ✅ Done, both halves (2026-08-03/04).
+  **Panoptic half**: the real CMU Panoptic dataset arrived and was used for
+  Phase A's real validation anyway (see A1/A3 above), producing a genuine,
+  current `validation_results/val.json` + `merged.json` (5-camera sequence,
+  current post-A1–A3-hardened code) — force-committed despite the blanket
   `test_videos/` gitignore (small JSON/rig files only, no video/dataset
-  content). This is a better artifact than any pre-existing one would have
-  been, since it reflects this session's fixes, not stale pre-hardening
-  numbers. RepCount half ⚠️ still open — `momo321654/RepCountA-videos` is a
-  public HF mirror (no access blocker, unlike Panoptic), just needs an
-  explicit go-ahead to spend the download/compute time on this machine
-  before running `tools/benchmark_repcount.py` fresh.
+  content).
+  **RepCount half**: downloaded the full 152-video RepCount Part-A test
+  split fresh from the public `momo321654/RepCountA-videos` HF mirror (no
+  access blocker, unlike Panoptic/Fit3D/M3GYM) and ran
+  `tools/benchmark_repcount.py` end to end. Result: **ALL n=152, MAE 0.742,
+  OBO 22.4%**; gym-core classes — squat 44.4%, front_raise 33.3%, pull_up
+  36.8%, push_up 31.2% OBO. Confirmed the trained classifier
+  (`models/exercise_clf.npz`) was actually active throughout, not a silent
+  heuristic fallback — every `classified=` value across all 152 videos was
+  one of the model's 7 trained output classes, never a heuristic-only class
+  (lunge/hinge/curl/row never appeared).
+  **These numbers legitimately differ from the historical Phase 8/9 figures
+  in `DEVELOPMENT.md`** (which predate this session's A1–A3 hardening) —
+  not a regression or a bug. A1's buffered Re-ID identity lock changes
+  exactly which frames/timespans get attributed to a track over a video's
+  timeline, which shifts the classifier's feature windows and rep counts
+  slightly from the pre-hardening baseline those historical numbers were
+  computed on. This fresh run is now the current, authoritative figure for
+  the present codebase; `report.json` (19KB, force-committed) is the
+  auditable artifact — the 1.4GB of downloaded source video and the 51MB of
+  per-video pipeline JSONs are disk-only, not committed, and are safe to
+  delete (freely re-downloadable from the public mirror if ever needed
+  again).
 - **B2.** Fix `README.md`: model weight files (`yolov8n.pt`,
   `yolov8n-pose.pt`, `pose_landmarker_*.task`) are claimed "already present
   in the project root" but are not in a fresh clone — add a download step.

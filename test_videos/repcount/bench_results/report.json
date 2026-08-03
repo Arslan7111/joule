@@ -1,0 +1,1218 @@
+[
+ {
+  "video_id": "train3344",
+  "class": "situp",
+  "gt": 14,
+  "pred": 1,
+  "pred_class": "press",
+  "err": -13
+ },
+ {
+  "video_id": "stu8_42",
+  "class": "push_up",
+  "gt": 6,
+  "pred": 5,
+  "pred_class": "pushup",
+  "err": -1
+ },
+ {
+  "video_id": "stu2_39",
+  "class": "pull_up",
+  "gt": 6,
+  "pred": 6,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "train151",
+  "class": "bench_pressing",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "no_person",
+  "err": -3
+ },
+ {
+  "video_id": "train1615",
+  "class": "jump_jack",
+  "gt": 10,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -10
+ },
+ {
+  "video_id": "train2737",
+  "class": "push_up",
+  "gt": 3,
+  "pred": 1,
+  "pred_class": "pushup",
+  "err": -2
+ },
+ {
+  "video_id": "stu3_53",
+  "class": "situp",
+  "gt": 11,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -11
+ },
+ {
+  "video_id": "stu5_23",
+  "class": "jump_jack",
+  "gt": 52,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -52
+ },
+ {
+  "video_id": "val1244",
+  "class": "squat",
+  "gt": 1,
+  "pred": 1,
+  "pred_class": "squat",
+  "err": 0
+ },
+ {
+  "video_id": "train143",
+  "class": "bench_pressing",
+  "gt": 0,
+  "pred": 4,
+  "pred_class": "pullup",
+  "err": 4
+ },
+ {
+  "video_id": "stu9_57",
+  "class": "situp",
+  "gt": 43,
+  "pred": 3,
+  "pred_class": "press",
+  "err": -40
+ },
+ {
+  "video_id": "val1257",
+  "class": "squat",
+  "gt": 2,
+  "pred": 4,
+  "pred_class": "squat",
+  "err": 2
+ },
+ {
+  "video_id": "stu4_5",
+  "class": "bench_pressing",
+  "gt": 51,
+  "pred": 7,
+  "pred_class": "pushup",
+  "err": -44
+ },
+ {
+  "video_id": "stu10_17",
+  "class": "front_raise",
+  "gt": 11,
+  "pred": 10,
+  "pred_class": "press",
+  "err": -1
+ },
+ {
+  "video_id": "stu4_27",
+  "class": "jump_jack",
+  "gt": 56,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -56
+ },
+ {
+  "video_id": "test135",
+  "class": "bench_pressing",
+  "gt": 4,
+  "pred": 0,
+  "pred_class": "no_person",
+  "err": -4
+ },
+ {
+  "video_id": "stu7_4",
+  "class": "bench_pressing",
+  "gt": 8,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -8
+ },
+ {
+  "video_id": "stu7_45",
+  "class": "push_up",
+  "gt": 3,
+  "pred": 6,
+  "pred_class": "press",
+  "err": 3
+ },
+ {
+  "video_id": "stu9_64",
+  "class": "squat",
+  "gt": 14,
+  "pred": 14,
+  "pred_class": "squat",
+  "err": 0
+ },
+ {
+  "video_id": "stu9_52",
+  "class": "push_up",
+  "gt": 57,
+  "pred": 0,
+  "pred_class": "pushup",
+  "err": -57
+ },
+ {
+  "video_id": "stu1_27",
+  "class": "jump_jack",
+  "gt": 7,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -7
+ },
+ {
+  "video_id": "stu10_24",
+  "class": "front_raise",
+  "gt": 14,
+  "pred": 15,
+  "pred_class": "raise",
+  "err": 1
+ },
+ {
+  "video_id": "stu10_25",
+  "class": "jump_jack",
+  "gt": 7,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -7
+ },
+ {
+  "video_id": "stu9_48",
+  "class": "push_up",
+  "gt": 27,
+  "pred": 32,
+  "pred_class": "pushup",
+  "err": 5
+ },
+ {
+  "video_id": "stu10_48",
+  "class": "push_up",
+  "gt": 5,
+  "pred": 5,
+  "pred_class": "pushup",
+  "err": 0
+ },
+ {
+  "video_id": "train2508",
+  "class": "pull_up",
+  "gt": 4,
+  "pred": 3,
+  "pred_class": "pullup",
+  "err": -1
+ },
+ {
+  "video_id": "stu10_36",
+  "class": "pull_up",
+  "gt": 29,
+  "pred": 10,
+  "pred_class": "pullup",
+  "err": -19
+ },
+ {
+  "video_id": "stu6_63",
+  "class": "squat",
+  "gt": 17,
+  "pred": 16,
+  "pred_class": "squat",
+  "err": -1
+ },
+ {
+  "video_id": "stu4_69",
+  "class": "squat",
+  "gt": 2,
+  "pred": 2,
+  "pred_class": "squat",
+  "err": 0
+ },
+ {
+  "video_id": "stu3_31",
+  "class": "jump_jack",
+  "gt": 92,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -92
+ },
+ {
+  "video_id": "stu10_5",
+  "class": "bench_pressing",
+  "gt": 16,
+  "pred": 17,
+  "pred_class": "pushup",
+  "err": 1
+ },
+ {
+  "video_id": "stu5_47",
+  "class": "push_up",
+  "gt": 30,
+  "pred": 26,
+  "pred_class": "pushup",
+  "err": -4
+ },
+ {
+  "video_id": "stu6_15",
+  "class": "jump_jack",
+  "gt": 12,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -12
+ },
+ {
+  "video_id": "stu8_70",
+  "class": "squat",
+  "gt": 4,
+  "pred": 21,
+  "pred_class": "pullup",
+  "err": 17
+ },
+ {
+  "video_id": "stu8_38",
+  "class": "pull_up",
+  "gt": 16,
+  "pred": 16,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu4_64",
+  "class": "squat",
+  "gt": 14,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": -9
+ },
+ {
+  "video_id": "stu5_62",
+  "class": "squat",
+  "gt": 32,
+  "pred": 3,
+  "pred_class": "squat",
+  "err": -29
+ },
+ {
+  "video_id": "stu10_1",
+  "class": "bench_pressing",
+  "gt": 2,
+  "pred": 0,
+  "pred_class": "pullup",
+  "err": -2
+ },
+ {
+  "video_id": "stu7_35",
+  "class": "pull_up",
+  "gt": 22,
+  "pred": 3,
+  "pred_class": "pullup",
+  "err": -19
+ },
+ {
+  "video_id": "stu2_55",
+  "class": "situp",
+  "gt": 30,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -30
+ },
+ {
+  "video_id": "stu2_25",
+  "class": "jump_jack",
+  "gt": 58,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -58
+ },
+ {
+  "video_id": "stu6_30",
+  "class": "pull_up",
+  "gt": 2,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": 3
+ },
+ {
+  "video_id": "stu8_9",
+  "class": "bench_pressing",
+  "gt": 28,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -28
+ },
+ {
+  "video_id": "stu8_12",
+  "class": "bench_pressing",
+  "gt": 3,
+  "pred": 7,
+  "pred_class": "press",
+  "err": 4
+ },
+ {
+  "video_id": "test538",
+  "class": "front_raise",
+  "gt": 5,
+  "pred": 0,
+  "pred_class": "raise",
+  "err": -5
+ },
+ {
+  "video_id": "stu5_18",
+  "class": "jump_jack",
+  "gt": 34,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -34
+ },
+ {
+  "video_id": "stu5_27",
+  "class": "jump_jack",
+  "gt": 14,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -14
+ },
+ {
+  "video_id": "stu7_8",
+  "class": "bench_pressing",
+  "gt": 8,
+  "pred": 8,
+  "pred_class": "pushup",
+  "err": 0
+ },
+ {
+  "video_id": "stu9_36",
+  "class": "pull_up",
+  "gt": 11,
+  "pred": 4,
+  "pred_class": "pullup",
+  "err": -7
+ },
+ {
+  "video_id": "stu1_40",
+  "class": "pull_up",
+  "gt": 8,
+  "pred": 1,
+  "pred_class": "pullup",
+  "err": -7
+ },
+ {
+  "video_id": "test536",
+  "class": "front_raise",
+  "gt": 6,
+  "pred": 4,
+  "pred_class": "raise",
+  "err": -2
+ },
+ {
+  "video_id": "stu4_63",
+  "class": "squat",
+  "gt": 14,
+  "pred": 3,
+  "pred_class": "press",
+  "err": -11
+ },
+ {
+  "video_id": "stu4_46",
+  "class": "push_up",
+  "gt": 45,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -45
+ },
+ {
+  "video_id": "stu3_58",
+  "class": "situp",
+  "gt": 42,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -42
+ },
+ {
+  "video_id": "stu7_30",
+  "class": "jump_jack",
+  "gt": 15,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -15
+ },
+ {
+  "video_id": "stu8_10",
+  "class": "bench_pressing",
+  "gt": 11,
+  "pred": 10,
+  "pred_class": "pushup",
+  "err": -1
+ },
+ {
+  "video_id": "stu5_12",
+  "class": "front_raise",
+  "gt": 5,
+  "pred": 3,
+  "pred_class": "pushup",
+  "err": -2
+ },
+ {
+  "video_id": "stu9_17",
+  "class": "front_raise",
+  "gt": 15,
+  "pred": 22,
+  "pred_class": "pullup",
+  "err": 7
+ },
+ {
+  "video_id": "train1665",
+  "class": "jump_jack",
+  "gt": 3,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": 2
+ },
+ {
+  "video_id": "stu1_59",
+  "class": "situp",
+  "gt": 18,
+  "pred": 25,
+  "pred_class": "press",
+  "err": 7
+ },
+ {
+  "video_id": "test2025",
+  "class": "situp",
+  "gt": 5,
+  "pred": 2,
+  "pred_class": "pullup",
+  "err": -3
+ },
+ {
+  "video_id": "stu10_6",
+  "class": "bench_pressing",
+  "gt": 4,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -4
+ },
+ {
+  "video_id": "stu8_71",
+  "class": "squat",
+  "gt": 4,
+  "pred": 3,
+  "pred_class": "squat",
+  "err": -1
+ },
+ {
+  "video_id": "stu7_52",
+  "class": "situp",
+  "gt": 10,
+  "pred": 0,
+  "pred_class": "press",
+  "err": -10
+ },
+ {
+  "video_id": "stu4_19",
+  "class": "jump_jack",
+  "gt": 32,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -32
+ },
+ {
+  "video_id": "stu3_10",
+  "class": "front_raise",
+  "gt": 5,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "test2315",
+  "class": "squat",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -3
+ },
+ {
+  "video_id": "stu8_45",
+  "class": "push_up",
+  "gt": 11,
+  "pred": 3,
+  "pred_class": "pushup",
+  "err": -8
+ },
+ {
+  "video_id": "test2320",
+  "class": "squat",
+  "gt": 4,
+  "pred": 0,
+  "pred_class": "no_person",
+  "err": -4
+ },
+ {
+  "video_id": "stu4_29",
+  "class": "pull_up",
+  "gt": 5,
+  "pred": 13,
+  "pred_class": "pullup",
+  "err": 8
+ },
+ {
+  "video_id": "stu9_47",
+  "class": "push_up",
+  "gt": 2,
+  "pred": 3,
+  "pred_class": "pushup",
+  "err": 1
+ },
+ {
+  "video_id": "val579",
+  "class": "jump_jack",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -3
+ },
+ {
+  "video_id": "stu2_62",
+  "class": "situp",
+  "gt": 19,
+  "pred": 26,
+  "pred_class": "press",
+  "err": 7
+ },
+ {
+  "video_id": "stu6_68",
+  "class": "squat",
+  "gt": 6,
+  "pred": 6,
+  "pred_class": "squat",
+  "err": 0
+ },
+ {
+  "video_id": "stu2_34",
+  "class": "pull_up",
+  "gt": 17,
+  "pred": 14,
+  "pred_class": "pullup",
+  "err": -3
+ },
+ {
+  "video_id": "stu10_43",
+  "class": "push_up",
+  "gt": 17,
+  "pred": 16,
+  "pred_class": "pushup",
+  "err": -1
+ },
+ {
+  "video_id": "test2021",
+  "class": "situp",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "pushup",
+  "err": -3
+ },
+ {
+  "video_id": "stu3_28",
+  "class": "jump_jack",
+  "gt": 30,
+  "pred": 0,
+  "pred_class": "pullup",
+  "err": -30
+ },
+ {
+  "video_id": "stu9_71",
+  "class": "squat",
+  "gt": 1,
+  "pred": 1,
+  "pred_class": "squat",
+  "err": 0
+ },
+ {
+  "video_id": "stu2_5",
+  "class": "bench_pressing",
+  "gt": 3,
+  "pred": 2,
+  "pred_class": "pushup",
+  "err": -1
+ },
+ {
+  "video_id": "stu9_45",
+  "class": "pull_up",
+  "gt": 12,
+  "pred": 9,
+  "pred_class": "pullup",
+  "err": -3
+ },
+ {
+  "video_id": "stu4_12",
+  "class": "front_raise",
+  "gt": 4,
+  "pred": 2,
+  "pred_class": "pullup",
+  "err": -2
+ },
+ {
+  "video_id": "stu6_22",
+  "class": "jump_jack",
+  "gt": 64,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -64
+ },
+ {
+  "video_id": "stu7_17",
+  "class": "front_raise",
+  "gt": 5,
+  "pred": 4,
+  "pred_class": "raise",
+  "err": -1
+ },
+ {
+  "video_id": "stu3_5",
+  "class": "bench_pressing",
+  "gt": 33,
+  "pred": 2,
+  "pred_class": "pushup",
+  "err": -31
+ },
+ {
+  "video_id": "stu5_32",
+  "class": "pull_up",
+  "gt": 30,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -30
+ },
+ {
+  "video_id": "stu9_31",
+  "class": "jump_jack",
+  "gt": 7,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -7
+ },
+ {
+  "video_id": "stu6_42",
+  "class": "push_up",
+  "gt": 8,
+  "pred": 4,
+  "pred_class": "pushup",
+  "err": -4
+ },
+ {
+  "video_id": "stu7_13",
+  "class": "bench_pressing",
+  "gt": 11,
+  "pred": 17,
+  "pred_class": "pushup",
+  "err": 6
+ },
+ {
+  "video_id": "stu6_65",
+  "class": "squat",
+  "gt": 19,
+  "pred": 1,
+  "pred_class": "squat",
+  "err": -18
+ },
+ {
+  "video_id": "stu3_20",
+  "class": "jump_jack",
+  "gt": 17,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -17
+ },
+ {
+  "video_id": "stu5_68",
+  "class": "squat",
+  "gt": 20,
+  "pred": 11,
+  "pred_class": "squat",
+  "err": -9
+ },
+ {
+  "video_id": "stu8_28",
+  "class": "jump_jack",
+  "gt": 7,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -7
+ },
+ {
+  "video_id": "stu6_24",
+  "class": "jump_jack",
+  "gt": 26,
+  "pred": 0,
+  "pred_class": "pullup",
+  "err": -26
+ },
+ {
+  "video_id": "stu6_39",
+  "class": "push_up",
+  "gt": 29,
+  "pred": 13,
+  "pred_class": "pushup",
+  "err": -16
+ },
+ {
+  "video_id": "stu3_57",
+  "class": "situp",
+  "gt": 19,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -19
+ },
+ {
+  "video_id": "train2659",
+  "class": "push_up",
+  "gt": 4,
+  "pred": 0,
+  "pred_class": "unknown",
+  "err": -4
+ },
+ {
+  "video_id": "stu8_11",
+  "class": "bench_pressing",
+  "gt": 9,
+  "pred": 3,
+  "pred_class": "press",
+  "err": -6
+ },
+ {
+  "video_id": "stu3_25",
+  "class": "jump_jack",
+  "gt": 45,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -45
+ },
+ {
+  "video_id": "stu4_28",
+  "class": "others",
+  "gt": 10,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": -5
+ },
+ {
+  "video_id": "stu10_19",
+  "class": "front_raise",
+  "gt": 8,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -8
+ },
+ {
+  "video_id": "stu8_25",
+  "class": "jump_jack",
+  "gt": 32,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -32
+ },
+ {
+  "video_id": "stu3_39",
+  "class": "pull_up",
+  "gt": 14,
+  "pred": 11,
+  "pred_class": "raise",
+  "err": -3
+ },
+ {
+  "video_id": "train2534",
+  "class": "pull_up",
+  "gt": 2,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -2
+ },
+ {
+  "video_id": "stu1_30",
+  "class": "pull_up",
+  "gt": 2,
+  "pred": 2,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu2_65",
+  "class": "situp",
+  "gt": 8,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -8
+ },
+ {
+  "video_id": "train3335",
+  "class": "situp",
+  "gt": 1,
+  "pred": 0,
+  "pred_class": "raise",
+  "err": -1
+ },
+ {
+  "video_id": "stu1_60",
+  "class": "situp",
+  "gt": 12,
+  "pred": 11,
+  "pred_class": "pullup",
+  "err": -1
+ },
+ {
+  "video_id": "test534",
+  "class": "front_raise",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "pushup",
+  "err": -3
+ },
+ {
+  "video_id": "stu10_60",
+  "class": "situp",
+  "gt": 6,
+  "pred": 6,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu6_13",
+  "class": "front_raise",
+  "gt": 9,
+  "pred": 6,
+  "pred_class": "pullup",
+  "err": -3
+ },
+ {
+  "video_id": "stu6_23",
+  "class": "jump_jack",
+  "gt": 34,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -34
+ },
+ {
+  "video_id": "stu8_23",
+  "class": "front_raise",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -3
+ },
+ {
+  "video_id": "stu4_68",
+  "class": "squat",
+  "gt": 5,
+  "pred": 2,
+  "pred_class": "pullup",
+  "err": -3
+ },
+ {
+  "video_id": "stu9_34",
+  "class": "jump_jack",
+  "gt": 8,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -8
+ },
+ {
+  "video_id": "test1454",
+  "class": "pull_up",
+  "gt": 6,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": -1
+ },
+ {
+  "video_id": "stu3_55",
+  "class": "situp",
+  "gt": 6,
+  "pred": 16,
+  "pred_class": "pushup",
+  "err": 10
+ },
+ {
+  "video_id": "stu5_55",
+  "class": "situp",
+  "gt": 4,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -4
+ },
+ {
+  "video_id": "train3899",
+  "class": "squat",
+  "gt": 2,
+  "pred": 1,
+  "pred_class": "squat",
+  "err": -1
+ },
+ {
+  "video_id": "stu6_3",
+  "class": "bench_pressing",
+  "gt": 13,
+  "pred": 13,
+  "pred_class": "press",
+  "err": 0
+ },
+ {
+  "video_id": "test539",
+  "class": "front_raise",
+  "gt": 2,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": 3
+ },
+ {
+  "video_id": "stu2_14",
+  "class": "front_raise",
+  "gt": 7,
+  "pred": 7,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu2_36",
+  "class": "pull_up",
+  "gt": 5,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu8_58",
+  "class": "situp",
+  "gt": 3,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -3
+ },
+ {
+  "video_id": "stu8_49",
+  "class": "situp",
+  "gt": 9,
+  "pred": 5,
+  "pred_class": "pushup",
+  "err": -4
+ },
+ {
+  "video_id": "stu9_29",
+  "class": "jump_jack",
+  "gt": 43,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -43
+ },
+ {
+  "video_id": "stu2_37",
+  "class": "pull_up",
+  "gt": 17,
+  "pred": 17,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu7_10",
+  "class": "bench_pressing",
+  "gt": 8,
+  "pred": 2,
+  "pred_class": "press",
+  "err": -6
+ },
+ {
+  "video_id": "stu3_15",
+  "class": "front_raise",
+  "gt": 4,
+  "pred": 4,
+  "pred_class": "pullup",
+  "err": 0
+ },
+ {
+  "video_id": "stu3_18",
+  "class": "front_raise",
+  "gt": 16,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -16
+ },
+ {
+  "video_id": "stu5_16",
+  "class": "front_raise",
+  "gt": 10,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -10
+ },
+ {
+  "video_id": "stu8_34",
+  "class": "jump_jack",
+  "gt": 5,
+  "pred": 1,
+  "pred_class": "squat",
+  "err": -4
+ },
+ {
+  "video_id": "stu8_57",
+  "class": "situp",
+  "gt": 7,
+  "pred": 5,
+  "pred_class": "pullup",
+  "err": -2
+ },
+ {
+  "video_id": "stu8_46",
+  "class": "push_up",
+  "gt": 19,
+  "pred": 19,
+  "pred_class": "pushup",
+  "err": 0
+ },
+ {
+  "video_id": "stu4_47",
+  "class": "push_up",
+  "gt": 37,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -37
+ },
+ {
+  "video_id": "stu2_6",
+  "class": "bench_pressing",
+  "gt": 4,
+  "pred": 9,
+  "pred_class": "pullup",
+  "err": 5
+ },
+ {
+  "video_id": "stu1_36",
+  "class": "pull_up",
+  "gt": 9,
+  "pred": 13,
+  "pred_class": "pullup",
+  "err": 4
+ },
+ {
+  "video_id": "stu13_30",
+  "class": "pommelhorse",
+  "gt": 29,
+  "pred": 13,
+  "pred_class": "pullup",
+  "err": -16
+ },
+ {
+  "video_id": "stu13_31",
+  "class": "pommelhorse",
+  "gt": 41,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -41
+ },
+ {
+  "video_id": "stu13_32",
+  "class": "pommelhorse",
+  "gt": 10,
+  "pred": 2,
+  "pred_class": "pushup",
+  "err": -8
+ },
+ {
+  "video_id": "stu13_33",
+  "class": "pommelhorse",
+  "gt": 33,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -33
+ },
+ {
+  "video_id": "stu13_34",
+  "class": "pommelhorse",
+  "gt": 13,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -13
+ },
+ {
+  "video_id": "stu13_35",
+  "class": "pommelhorse",
+  "gt": 33,
+  "pred": 7,
+  "pred_class": "raise",
+  "err": -26
+ },
+ {
+  "video_id": "stu13_36",
+  "class": "pommelhorse",
+  "gt": 31,
+  "pred": 0,
+  "pred_class": "unknown",
+  "err": -31
+ },
+ {
+  "video_id": "stu13_37",
+  "class": "pommelhorse",
+  "gt": 37,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -37
+ },
+ {
+  "video_id": "stu13_38",
+  "class": "pommelhorse",
+  "gt": 34,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -34
+ },
+ {
+  "video_id": "stu13_39",
+  "class": "pommelhorse",
+  "gt": 32,
+  "pred": 9,
+  "pred_class": "press",
+  "err": -23
+ },
+ {
+  "video_id": "stu12_30",
+  "class": "pommelhorse",
+  "gt": 25,
+  "pred": 0,
+  "pred_class": "cardio",
+  "err": -25
+ },
+ {
+  "video_id": "stu12_31",
+  "class": "pommelhorse",
+  "gt": 32,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -32
+ },
+ {
+  "video_id": "stu12_32",
+  "class": "pommelhorse",
+  "gt": 35,
+  "pred": 0,
+  "pred_class": "unknown",
+  "err": -35
+ },
+ {
+  "video_id": "stu12_33",
+  "class": "pommelhorse",
+  "gt": 27,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -27
+ },
+ {
+  "video_id": "stu12_34",
+  "class": "pommelhorse",
+  "gt": 26,
+  "pred": 0,
+  "pred_class": "situp",
+  "err": -26
+ }
+]

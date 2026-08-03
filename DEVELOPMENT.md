@@ -176,6 +176,7 @@ videos deleted after each run (laptop disk policy).
 | RepCount Part-A, squat/pull-up test videos (37, zero training) | MAE 0.452, 43.2% OBO — on par with TransRAC (CVPR'22, trained: MAE 0.443, OBO 29.1%) |
 | RepCount Part-A, full 152-video test set, heuristic classifier | MAE 0.687, OBO 22.4% |
 | RepCount Part-A, full 152-video test set, trained classifier (Phase 9) | every gym-core class improved — squat 50→55.6% OBO, front raise 38.9→50%, pull-up 36.8→42.1%, push-up 25→43.8% OBO |
+| RepCount Part-A, full 152-video test set, re-run post-Phase-A (2026-08-04) | ALL MAE 0.742/OBO 22.4%; gym-core squat 44.4%, front_raise 33.3%, pull_up 36.8%, push_up 31.2% OBO — differs from the row above because A1's Re-ID identity-lock buffering (see ROADMAP.md Phase A) shifts exactly which frames a track's classifier window sees; not a regression, see ROADMAP.md Phase B1 |
 
 Test assets: Pexels stock clips in `test_videos/`, CMU Panoptic sample
 (5 synchronized HD views + calibration + mocap GT) in `test_videos/panoptic/`.
