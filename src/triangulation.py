@@ -166,6 +166,68 @@ def compute_all_angles_3d(
     return angles
 
 
+# ── Cross-view association sanity check ──────────────────────────────────
+#
+# Cross-view person association (src/fusion.py) is decided purely by
+# appearance embedding via the Re-ID gallery — nothing geometric. Two
+# similarly-dressed people at different cameras can match to the same
+# person_id and get "triangulated" into one confident-looking but bogus 3D
+# skeleton. A genuine single person triangulates cleanly on nearly every
+# jointly-visible joint; two different people's keypoints generally do not,
+# EXCEPT that with exactly 2 cameras the epipolar constraint is only 1
+# degree of freedom per point (a wrong match just has to land near the
+# epipolar line, not at an exact point), so triangulate_skeleton's own
+# lenient max_reproj_px (25px, tuned to tolerate real pose-estimation
+# noise) is measurably too loose to catch this reliably — confirmed on a
+# synthetic two-different-people case that still passed 11/17 joints at
+# 25px. This runs its own independent, much tighter reprojection check
+# rather than reusing the lenient triangulation's output.
+
+CONSISTENCY_MAX_REPROJ_PX = 6.0    # tight — real matches should clear this
+                                    # comfortably; only tested on synthetic
+                                    # (noise-free) data so far, see ROADMAP.md
+CONSISTENCY_MIN_ATTEMPTED = 4      # need this many jointly-visible joints to judge
+CONSISTENCY_MIN_SUCCESS_FRAC = 0.5 # this fraction must triangulate cleanly
+
+
+def cross_view_consistent(
+    cameras: list[CalibratedCamera],
+    keypoints_2d: list[np.ndarray],
+    conf_thresh: float = TRIANGULATION_CONF,
+    max_reproj_px: float = CONSISTENCY_MAX_REPROJ_PX,
+    min_attempted: int = CONSISTENCY_MIN_ATTEMPTED,
+    min_success_frac: float = CONSISTENCY_MIN_SUCCESS_FRAC,
+) -> bool:
+    """
+    Independent, tight-tolerance triangulation check across the 2D inputs
+    that would be fused for one person_id. Returns False when too few
+    jointly-visible joints triangulate cleanly at max_reproj_px — evidence
+    the views likely show two different people, not viewpoint noise on a
+    single one. Returns True (benefit of the doubt) when too few joints are
+    jointly visible to judge either way, e.g. heavy occlusion in one view.
+    """
+    attempted = 0
+    succeeded = 0
+    n_joints = keypoints_2d[0].shape[0]
+    for j in range(n_joints):
+        views = [
+            (cam, kps[j, :2]) for cam, kps in zip(cameras, keypoints_2d)
+            if kps[j, 2] >= conf_thresh
+        ]
+        if len(views) < 2:
+            continue
+        attempted += 1
+        cams_j = [v[0] for v in views]
+        pts_j = [v[1] for v in views]
+        X = _triangulate_dlt(cams_j, pts_j)
+        if max(_reproj_errors(cams_j, pts_j, X)) <= max_reproj_px:
+            succeeded += 1
+
+    if attempted < min_attempted:
+        return True
+    return (succeeded / attempted) >= min_success_frac
+
+
 # ── Frontal-plane injury signals (only measurable in 3D) ────────────────────
 
 def knee_valgus_angle(

@@ -72,12 +72,39 @@ assets, and directly protects the value of the first real capture session.
   person is correctly excluded from candidacy yet remains listed in
   `gallery.people()`. Regression-checked against the same real test clip
   used for A1 — identical correct result (4 fragmented tracks → 1 person).
-- **A3. Epipolar check in fusion.** `src/fusion.py` currently associates
-  views by appearance similarity alone despite calibration already being
-  loaded. Add an epipolar consistency check so two similarly-dressed people
-  at adjacent stations can't silently merge into one 3D skeleton. Test
-  against the existing Panoptic sequence (multi-person frames if available,
-  otherwise a synthetic two-skeleton merge test).
+- **A3. Epipolar check in fusion.** ✅ Implemented and unit-validated
+  (2026-08-03), ⚠️ not yet run on real multi-camera footage.
+  `src/fusion.py` associated cross-view identity purely by appearance
+  embedding via the Re-ID gallery — no geometric check at all, despite
+  calibration already being loaded, so two similarly-dressed people at
+  adjacent stations could merge into one confident-looking but bogus 3D
+  skeleton. Added `cross_view_consistent()` in `src/triangulation.py`:
+  before accepting a person's multi-view triangulation, it independently
+  re-checks reprojection error per jointly-visible joint at a tight 6px
+  tolerance (`CONSISTENCY_MAX_REPROJ_PX`); if too few joints clear it, the
+  frame falls back to single-view 2D for that person rather than emitting a
+  bogus 3D skeleton, with a warning logged. Wired into `src/fusion.py`'s
+  per-person triangulation block.
+  **Notable finding while building this**: `triangulate_skeleton`'s own
+  existing lenient tolerance (25px, tuned for real pose-estimation noise)
+  is measurably too loose to catch this — a synthetic two-different-people
+  case still passed 11/17 joints at 25px, because with exactly 2 cameras
+  the epipolar constraint is only 1 degree of freedom per point (a wrong
+  match just has to land near the epipolar line, not at an exact point).
+  The tight independent 6px check correctly separates the same case
+  (0/17 by 4px) while a genuine match with ~1.5px synthetic jitter still
+  passes cleanly (17/17). Validated with 4 unit tests: genuine single
+  person (pass), fabricated cross-view mismatch (correctly rejected),
+  heavy occlusion / too few jointly-visible joints (benefit of the doubt,
+  pass), and realistic keypoint jitter (still passes).
+  **Still open**: the 6px threshold is only validated on noise-free/
+  lightly-jittered synthetic data — real camera calibration error, rolling
+  shutter, and real pose-estimation noise could push genuine matches
+  closer to that boundary than the synthetic test suggests. Needs a real
+  run against Panoptic or real multi-camera footage to confirm 6px isn't
+  too tight (false-rejecting real matches) or too loose (still missing
+  realistic adjacent-station mismatches) — same Panoptic-access blocker as
+  A1/A2's validation gap.
 - **A4. Depth/tempo stress tests on existing assets.** Two cheap synthetic
   tests before real footage exposes these for real: (a) retime a
   Panoptic/stock clip to ~5s/rep to check the 3-second adaptive window

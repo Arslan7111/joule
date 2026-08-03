@@ -54,6 +54,7 @@ from .session import SessionGallery
 from .triangulation import (
     CalibratedCamera,
     compute_all_angles_3d,
+    cross_view_consistent,
     knee_valgus_angle,
     triangulate_skeleton,
 )
@@ -249,13 +250,28 @@ class FusedCameraProcessor:
                         cams = [self.rig[vi]['cam'] for vi, _ in views]
                         kps_list = [k for _, k in views]
                         kps3d = triangulate_skeleton(cams, kps_list)
-                        angles = compute_all_angles_3d(kps3d, up=self.world_up)
-                        for side in ('left', 'right'):
-                            val = knee_valgus_angle(kps3d, side, up=self.world_up)
-                            if val is not None:
-                                pd['angles'].setdefault(f'{side}_knee_valgus', []).append(
-                                    (timestamp, val)
-                                )
+                        if cross_view_consistent(cams, kps_list):
+                            angles = compute_all_angles_3d(kps3d, up=self.world_up)
+                            for side in ('left', 'right'):
+                                val = knee_valgus_angle(kps3d, side, up=self.world_up)
+                                if val is not None:
+                                    pd['angles'].setdefault(f'{side}_knee_valgus', []).append(
+                                        (timestamp, val)
+                                    )
+                        else:
+                            # Triangulation failed on most jointly-visible joints —
+                            # the views likely show two different people the Re-ID
+                            # gallery mismatched to the same person_id (appearance
+                            # match only, no geometric check). Don't emit a
+                            # confident-looking but bogus 3D skeleton: fall back to
+                            # the single best-visibility view for this frame.
+                            logger.warning(
+                                f"[{self.camera_id}] person {pid}: cross-view "
+                                f"triangulation inconsistent across {len(views)} views "
+                                "— likely a Re-ID cross-view mismatch; falling back to 2D"
+                            )
+                            best_view = max(views, key=lambda vk: float(np.mean(vk[1][:, 2])))
+                            angles = compute_all_angles(best_view[1])
                     else:
                         angles = compute_all_angles(views[0][1])   # 2D fallback
 
