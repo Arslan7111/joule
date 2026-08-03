@@ -274,17 +274,18 @@ mismatches over maximizing pass-rate.
 Low effort, currently makes every headline number in the docs unverifiable
 from a fresh clone.
 
-- **B1.** ⚠️ Blocked (checked 2026-08-03) — not a code/doc task, a missing-
-  artifact problem. Neither `bench_results/report.json` nor a Panoptic
-  validation JSON exists anywhere in this repo, its git history, or on this
-  Windows machine's disk. RepCount videos are deleted after each run per
-  the "laptop disk policy" noted in `DEVELOPMENT.md` Phase 9, and the JSONs
-  from the original Mac (`hurricane_env`) runs were never copied off that
-  machine or committed. Same category of blocker as the Panoptic
-  re-acquisition problem tracked under A1/A2/A3 above — needs either the
-  original Mac's output files (if still on disk there) or a fresh
-  RepCount/Panoptic run to regenerate them. Not attempted this session
-  rather than fabricate a plausible-looking artifact.
+- **B1.** Panoptic half ✅ done (2026-08-03, third session same day) — the
+  real CMU Panoptic dataset arrived and was used for Phase A's real
+  validation anyway (see A1/A3 above), producing a genuine, current
+  `validation_results/val.json` + `merged.json` (5-camera sequence, current
+  post-A1–A3-hardened code) — force-committed despite the blanket
+  `test_videos/` gitignore (small JSON/rig files only, no video/dataset
+  content). This is a better artifact than any pre-existing one would have
+  been, since it reflects this session's fixes, not stale pre-hardening
+  numbers. RepCount half ⚠️ still open — `momo321654/RepCountA-videos` is a
+  public HF mirror (no access blocker, unlike Panoptic), just needs an
+  explicit go-ahead to spend the download/compute time on this machine
+  before running `tools/benchmark_repcount.py` fresh.
 - **B2.** Fix `README.md`: model weight files (`yolov8n.pt`,
   `yolov8n-pose.pt`, `pose_landmarker_*.task`) are claimed "already present
   in the project root" but are not in a fresh clone — add a download step.
