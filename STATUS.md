@@ -35,7 +35,11 @@ single-view 2D fallback.
   ([TransRAC](https://arxiv.org/pdf/2204.01018)) using zero training on
   our side.
 - 3D triangulation validated against CMU Panoptic motion-capture ground
-  truth on a held-out sequence: ~6° mean joint-angle error.
+  truth: 3.7° mean joint-angle error on the original tuned 5-camera
+  sequence, 6.1° on a second, held-out, untuned sequence with a less
+  favorable 3-camera arc (see [README.md](README.md) and
+  [DEVELOPMENT.md](DEVELOPMENT.md) Phase 8 — both figures are correct,
+  different sequences, not a regression).
 - Exercise classifier trained on 280 labeled RepCount videos — every
   gym-core class (squat, front raise, pull-up, push-up) improved over the
   heuristic rules.

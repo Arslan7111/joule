@@ -3,3 +3,4 @@ ultralytics>=8.2.0
 mediapipe>=0.10.0
 numpy>=1.24.0
 lapx>=0.5.2
+torchvision>=0.16.0    # src/reid.py deep-feature embedding (MobileNetV3); falls back to color-histogram-only if absent

@@ -87,50 +87,6 @@ outlier-view rejection, true 3D joint angles, frontal-plane knee-valgus
 measure, checkerboard calibration tool. Validated against CMU Panoptic
 motion-capture ground truth.
 
-## Validation results
-
-| Test | Result |
-|---|---|
-| Rep counting, real arm exercise (incl. drop set) | 13/≈13 reps |
-| Rep counting, barbell squats (side view) | 6/6 reps |
-| Rep counting, pull-ups | 4/4 reps |
-| Treadmill false positives | 23 phantom reps → 0 |
-| Standing still, 60 s with pose jitter | 0 phantom reps |
-| Re-ID, 2 people crossing/occluding | 13 tracks → 2 identities, 0 mismatches |
-| Check-in flow (enroll → name → attribution) | End-to-end verified |
-| 3D angles vs motion capture (5 cams, 101 frames) | mean 3.7°, 100% joint coverage (single view: 5.0° with unmeasurable joints) |
-| 3D elbow angle vs single view | 10.5° error → 4.1° |
-| Synthetic elevated (2 m) camera, squat bottom | single view −11° bias; 3D < 1° |
-| Knee valgus (synthetic 6 cm collapse) | 19.6° vs 5.4° clean — clearly separable |
-
-Test assets: Pexels stock clips in `test_videos/`, CMU Panoptic sample
-(5 synchronized HD views + calibration + mocap GT) in `test_videos/panoptic/`.
-
-## Known limitations / honest notes
-
-- Single-view absolute angles carry perspective bias (~7–11° at elevated
-  mounts). Rep counting is immune (adaptive); depth *certification* is not —
-  that's what 3D clusters are for.
-- Knee valgus and other frontal-plane injury signals require ≥2 views.
-- Heuristic exercise labels are family-accurate but coarse (pull-ups read
-  as "press"); the trainable classifier should own fine labels once real
-  labeled footage exists.
-- Deep slow stretching can register as squat reps (kinematically similar).
-- Full body **including feet** must be in frame on every camera — confirmed
-  three separate times (own footage, stock footage, CMU dome cams).
-- Risk signals are training-load indicators, not medical claims.
-
-## Deployment guidance (current thinking)
-
-- 2D covers counts, tempo, identity, trends — most of a gym. 3D (3–4 cameras,
-  60–90° apart) only where joint-geometry claims matter: squat racks,
-  Olympic platforms.
-- One 2D camera covers ~3–4 adjacent machines.
-- Sussex University gym estimate: ~20 cameras full coverage; ~10-camera
-  2D-only MVP.
-- Jetson budget: roughly 2–4 cameras per Orin Nano at reduced frame rates;
-  detector/model/imgsz knobs in `src/config.py` trade accuracy for throughput.
-
 **Phase 7 — Live multi-camera fusion.** `--fuse rig.npz` mode
 (src/fusion.py): N synchronized sources processed as one station —
 independent detection per view, cross-view person association via the Re-ID
@@ -200,11 +156,67 @@ bench. Model: models/exercise_clf.npz (6 KB, force-added past the
 *.npz ignore). Training JSONs regenerable from the HF mirror; dataset
 videos deleted after each run (laptop disk policy).
 
+## Validation results
+
+| Test | Result |
+|---|---|
+| Rep counting, real arm exercise (incl. drop set) | 13/≈13 reps |
+| Rep counting, barbell squats (side view) | 6/6 reps |
+| Rep counting, pull-ups | 4/4 reps |
+| Treadmill false positives | 23 phantom reps → 0 |
+| Standing still, 60 s with pose jitter | 0 phantom reps |
+| Re-ID, 2 people crossing/occluding | 13 tracks → 2 identities, 0 mismatches |
+| Check-in flow (enroll → name → attribution) | End-to-end verified |
+| 3D angles vs motion capture (5 cams, 101 frames, tuned sequence) | mean 3.7°, 100% joint coverage (single view: 5.0° with unmeasurable joints) |
+| 3D angles vs motion capture (3 cams, 2036 frames, held-out/untuned sequence) | mean 6.1°, median 4.0° across 9 joints — less favorable camera arc, not a regression from the 3.7° figure above |
+| 3D elbow angle vs single view | 10.5° error → 4.1° |
+| Synthetic elevated (2 m) camera, squat bottom | single view −11° bias; 3D < 1° |
+| Knee valgus (synthetic 6 cm collapse) | 19.6° vs 5.4° clean — clearly separable |
+| Live 3-camera fusion vs mocap (Panoptic) | fused left-elbow mean 4.4°; trunk lean 1.6° median; valgus 3.5–4.8° median (no valgus, correct) |
+| RepCount Part-A, squat/pull-up test videos (37, zero training) | MAE 0.452, 43.2% OBO — on par with TransRAC (CVPR'22, trained: MAE 0.443, OBO 29.1%) |
+| RepCount Part-A, full 152-video test set, heuristic classifier | MAE 0.687, OBO 22.4% |
+| RepCount Part-A, full 152-video test set, trained classifier (Phase 9) | every gym-core class improved — squat 50→55.6% OBO, front raise 38.9→50%, pull-up 36.8→42.1%, push-up 25→43.8% OBO |
+
+Test assets: Pexels stock clips in `test_videos/`, CMU Panoptic sample
+(5 synchronized HD views + calibration + mocap GT) in `test_videos/panoptic/`.
+
+## Known limitations / honest notes
+
+- Single-view absolute angles carry perspective bias (~7–11° at elevated
+  mounts). Rep counting is immune (adaptive); depth *certification* is not —
+  that's what 3D clusters are for.
+- Knee valgus and other frontal-plane injury signals require ≥2 views.
+- Heuristic exercise labels are family-accurate but coarse (pull-ups read
+  as "press"); the trainable classifier should own fine labels once real
+  labeled footage exists.
+- Deep slow stretching can register as squat reps (kinematically similar).
+- Full body **including feet** must be in frame on every camera — confirmed
+  three separate times (own footage, stock footage, CMU dome cams).
+- Risk signals are training-load indicators, not medical claims.
+
+## Deployment guidance (current thinking)
+
+- 2D covers counts, tempo, identity, trends — most of a gym. 3D (3–4 cameras,
+  60–90° apart) only where joint-geometry claims matter: squat racks,
+  Olympic platforms.
+- One 2D camera covers ~3–4 adjacent machines.
+- Sussex University gym estimate: ~20 cameras full coverage; ~10-camera
+  2D-only MVP.
+- Jetson budget: roughly 2–4 cameras per Orin Nano at reduced frame rates;
+  detector/model/imgsz knobs in `src/config.py` trade accuracy for throughput.
+
 ## Roadmap
 
-1. Real gym footage validation (highest information value per hour)
-2. Camera layout plan from actual floor plan; on-site sight-line checks
-3. Trained exercise classifier from labeled footage
-4. Kiosk/QR check-in integration
-5. Timestamp-based sync for live RTSP multi-camera streams
-6. Jetson port and throughput tuning
+Superseded by the phased plan in [ROADMAP.md](ROADMAP.md) — kept here only
+as a short pointer since this list predates that revamp:
+
+1. ~~Trained exercise classifier from labeled footage~~ — done, Phase 9
+   above (RepCount train split).
+2. Real gym footage validation — see ROADMAP.md Phase D (blocked on
+   footage; Phase A hardening now done first, see ROADMAP.md Phase A).
+3. Camera layout plan from actual floor plan; on-site sight-line checks —
+   ROADMAP.md Phase C.
+4. Kiosk/QR check-in integration — ROADMAP.md Phase E.
+5. Timestamp-based sync for live RTSP multi-camera streams — ROADMAP.md
+   Phase E.
+6. Jetson port and throughput tuning — ROADMAP.md Phase E.

@@ -38,11 +38,15 @@ except Exception:
         "Install with: pip install mediapipe"
     )
 
-if not _MP_AVAILABLE:
-    try:
-        from ultralytics import YOLO as _YOLO  # noqa: F401
-        _YOLO_POSE_AVAILABLE = True
-    except Exception:
+# Checked unconditionally, not just when MediaPipe itself fails to import --
+# MediaPipe can import fine but still have no usable model (.task file
+# missing), in which case this is the only fallback and must already be
+# known available.
+try:
+    from ultralytics import YOLO as _YOLO  # noqa: F401
+    _YOLO_POSE_AVAILABLE = True
+except Exception:
+    if not _MP_AVAILABLE:
         logger.error("Neither MediaPipe nor ultralytics YOLOv8-Pose is available.")
 
 

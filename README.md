@@ -21,12 +21,27 @@ Detection → tracking → pose → angles → rep state machine, one thread per
 ## Setup
 
 ```bash
-conda activate hurricane_env          # Python 3.10 env with PyTorch
+python -m venv .venv && source .venv/bin/activate   # or conda / your own env manager
 pip install -r requirements.txt
 ```
 
-Model files expected in the project root (already present):
-`yolov8n.pt`, `yolov8n-pose.pt`, `pose_landmarker_lite.task`
+`yolov8n.pt` and `yolov8n-pose.pt` (detector, and the pose fallback) are
+**not** in the repo but auto-download into the project root on first run via
+ultralytics — no manual step needed.
+
+MediaPipe's pose model does **not** auto-download. Fetch at least the `lite`
+variant into the project root:
+
+```bash
+curl -L -o pose_landmarker_lite.task \
+  https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task
+```
+
+[src/pose.py](src/pose.py) prefers, in order, `pose_landmarker_full.task` >
+`pose_landmarker_heavy.task` > `pose_landmarker_lite.task` — same URL with
+`lite` swapped for `full`/`heavy`. `full` measurably improves angle coverage
+(100% elbow vs 96% lite, 90% heavy in testing) but `lite` alone is enough to
+run; delete the larger files to force `lite` on constrained hardware.
 
 ## Run
 
@@ -167,7 +182,10 @@ Validated against CMU Panoptic motion-capture ground truth (101 frames,
 error 3.7° with 100% joint coverage, vs 5.0° for a single view with entire
 joints unmeasurable. Elbows improved most (10.5° → 4.1°); synthetic tests
 with elevated 2 m cameras show single-view squat-depth error of ~11° at the
-bottom position collapsing to <1° in 3D.
+bottom position collapsing to <1° in 3D. (A second, held-out, untuned
+Panoptic sequence with a less favorable 3-camera arc scores 6.1° mean —
+see [DEVELOPMENT.md](DEVELOPMENT.md) Phase 8; both figures are correct,
+they're different sequences/camera counts, not a regression.)
 
 Calibrate a camera pair once with [tools/calibrate.py](tools/calibrate.py)
 (checkerboard, both cameras simultaneously). Test data: CMU Panoptic sample
@@ -230,17 +248,28 @@ src/
   config.py            All constants and thresholds
   detector.py          YOLOv8n + ByteTrack
   pose.py              MediaPipe (CPU delegate) / YOLOv8n-Pose fallback
+  smoothing.py         One Euro keypoint temporal smoothing
   angles.py            Joint angle + trunk lean math
   state_machine.py     Adaptive rep counting state machine
-  features.py          Motion features from angle series
+  features.py          Motion features from angle series (classifier input)
   exercise_classifier.py  Heuristic + trainable exercise classification
   form.py              Per-rep form quality scoring
+  signature.py         Reference-based form comparison (AIFit-style)
+  risk.py              Set-level injury-risk signals (fatigue, ROM, tempo)
+  reid.py              Appearance embeddings for person re-identification
+  session.py           Session Re-ID gallery shared across cameras
   camera.py            Per-camera processing loop
+  triangulation.py     Multi-view DLT triangulation → 3D joint angles
+  fusion.py            Live multi-camera fusion (N synced views → one station)
   visualiser.py        Skeleton, angle arcs, rep overlay
   output.py            JSON writers
   dashboard.py         Zero-dependency web dashboard
 tools/
-  train_classifier.py  Train exercise classifier from labelled runs
+  calibrate.py            Two-camera checkerboard calibration
+  train_classifier.py     Train exercise classifier from labelled runs
+  build_reference.py      Build an AIFit-style reference signature
+  benchmark_repcount.py   Score rep counting against RepCount Part-A
+  validate_panoptic.py    Validate 3D triangulation against CMU Panoptic mocap
 ```
 
 ## Notes
