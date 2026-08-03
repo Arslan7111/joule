@@ -1,0 +1,40 @@
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1784378028.283413 2787906 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-07-18T13:43:48.255902+01:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1784378028.340499 2787916 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-07-18T13:43:48.320075+01:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+[h264 @ 0x12f0b1f10] Invalid NAL unit size (230753 > 138496).
+[h264 @ 0x12f0b1f10] missing picture in access unit with size 138500
+[h264 @ 0x12f0c4740] Invalid NAL unit size (230753 > 138496).
+[h264 @ 0x12f0c4740] Error splitting the input into NAL units.
+E0000 00:00:1784378080.841508 2787894 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-07-18T13:42:48.099013+01:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1784378080.868008 2787906 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-07-18T13:43:48.255902+01:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1784378080.874371 2787916 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-07-18T13:43:48.320075+01:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+2026-07-18 13:34:40,936  INFO      src.fusion: [val] Done — 2048 frames, 1 person(s), 3 views fused
+2026-07-18 13:34:40,987  INFO      __main__: All results written to test_videos/panoptic_pose2/validation_results/
+rig -> test_videos/panoptic_pose2/rig_16_23_30.npz (3 cams)
+running fused pipeline...
+person person_1: 2036 frames, classified press
+GT frames: 35529 (141..37819)
+best GT frame offset: +0
+
+=== 3D angle error vs mocap (16/23/30) ===
+joint                n    mean  median     p95   cover
+left_elbow        1644     6.8     4.8    18.2    89%
+left_hip          1856     7.7     4.8    27.4   100%
+left_knee         1846     6.1     4.5    19.7    99%
+left_shoulder     1801     4.4     3.0    12.2    97%
+right_elbow        739     7.6     5.9    19.2    39%
+right_hip         1707     7.6     4.8    24.1    92%
+right_knee        1682     6.6     3.9    20.5    90%
+right_shoulder    1155     5.5     4.2    18.2    62%
+trunk_lean        1857     3.4     2.4     9.9   100%
+ALL              14287     6.1     4.0    19.3
