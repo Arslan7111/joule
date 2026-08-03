@@ -150,6 +150,14 @@ REID_MATCH_THRESHOLD = 0.75    # cosine similarity to accept an identity match
 REID_EMA_ALPHA = 0.10          # gallery embedding update rate
 REID_SAMPLE_INTERVAL_SECONDS = 1.0   # extract an embedding this often per track
 
+# A track's identity is committed once, from an average of several early
+# embedding samples rather than the very first one — a single occluded or
+# blurry birth crop must not lock the wrong person for an entire set.
+# Whichever comes first: this many samples, or this many seconds since the
+# first sample.
+REID_LOCK_MIN_SAMPLES = 3
+REID_LOCK_WINDOW_SECONDS = 3.0
+
 # Hard-example collection (--collect-hard): save crops where pose estimation
 # failed or was low-confidence, for later labelling / fine-tuning.
 HARD_EXAMPLE_CONF = 0.35           # mean keypoint visibility below this = hard

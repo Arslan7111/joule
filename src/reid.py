@@ -17,6 +17,8 @@ import logging
 import cv2
 import numpy as np
 
+from .config import REID_LOCK_MIN_SAMPLES, REID_LOCK_WINDOW_SECONDS
+
 logger = logging.getLogger(__name__)
 
 _DEEP_WEIGHT = 0.6      # deep features vs color histogram in the embedding
@@ -98,3 +100,43 @@ class EmbeddingExtractor:
 
 def cosine(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(a, b))       # embeddings are already unit-norm
+
+
+class ProvisionalIdentity:
+    """
+    Buffers a track's early embedding samples instead of matching the first
+    one straight against the gallery.  A single occluded or blurry birth
+    crop would otherwise lock the wrong person for the track's whole
+    lifetime (rep counting, form, everything is keyed off person_id).
+
+    Call add() per sample; it returns None while still buffering, and the
+    averaged, re-normalised embedding once ready — call gallery.identify()
+    on that return value exactly once, then discard this instance.
+    """
+
+    def __init__(
+        self,
+        min_samples: int = REID_LOCK_MIN_SAMPLES,
+        window_seconds: float = REID_LOCK_WINDOW_SECONDS,
+    ) -> None:
+        self._min_samples = min_samples
+        self._window_seconds = window_seconds
+        self._embeddings: list[np.ndarray] = []
+        self._first_t: float | None = None
+
+    def add(self, embedding: np.ndarray, timestamp: float) -> np.ndarray | None:
+        self._embeddings.append(embedding)
+        if self._first_t is None:
+            self._first_t = timestamp
+        elapsed = timestamp - self._first_t
+
+        ready = (
+            len(self._embeddings) >= self._min_samples
+            or elapsed >= self._window_seconds
+        )
+        if not ready:
+            return None
+
+        avg = np.mean(self._embeddings, axis=0)
+        n = np.linalg.norm(avg)
+        return (avg / n if n > 0 else avg).astype(np.float32)

@@ -208,12 +208,14 @@ class FusedCameraProcessor:
                             if emb is not None:
                                 cam_tag = f"{self.camera_id}/v{vi}"
                                 if td['person_id'] is None:
-                                    pid, sim = self.gallery.identify(emb, cam_tag)
-                                    td['person_id'] = pid
-                                    logger.info(
-                                        f"[{self.camera_id}] view {vi} track {track_id}"
-                                        f" → {self.gallery.label(pid)} (sim {sim:.2f})"
-                                    )
+                                    avg = td['_provisional'].add(emb, timestamp)
+                                    if avg is not None:
+                                        pid, sim = self.gallery.identify(avg, cam_tag)
+                                        td['person_id'] = pid
+                                        logger.info(
+                                            f"[{self.camera_id}] view {vi} track {track_id}"
+                                            f" → {self.gallery.label(pid)} (sim {sim:.2f})"
+                                        )
                                 else:
                                     self.gallery.update(td['person_id'], emb, cam_tag)
                                 td['_next_emb_t'] = timestamp + REID_SAMPLE_INTERVAL_SECONDS

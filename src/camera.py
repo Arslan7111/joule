@@ -30,7 +30,7 @@ from .exercise_classifier import ExerciseClassifier
 from .form import score_rep
 from .output import write_camera_json
 from .pose import PoseEstimator
-from .reid import EmbeddingExtractor
+from .reid import EmbeddingExtractor, ProvisionalIdentity
 from .smoothing import KeypointOneEuro
 from .state_machine import StateMachine
 from .visualiser import draw_frame
@@ -53,6 +53,7 @@ def _init_track() -> dict:
         'kp_filter': KeypointOneEuro(),  # temporal smoothing per track
         'person_id': None,               # session identity from the gallery
         '_next_emb_t': 0.0,
+        '_provisional': ProvisionalIdentity(),  # buffers early samples before locking person_id
         '_last_hard_t': -1e9,
     }
 
@@ -167,12 +168,14 @@ class CameraProcessor:
                 emb = embedder.extract(frame, bbox)
                 if emb is not None:
                     if td['person_id'] is None:
-                        pid, sim = self.gallery.identify(emb, self.camera_id)
-                        td['person_id'] = pid
-                        logger.info(
-                            f"[{self.camera_id}] track {track_id} → "
-                            f"{self.gallery.label(pid)} (sim {sim:.2f})"
-                        )
+                        avg = td['_provisional'].add(emb, timestamp)
+                        if avg is not None:
+                            pid, sim = self.gallery.identify(avg, self.camera_id)
+                            td['person_id'] = pid
+                            logger.info(
+                                f"[{self.camera_id}] track {track_id} → "
+                                f"{self.gallery.label(pid)} (sim {sim:.2f})"
+                            )
                     else:
                         self.gallery.update(td['person_id'], emb, self.camera_id)
                     td['_next_emb_t'] = timestamp + REID_SAMPLE_INTERVAL_SECONDS

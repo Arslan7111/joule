@@ -31,11 +31,19 @@ waiting on filming logistics.
 Highest priority. Cheap, testable now against existing Panoptic/stock/RepCount
 assets, and directly protects the value of the first real capture session.
 
-- **A1. Re-ID identity locking.** `src/session.py` / `src/reid.py` currently
-  bind a person's identity from a single embedding at track birth and never
-  revisit it — one bad occluded crop misattributes an entire set. Re-evaluate
-  identity over the first few seconds of a track (majority vote / running
-  average) instead of locking at frame one.
+- **A1. Re-ID identity locking.** ✅ Implemented, ⚠️ not yet run/validated.
+  `src/session.py` / `src/reid.py` used to bind a person's identity from a
+  single embedding at track birth and never revisit it — one bad occluded
+  crop misattributed an entire set. Fixed via `ProvisionalIdentity`
+  (`src/reid.py`): buffers `REID_LOCK_MIN_SAMPLES` (3) embedding samples or
+  `REID_LOCK_WINDOW_SECONDS` (3.0s), whichever comes first, averages and
+  re-normalises them, and matches the gallery once on that average — applied
+  identically in `src/camera.py` (`resolve_person`) and `src/fusion.py`
+  (both previously called `gallery.identify()` on the very first sample).
+  **Not yet validated**: this machine has no Python env or `test_videos/`
+  assets (deleted per disk policy, per HANDOVER.md) — needs the
+  before/after Panoptic run from `hurricane_env` on the dev Mac before this
+  item can be marked done against its exit criteria.
 - **A2. Re-ID match confidence.** Replace the flat 0.75 threshold with a
   margin test (best match vs. second-best) so an ambiguous match enrolls a
   new anonymous person instead of guessing; add gallery time-decay so stale
