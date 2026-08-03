@@ -91,7 +91,7 @@ def main() -> None:
     result_json = out_dir / 'val.json'
     if not args.skip_run or not result_json.exists():
         out_dir.mkdir(exist_ok=True)
-        sources = [str(d / f'cam_{c}.mp4') for c in args.cams]
+        sources = [str(d / f'cam_{c:02d}.mp4') for c in args.cams]
         cmd = [sys.executable, str(PROJECT_ROOT / 'pipeline.py'),
                '--sources', *sources, '--fuse', str(rig),
                '--names', 'val', '--exercises', 'auto',

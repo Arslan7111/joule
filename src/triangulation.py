@@ -183,28 +183,68 @@ def compute_all_angles_3d(
 # 25px. This runs its own independent, much tighter reprojection check
 # rather than reusing the lenient triangulation's output.
 
-CONSISTENCY_MAX_REPROJ_PX = 6.0    # tight — real matches should clear this
-                                    # comfortably; only tested on synthetic
-                                    # (noise-free) data so far, see ROADMAP.md
+# Per-joint tolerance scales with how many views jointly see that joint.
+# The naive all-views DLT this check deliberately uses (no outlier-view
+# dropping — see below) has reprojection error that grows with view count
+# even for a GENUINE match, because it's the max error across every
+# contributing view and more views means more chances one has a few pixels
+# of ordinary pose-estimation noise. Real CMU Panoptic data (2026-08-03,
+# 5-camera sequence, real MediaPipe pose noise, real calibration) measured
+# per-joint max-reproj-error p95 by view count: 2v=6.7px, 3v=15.4px,
+# 4v=45.0px, 5v=78.3px. A flat threshold across all of that (the original
+# 6px, or any single wider number) either false-rejects real high-view-count
+# frames or fails to catch a genuine 2-camera mismatch (only 1 epipolar DOF
+# there — a known, pre-existing weak point, see the module docstring above).
+#
+# Thresholds below balance that per real data, favoring catching mismatches
+# over maximizing pass-rate where the two pull against each other:
+#   2v: 9px    — noise p95 6.7px; the 2-camera case has an inherent, accepted
+#                blind spot (a synthetic axis-aligned mismatch can measure as
+#                low as 0.6px) that no threshold closes — unchanged from the
+#                original design's intent, not newly introduced.
+#   3v: 20px   — noise p95 15.4px; adversarial-mismatch floor 30.1px, clean margin.
+#   4v: 30px   — noise p95 45.0px (so some genuine 4-view frames will still
+#                fall back to 2D); set at the adversarial-mismatch floor
+#                (33.5px) rather than above it, because at 4 views a specific
+#                unlucky camera/direction alignment can measure as low as
+#                33.5px — *below* real noise's own p95 — so no single number
+#                is both safe against real noise and airtight against that
+#                mismatch. Chose to favor catching the mismatch, matching
+#                this project's stated conservative-matching philosophy
+#                (src/session.py: "mis-attribution is the worst failure
+#                mode"). Realistic (non-adversarial) random-direction
+#                mismatches still measure ~108px+ at the 5th percentile, so
+#                this is a narrow, deliberately-accepted edge case, not a
+#                general weakness at 4 views.
+#   5v: 90px   — noise p95 78.3px; adversarial-mismatch floor 106px, clean margin.
+CONSISTENCY_MAX_REPROJ_PX_BY_VIEWS = {2: 9.0, 3: 20.0, 4: 30.0, 5: 90.0}
 CONSISTENCY_MIN_ATTEMPTED = 4      # need this many jointly-visible joints to judge
 CONSISTENCY_MIN_SUCCESS_FRAC = 0.5 # this fraction must triangulate cleanly
+
+
+def _threshold_for_n_views(n: int) -> float:
+    """View-count-scaled tolerance; see CONSISTENCY_MAX_REPROJ_PX_BY_VIEWS."""
+    n = max(2, min(n, 5))
+    return CONSISTENCY_MAX_REPROJ_PX_BY_VIEWS[n]
 
 
 def cross_view_consistent(
     cameras: list[CalibratedCamera],
     keypoints_2d: list[np.ndarray],
     conf_thresh: float = TRIANGULATION_CONF,
-    max_reproj_px: float = CONSISTENCY_MAX_REPROJ_PX,
+    max_reproj_px: float | None = None,
     min_attempted: int = CONSISTENCY_MIN_ATTEMPTED,
     min_success_frac: float = CONSISTENCY_MIN_SUCCESS_FRAC,
 ) -> bool:
     """
     Independent, tight-tolerance triangulation check across the 2D inputs
     that would be fused for one person_id. Returns False when too few
-    jointly-visible joints triangulate cleanly at max_reproj_px — evidence
-    the views likely show two different people, not viewpoint noise on a
-    single one. Returns True (benefit of the doubt) when too few joints are
-    jointly visible to judge either way, e.g. heavy occlusion in one view.
+    jointly-visible joints triangulate cleanly (view-count-scaled tolerance,
+    see CONSISTENCY_MAX_REPROJ_PX_BY_VIEWS; pass max_reproj_px to override
+    with one flat value instead, e.g. for testing) — evidence the views
+    likely show two different people, not viewpoint noise on a single one.
+    Returns True (benefit of the doubt) when too few joints are jointly
+    visible to judge either way, e.g. heavy occlusion in one view.
     """
     attempted = 0
     succeeded = 0
@@ -220,7 +260,8 @@ def cross_view_consistent(
         cams_j = [v[0] for v in views]
         pts_j = [v[1] for v in views]
         X = _triangulate_dlt(cams_j, pts_j)
-        if max(_reproj_errors(cams_j, pts_j, X)) <= max_reproj_px:
+        thresh = max_reproj_px if max_reproj_px is not None else _threshold_for_n_views(len(views))
+        if max(_reproj_errors(cams_j, pts_j, X)) <= thresh:
             succeeded += 1
 
     if attempted < min_attempted:

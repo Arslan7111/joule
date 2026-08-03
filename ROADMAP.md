@@ -49,12 +49,27 @@ assets, and directly protects the value of the first real capture session.
   a public-domain person-detection test clip — ByteTrack fragmented the
   subject into 4 tracks, all 4 correctly consolidated into one `person_1`
   via the new buffered-match path (one re-match logged at `sim 0.79`).
-  **Still open**: the formal before/after Panoptic triangulation-accuracy
-  comparison from `hurricane_env` has not been run (Panoptic re-acquisition
-  is a separate, heavier multi-GB pull via the CMU panoptic-toolbox — no
-  download URL/script is actually preserved in this repo despite
-  HANDOVER.md implying one is documented; flagged as a `DEVELOPMENT.md` gap
-  worth fixing under Phase B).
+  **Real-data validation (2026-08-03, same day, second session)**: real CMU
+  Panoptic 5-camera footage (`test_videos/panoptic/`, pushed and verified —
+  see below) was run through a git worktree at the pre-A1 commit (`35af8b7`)
+  for a true before/after. The **baseline (pre-A1) code actually
+  fragmented this real capture's single subject into 2 person identities** —
+  camera 8's view scored only 0.73 cosine similarity on its single first
+  embedding sample, just under the 0.75 match threshold, so it silently
+  enrolled as a phantom `person_2`, invisibly reducing "5-view fusion" to 4
+  views. This was a real, previously-undetected bug in this project's own
+  reference validation clip, not a hypothetical. **Current (post-A1) code
+  correctly resolves all 5 views to one `person_1`** (sims 0.87–1.00) —
+  direct, on-camera-data confirmation the fix works, not just synthetic
+  validation.
+  **New finding from this same real run**: `REID_LOCK_WINDOW_SECONDS` (3.0s)
+  consumes most of this specific clip's very short duration (101 frames /
+  ~3.4s) before any identity resolves at all (identity locks in around
+  frame 60), leaving only 41/101 frames with any person-level output at all
+  — vs. the old code's immediate 101/101. Not a product bug (real sets last
+  far longer than 3s) but it does mean this particular 101-frame clip can no
+  longer cleanly isolate A1/A2's *accuracy* impact on its own; noted for
+  whoever next re-runs this validation.
 - **A2. Re-ID match confidence.** ✅ Implemented and validated (2026-08-03).
   `src/session.py`'s `identify()` used to accept any match clearing the flat
   0.75 threshold, even when a second candidate was nearly as close (more
@@ -97,14 +112,72 @@ assets, and directly protects the value of the first real capture session.
   person (pass), fabricated cross-view mismatch (correctly rejected),
   heavy occlusion / too few jointly-visible joints (benefit of the doubt,
   pass), and realistic keypoint jitter (still passes).
-  **Still open**: the 6px threshold is only validated on noise-free/
-  lightly-jittered synthetic data — real camera calibration error, rolling
-  shutter, and real pose-estimation noise could push genuine matches
-  closer to that boundary than the synthetic test suggests. Needs a real
-  run against Panoptic or real multi-camera footage to confirm 6px isn't
-  too tight (false-rejecting real matches) or too loose (still missing
-  realistic adjacent-station mismatches) — same Panoptic-access blocker as
-  A1/A2's validation gap.
+  **Real-data validation (2026-08-03, same day, second session), redesigned
+  from a flat 6px to a view-count-scaled threshold.** The flat 6px was
+  confirmed too tight on real data — running the real 5-camera Panoptic
+  sequence, **100% of frames with resolved identity (41/41) failed the 6px
+  check** and fell back to 2D, degrading the aggregate accuracy figure from
+  3.7° to 6.3° mean (an artifact of scoring degraded single-view 2D angles
+  against 3D-quality mocap ground truth, not a real triangulation
+  regression). Root cause, precisely diagnosed: the naive all-views DLT this
+  check deliberately uses (no outlier-view dropping) has reprojection error
+  that *inherently grows with camera count* even for a genuine match (one
+  view's few pixels of ordinary noise drags the shared least-squares fit) —
+  measured real per-joint max-error p95 by view count: 2v=6.7px, 3v=15.4px,
+  4v=45.0px, 5v=78.3px.
+  **Considered and rejected: outlier-view dropping** (mirroring
+  `triangulate_skeleton`'s own best-pair retry) as the fix instead of a
+  wider number — tested against a synthetic single-wrong-of-5-views
+  mismatch and it **passed cleanly in 100% of cases**: dropping the one bad
+  view leaves the other 4 looking perfectly consistent, silently defeating
+  the exact failure mode this check exists to catch. Not used.
+  **Fix shipped**: `CONSISTENCY_MAX_REPROJ_PX_BY_VIEWS` in
+  `src/triangulation.py` — a per-view-count lookup (2v: 9px, 3v: 20px, 4v:
+  30px, 5v: 90px) derived from the real noise data above plus a synthetic
+  mismatch-error sweep (adversarial worst-case *and* randomized-direction
+  trials, using the real 5-camera rig geometry, at realistic 40cm–2m
+  person-separation scale) to find, per view count, where real noise ends
+  and a real mismatch begins. Re-running the real Panoptic sequence with
+  this fix: **0/41 frames (down from 41/41) now fall back to 2D**; mean
+  error for those frames improved 6.3°→5.2° (remaining gap to the original
+  3.7° baseline is expected — it's now a different, smaller 41-frame subset
+  per A1's finding above, not a fusion defect). Re-verified the existing
+  synthetic A3 unit tests (genuine match, fabricated 2-camera mismatch,
+  occlusion, jitter) all still pass unchanged.
+  **Two known, accepted residual limits, both real and neither fully
+  closable by any threshold**: (1) **2 cameras** — inherent 1-DOF epipolar
+  ambiguity (already flagged when 6px was first chosen): a synthetic
+  axis-aligned mismatch can measure as low as 0.6px, indistinguishable from
+  noise. Not new, not worsened. (2) **4 cameras specifically** — a
+  narrow, unlucky camera/direction alignment can produce a mismatch
+  measuring *below* real noise's own p95 at that view count (33.5px
+  adversarial floor vs. 45.0px noise p95) — no single number is both safe
+  against real noise and airtight against that alignment. Chose to favor
+  catching the mismatch (30px, at the adversarial floor rather than above
+  it) over maximizing pass-rate, matching this project's stated
+  conservative-matching philosophy (`src/session.py`: "mis-attribution is
+  the worst failure mode"). Realistic (non-adversarial) 4-camera mismatches
+  still measure ~108px+ at the 5th percentile in random-direction trials —
+  this is a narrow, deliberately-accepted edge case, not a general weakness
+  at 4 cameras.
+
+  **The CMU Panoptic dataset itself, pushed and verified this session**:
+  `test_videos/panoptic/` (5-cam, 101-frame, the original tuned sequence)
+  and `test_videos/panoptic_pose2/` (3-cam, 2036-frame held-out sequence,
+  precomputed validation artifacts only — raw footage/GT intentionally
+  omitted to keep the push small, so it can't be independently re-run, only
+  inspected) arrived via a separate commit. Verified genuine before
+  trusting it: calibration.json's camera-panel structure (31 HD cams on
+  panel 0, VGA on panels 1–20, Kinects on panel 50) matches real Panoptic
+  calibration exactly; ground-truth `body3DScene_*.json` files have the
+  correct `joints19`/`univTime`/`hd_29_97` schema; the videos are real
+  playable 1920×1080 footage at 29.97fps with non-blank pixel content and
+  the exact documented frame count; and `panoptic_pose2/validation.log`
+  reproduces the already-published Phase 8 figures (6.1° mean, 4.0° median,
+  right-elbow 39% coverage) exactly, joint-by-joint. Also fixed a small,
+  unrelated pre-existing bug found while using it: `tools/validate_panoptic.py`
+  wasn't zero-padding camera IDs in video filenames (`cam_0.mp4` instead of
+  `cam_00.mp4`), breaking any camera ID under 10.
 - **A4. Depth/tempo stress tests.** ✅ Written finding (2026-08-03), no code
   change needed. No rep-bearing footage exists on this machine to retime
   (the only local clip, `person_test.mp4`, is a walking/bicycle test asset
@@ -183,9 +256,18 @@ assets, and directly protects the value of the first real capture session.
 Exit criteria: A1–A3 shipped with a before/after test on Panoptic showing
 the fix actually changes behaviour (not just a code diff); A4–A5 produce a
 short written finding even if the answer is "acceptable as-is." **Phase A
-exit criteria met for all of A1–A5** — real-footage validation of A1–A3's
-tuned thresholds remains open pending Panoptic/real-camera access (see
-below), which does not block moving to Phase B/C.
+is now fully closed, including the real-footage before/after** (2026-08-03,
+second session same day): real CMU Panoptic footage was obtained, verified
+genuine, and used to run an actual pre-A1-vs-current comparison — which
+caught and fixed a real bug in A1's target scenario (the exact fragmentation
+A1 was built to prevent, confirmed happening in this project's own reference
+clip) and a real design flaw in A3's threshold (confirmed too tight on real
+noise, redesigned to a view-count-scaled lookup, re-verified against both
+the real footage and the original synthetic mismatch tests). Two narrow,
+accepted residual limits remain (2-camera epipolar ambiguity, a specific
+4-camera adversarial alignment) — both documented above, neither closable
+by any threshold, and both consciously resolved in favor of catching
+mismatches over maximizing pass-rate.
 
 ## Phase B — Reproducibility & doc hygiene (no footage required, parallel with A)
 
