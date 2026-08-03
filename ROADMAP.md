@@ -31,7 +31,7 @@ waiting on filming logistics.
 Highest priority. Cheap, testable now against existing Panoptic/stock/RepCount
 assets, and directly protects the value of the first real capture session.
 
-- **A1. Re-ID identity locking.** ✅ Implemented, ⚠️ not yet run/validated.
+- **A1. Re-ID identity locking.** ✅ Implemented and validated (2026-08-03).
   `src/session.py` / `src/reid.py` used to bind a person's identity from a
   single embedding at track birth and never revisit it — one bad occluded
   crop misattributed an entire set. Fixed via `ProvisionalIdentity`
@@ -40,10 +40,21 @@ assets, and directly protects the value of the first real capture session.
   re-normalises them, and matches the gallery once on that average — applied
   identically in `src/camera.py` (`resolve_person`) and `src/fusion.py`
   (both previously called `gallery.identify()` on the very first sample).
-  **Not yet validated**: this machine has no Python env or `test_videos/`
-  assets (deleted per disk policy, per HANDOVER.md) — needs the
-  before/after Panoptic run from `hurricane_env` on the dev Mac before this
-  item can be marked done against its exit criteria.
+  Validated two ways: (1) targeted unit tests against the real
+  `ProvisionalIdentity`/`SessionGallery` classes showing a bad first crop
+  alone causes a spurious new-person enrollment under the old single-sample
+  behaviour, while the buffered average correctly matches the true person;
+  (2) a real end-to-end pipeline run (Windows env set up this session:
+  Python 3.11 venv, full dependency stack, MediaPipe pose model fetched) on
+  a public-domain person-detection test clip — ByteTrack fragmented the
+  subject into 4 tracks, all 4 correctly consolidated into one `person_1`
+  via the new buffered-match path (one re-match logged at `sim 0.79`).
+  **Still open**: the formal before/after Panoptic triangulation-accuracy
+  comparison from `hurricane_env` has not been run (Panoptic re-acquisition
+  is a separate, heavier multi-GB pull via the CMU panoptic-toolbox — no
+  download URL/script is actually preserved in this repo despite
+  HANDOVER.md implying one is documented; flagged as a `DEVELOPMENT.md` gap
+  worth fixing under Phase B).
 - **A2. Re-ID match confidence.** Replace the flat 0.75 threshold with a
   margin test (best match vs. second-best) so an ambiguous match enrolls a
   new anonymous person instead of guessing; add gallery time-decay so stale
