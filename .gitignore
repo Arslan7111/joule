@@ -11,8 +11,10 @@ models/*.npz
 
 # Video assets and outputs (large / regenerable)
 test_videos/
+Fit3D/
 results/
 results_validation/
+validation_results_fit3d/
 *.mp4
 
 # Calibration outputs (site-specific)

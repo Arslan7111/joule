@@ -43,6 +43,12 @@ single-view 2D fallback.
 - Exercise classifier trained on 280 labeled RepCount videos — every
   gym-core class (squat, front raise, pull-up, push-up) improved over the
   heuristic rules.
+- 3D triangulation also validated against Fit3D mocap ground truth — real
+  gym exercises (squat, deadlift, curls, rows, presses), not generic dome
+  poses. Standing/unencumbered exercises land in the same 5–7° range as
+  the Panoptic figures above; squat/pushup show real, larger error (up to
+  13.3° mean) on genuinely harder, more self-occluded poses. See
+  [ROADMAP.md](ROADMAP.md) Phase C3.
 
 **All of the above is committed and pushed** to
 [github.com/Arslan7111/joule](https://github.com/Arslan7111/joule) (private).
@@ -66,13 +72,12 @@ single-view 2D fallback.
    as classifier training data), plus a two-phone clap-synced squat set
    with a checkerboard calibration pass, for the first real-world 3D
    fusion run. Feet in frame on every camera.
-2. **Fit3D / M3GYM dataset access** — both need a form/account
-   ([fit3d.imar.ro](https://fit3d.imar.ro/),
-   [M3GYM request form](https://forms.gle/stJZgHaji7KNa5t7A)); approval
-   takes days. Fit3D would give mocap-grade 3D validation on actual gym
-   exercises; M3GYM would let us score Re-ID against ground-truth subject
-   IDs in a real multi-person gym. Both academic-license-only, fine for
-   validation, not for training a shipped model.
+2. **M3GYM dataset access** — needs a form
+   ([M3GYM request form](https://forms.gle/stJZgHaji7KNa5t7A), academic
+   email/affiliation/purpose); approval takes days. Would let us score
+   Re-ID against ground-truth subject IDs in a real multi-person gym.
+   Academic-license-only, fine for validation, not for training a shipped
+   model. (Fit3D obtained 2026-08-05 and already used — see Done above.)
 3. **Sussex gym floor plan** (if pursuing that deployment) — needed for
    the camera layout plan.
 
@@ -87,5 +92,3 @@ single-view 2D fallback.
 - Hip-driven rep counter (sit-ups, and would improve hinge movements).
 - Scale classifier training to the full 758-video RepCount train split
   (likely modest gains over the current 280-video subset).
-- Camera-placement guidance doc — the bench-press finding argues for side
-  views at bench/press stations specifically.

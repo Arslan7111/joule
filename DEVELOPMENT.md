@@ -133,7 +133,8 @@ cross-view scoring floods with perspective artifacts → references must
 be same-camera or 3D (documented). InfiniteRep is dead (Infinity AI
 defunct; the HF "rescue" holds segmentation masks only). Fit3D and M3GYM
 need registration (academic-only licenses — validation OK, shipped-model
-training not).
+training not). **Fit3D obtained 2026-08-05** (see `ROADMAP.md` Phase C3
+and the validation rows below); M3GYM still pending.
 
 **Phase 9 — Trained exercise classifier (RepCount train split).**
 280 stratified train-split videos (40 × 7 classes) processed through the
@@ -177,9 +178,14 @@ videos deleted after each run (laptop disk policy).
 | RepCount Part-A, full 152-video test set, heuristic classifier | MAE 0.687, OBO 22.4% |
 | RepCount Part-A, full 152-video test set, trained classifier (Phase 9) | every gym-core class improved — squat 50→55.6% OBO, front raise 38.9→50%, pull-up 36.8→42.1%, push-up 25→43.8% OBO |
 | RepCount Part-A, full 152-video test set, re-run post-Phase-A (2026-08-04) | ALL MAE 0.742/OBO 22.4%; gym-core squat 44.4%, front_raise 33.3%, pull_up 36.8%, push_up 31.2% OBO — differs from the row above because A1's Re-ID identity-lock buffering (see ROADMAP.md Phase A) shifts exactly which frames a track's classifier window sees; not a regression, see ROADMAP.md Phase B1 |
+| Fit3D 3D angles vs mocap, real gym exercises, standing/unencumbered (curls, overhead press, lateral raise; 4-cam fused, subject s03) | 4.9–6.9° mean, 2.8–5.3° median, ~100% per-joint coverage — same range as the Panoptic figures above, on real gym movements instead of generic dome poses |
+| Fit3D 3D angles vs mocap, squat/deadlift/barbell_row/pushup (harder poses, same subject/cams) | 8.8–13.3° mean, p95 up to 52.4° (pushup) — real, larger error on genuinely harder poses (more self-occlusion), not a data-availability failure; see ROADMAP.md Phase C3 |
+| Fit3D 3D angles vs mocap, all 7 exercises combined (30,270 joint-frame samples) | mean 9.1°, median 6.4°, p95 26.2° |
 
 Test assets: Pexels stock clips in `test_videos/`, CMU Panoptic sample
-(5 synchronized HD views + calibration + mocap GT) in `test_videos/panoptic/`.
+(5 synchronized HD views + calibration + mocap GT) in `test_videos/panoptic/`,
+Fit3D (8 subjects × 47 exercises × 4 cams + mocap GT, gitignored, ~44GB) in
+`Fit3D/` — see `tools/validate_fit3d.py` and `ROADMAP.md` Phase C3.
 
 ## Known limitations / honest notes
 

@@ -327,26 +327,110 @@ works end to end; no contradicting numbers appear without context.
 Everything that can be decided or built before a camera is ever pointed at
 a real gym.
 
-- **C1. Camera-placement doc.** Write this now, not after filming — it's a
-  prerequisite for good footage, not a follow-up. Cover: bench-press side-view
-  requirement (confirmed head-on counting is weak), feet-in-frame-on-every-camera
-  rule, mirror avoidance, 60–90° spacing for 3D stations, ~3–4 machines per 2D
-  camera.
+- **C1.** ✅ Done (2026-08-05). Written as `CAMERA_PLACEMENT.md` — every
+  rule traced to a specific validated finding in this codebase rather than
+  generic camera advice: feet-in-frame-on-every-camera (rule 1), bench/press
+  side-view requirement from the confirmed head-on-counting-is-weak finding
+  (rule 2), hard mirror-avoidance rule tied to A5's blind-spot analysis
+  (rule 3), 3+ cameras preferred over exactly 2 for fused stations (ties to
+  A3's accepted 2-camera epipolar-ambiguity residual limit) with 60–90°
+  spacing and ~2m elevation (rule 4), ~3–4 machines per 2D camera (rule 5),
+  physical separation between adjacent stations sized off A3's 40cm–2m
+  person-separation test scale to reduce Re-ID mismatch risk (rule 6),
+  calibration-rigidity warning for `tools/calibrate.py` rigs (rule 7), and a
+  flagged-not-hard lighting-consistency note tied to A5's dimmer-mirror
+  observation (rule 8).
 - **C2. Structured capture protocol.** A short checklist for the first real
   shoot: per exercise, one side view + one 45° view; feet in frame; a
   deliberate two-person-crossing clip (Re-ID stress test); a clip with a
   mirror in frame (Phase A5 stress test); a slow heavy-set clip (tempo
   stress test); a two-phone clap-synced squat set with checkerboard
   calibration for the first real 3D fusion run.
-- **C3. Submit Fit3D and M3GYM registration forms now.** Pure latency cost
-  (days to approve), zero blocker to submitting today. M3GYM in particular
-  is the only realistic path to scoring Re-ID against ground-truth subject
-  IDs before real gym footage exists.
+- **C3. Submit Fit3D and M3GYM registration forms now.** ✅ Fit3D half done
+  (2026-08-05) — not via the registration-form path this bullet originally
+  described, but the real dataset (8 train subjects × 47 exercises × 4
+  calibrated cameras, SMPLX-derived mocap-grade 3D ground truth) was
+  already present locally, provided directly rather than through
+  `fit3d.imar.ro`. Gitignored (`Fit3D/`, ~44GB, matches the `test_videos/`
+  pattern) so it can't land in a commit. M3GYM (Google Form, academic
+  email/affiliation/purpose required) is still outstanding — user is
+  submitting it independently.
+
+  **Built `tools/validate_fit3d.py`** to actually use the Fit3D data for
+  what it's uniquely good for: real gym exercises (squat, deadlift, curls,
+  rows, presses) with mocap-grade 3D ground truth, unlike CMU Panoptic's
+  generic dome poses. Two things about Fit3D's raw format aren't documented
+  inline and had to be reverse-engineered from the real data before
+  trusting any number out of the tool, both verified empirically rather
+  than assumed:
+  1. **Extrinsics convention.** `camera_parameters/<cam>/<exercise>.json`'s
+     `extrinsics.T` is the camera *center* in world coordinates, not the
+     standard `t` in `P = K[R|t]`. Projecting GT joints with the standard
+     `X_cam = R@X + t` formula landed every joint ~3000px off-frame;
+     `X_cam = R @ (X_world - T)` put them exactly on the real body in the
+     real video frame. `build_rig()` converts once (`t = -R @ T`) so
+     `src/triangulation.py` needed no changes.
+  2. **`joints3d_25` order and left/right.** Recovered by (a) bone-length
+     invariance — pairwise distances between anatomically connected joints
+     have ~0 coefficient-of-variation across thousands of real frames
+     spanning six exercises, which cleanly recovers the skeleton topology
+     (25 = 1 pelvis + 2×(hip, knee, ankle, foot, toe) + 4 spine/neck/head +
+     2×(shoulder, elbow, wrist, 2 hand points)) — then (b) projecting the
+     two symmetric chains onto a real frame where the subject's back is to
+     the camera (so image-left = anatomical left, no mirroring possible)
+     to fix which chain is left vs. right.
+
+  **Ran a real validation sweep**: subject s03, 7 exercises (squat,
+  deadlift, barbell_row, dumbbell_overhead_shoulder_press, pushup,
+  side_lateral_raise, dumbbell_biceps_curls), all 4 cameras fused, ~6,800
+  frames of real footage. **Standing/unencumbered upper-body exercises
+  validate cleanly and land in the same range as the Panoptic figures**
+  (curls 4.9° mean/2.8° median, press 6.9°/5.2°, lateral raise 6.5°/5.3° —
+  all ~100% per-joint coverage). **Squat and pushup show real, larger
+  error** (10.7° and 13.3° mean respectively, p95 up to 52° on pushup) —
+  a believable, expected result (harder poses, more self-occlusion), not a
+  broken pipeline. Combined across all 7: mean 9.1°, median 6.4°, p95
+  26.2° over 30,270 joint-frame samples.
+
+  **A validation-tool bug was found and fixed along the way, not a
+  pipeline bug** — worth recording since it nearly got reported as a real
+  finding. The first pass showed squat/pushup "coverage" collapsing to
+  ~50%, with a suspicious pattern: `left_shoulder`+`left_elbow` present
+  exactly when every other joint was absent, and vice versa. Investigated
+  properly rather than accepting the number at face value: (1) checked
+  whether `src/triangulation.py`'s A3 cross-view-consistency threshold was
+  false-positiving on Fit3D's different camera rig, tuned as it was on
+  Panoptic noise — ruled out, only 2% of squat frames trigger it; (2)
+  replayed the real detector+pose+triangulate_skeleton path frame-by-frame
+  on the actual video at the affected timestamps — ruled out, per-joint
+  3D confidence stayed continuously healthy throughout, no collapse; (3)
+  checked for Re-ID track-id restarts forcing A1's buffered-lock
+  re-acquisition window — ruled out, exactly one resolution event per
+  camera view for the whole clip, no restarts logged. The actual cause:
+  `src/output.py`'s `_downsample_series` (30fps output from Fit3D's native
+  50fps, `OUTPUT_FPS` in `src/config.py`) runs an independent sampling
+  clock **per joint**, keyed off that joint's own emitted timestamps. A
+  single ordinary transient 1-frame confidence dip in one joint (real,
+  expected, harmless on its own) permanently shifts that joint's output
+  timestamps out of frame-grid alignment with every other joint's — a real
+  effect, confirmed directly: `left_hip`'s and `left_elbow`'s output
+  timestamps started perfectly aligned, then diverged by exactly one
+  native frame after one such gap. The validation script joined all
+  joints through one shared per-frame bucket before scoring, which turned
+  that harmless per-joint phase drift into a manufactured "joints
+  alternate presence" artifact. Fixed by scoring each joint independently
+  against its own nearest GT frame instead of through a shared bucket;
+  rescoring from the *same* already-computed pipeline output changed
+  coverage from 50–56% to 92–100% for squat/pushup while leaving every
+  error number (mean/median/p95/n) unchanged, confirming the error figures
+  above were trustworthy the whole time — only the coverage metric had
+  been wrong.
 - **C4. Sussex gym floor plan** (if that deployment is still the target) —
   request it now so the camera layout plan isn't blocked later.
 
 Exit criteria: C1–C2 are documents ready to hand to whoever holds the
-camera; C3–C4 are submitted/requested, not necessarily approved yet.
+camera; C3–C4 are submitted/requested, not necessarily approved yet. C3's
+Fit3D half exceeds that bar — real validation results, not just access.
 
 ## Phase D — Real footage validation (blocked on footage)
 
