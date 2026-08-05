@@ -340,12 +340,19 @@ a real gym.
   calibration-rigidity warning for `tools/calibrate.py` rigs (rule 7), and a
   flagged-not-hard lighting-consistency note tied to A5's dimmer-mirror
   observation (rule 8).
-- **C2. Structured capture protocol.** A short checklist for the first real
-  shoot: per exercise, one side view + one 45° view; feet in frame; a
-  deliberate two-person-crossing clip (Re-ID stress test); a clip with a
-  mirror in frame (Phase A5 stress test); a slow heavy-set clip (tempo
-  stress test); a two-phone clap-synced squat set with checkerboard
-  calibration for the first real 3D fusion run.
+- **C2.** ✅ Done (2026-08-05). Written as `CAPTURE_PROTOCOL.md` — a
+  checklist, each item tied to a specific existing finding rather than
+  generic filming advice: side+45° view per exercise and feet-in-frame
+  (ties to `CAMERA_PLACEMENT.md`), a deliberate squat + floor-exercise
+  capture (Fit3D's C3 finding that these are the harder poses, now to be
+  checked on a real gym floor instead of a clean studio rig), two-person
+  crossing and a real mirror clip (A1/A2 and A5's stress tests — A5 in
+  particular has never been run against real footage, only reasoned
+  about), a slow heavy set and a deliberate occlusion (A4's synthetic
+  tempo/occlusion tests, now with real pose noise instead of an idealized
+  waveform), a treadmill regression check (the pre-Phase-A locomotion
+  filter validation), and the first real clap-synced multi-camera
+  calibration + fusion run on this project's own hardware.
 - **C3. Submit Fit3D and M3GYM registration forms now.** ✅ Fit3D half done
   (2026-08-05) — not via the registration-form path this bullet originally
   described, but the real dataset (8 train subjects × 47 exercises × 4
@@ -425,12 +432,12 @@ a real gym.
   error number (mean/median/p95/n) unchanged, confirming the error figures
   above were trustworthy the whole time — only the coverage metric had
   been wrong.
-- **C4. Sussex gym floor plan** (if that deployment is still the target) —
-  request it now so the camera layout plan isn't blocked later.
-
 Exit criteria: C1–C2 are documents ready to hand to whoever holds the
-camera; C3–C4 are submitted/requested, not necessarily approved yet. C3's
+camera; C3 is submitted/requested, not necessarily approved yet. C3's
 Fit3D half exceeds that bar — real validation results, not just access.
+
+(C4, Sussex gym floor plan, dropped 2026-08-05 — that deployment is no
+longer the target.)
 
 ## Phase D — Real footage validation (blocked on footage)
 

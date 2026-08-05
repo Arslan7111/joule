@@ -78,8 +78,6 @@ single-view 2D fallback.
    Re-ID against ground-truth subject IDs in a real multi-person gym.
    Academic-license-only, fine for validation, not for training a shipped
    model. (Fit3D obtained 2026-08-05 and already used — see Done above.)
-3. **Sussex gym floor plan** (if pursuing that deployment) — needed for
-   the camera layout plan.
 
 ### Ready whenever, no blockers
 4. Build a real trainer reference signature once any good-form footage
