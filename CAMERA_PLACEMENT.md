@@ -66,6 +66,16 @@ pipeline yet (backlogged, not built).
   sequence's worse number is attributed there to a less favorable arc, not
   camera count alone, which is the concrete evidence for spacing mattering
   more than raw camera count.
+  **Caveat from a second real rig (`ROADMAP.md` Phase C3, Fit3D Track C):**
+  Fit3D's own 4-camera studio rig is bimodal, not evenly spaced —
+  adjacent-camera gaps cluster at ~47° and ~132–133°, with **0 of 32
+  measured adjacent gaps falling inside this 60–90° band** — yet
+  full-scale triangulation on that same rig still landed at 10.1° mean
+  joint-angle error, in the same usable range as Panoptic's. Treat 60–90°
+  as a good default, not a hard cutoff below/above which accuracy is known
+  to collapse; both data points so far are controlled studio rigs, so a
+  real gym floor (Phase D) is still the test that actually settles how
+  tight this needs to be on site.
 - **Elevate cameras** — synthetic testing (`README.md`) used ~2m elevated
   mounts and found single-view squat-depth error collapses from ~11° at the
   bottom of the rep to <1° once fused in 3D; ground-level or low mounts

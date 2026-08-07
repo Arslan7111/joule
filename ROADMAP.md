@@ -432,9 +432,71 @@ a real gym.
   error number (mean/median/p95/n) unchanged, confirming the error figures
   above were trustworthy the whole time — only the coverage metric had
   been wrong.
+
+  **Full-scale batch validation (2026-08-06/07), all 8 subjects × 28 named
+  exercises — Tracks A/B/C from `FIT3D_UTILIZATION_PLAN.md`.** ✅ Done. The
+  1-subject/7-exercise pass above proved the tool was correct; this run
+  scales it to the full licensed dataset to turn that correctness check
+  into a statistically solid result and answer two further questions the
+  first pass couldn't. Built `tools/validate_fit3d_batch.py` (resumable
+  batch driver — skips clips whose output already exists, isolates
+  per-clip failures so one bad clip can't lose an overnight run, modest
+  parallelism across subjects), `tools/analyze_fit3d_domain_shift.py`
+  (Track B), and `tools/analyze_fit3d_rig_geometry.py` (Track C). Ran
+  overnight (~19:14–02:38, ~7h20m wall-clock with parallelism): **224/224
+  clips completed, zero failures, zero empty, zero missing.**
+
+  **Track A — full-scale 3D-triangulation accuracy.** Mean **10.1°** /
+  median **6.2°** across all 8 subjects × 28 exercises, ~1.16M
+  joint-frame samples — consistent with, and now far more statistically
+  solid than, the original 1-subject/7-exercise pass above (9.1°/6.4°).
+  Per-subject means are tight for 7 of 8 subjects (8.7°–10.2°); **s10 is
+  an outlier at 13.0° mean** despite a normal 5.8° median — a normal
+  median with an elevated mean points to a fatter error tail on a subset
+  of exercises/frames rather than uniformly worse tracking, consistent
+  with the already-known squat/pushup difficulty rather than a new
+  failure mode, but not yet root-caused to a specific exercise or cause
+  for s10 specifically. Worth a closer look before treating it as
+  understood.
+
+  **Track B — classifier domain-shift, confirmed at scale and worse than
+  the small sample suggested.** Accuracy on the 5 classes the trained
+  classifier can actually output: pushup 10/16 (62%), squat 2/8 (25%),
+  **press 0/24 (0%)**, **raise 0/32 (0%)**, **situp 0/8 (0%)**. Press and
+  raise clips are being called `pullup` 88% and 50% of the time
+  respectively, at real confidence (0.68, 0.51 avg) — confidently wrong,
+  not low-confidence hedging. This is not noise from the earlier
+  7-exercise/1-subject sample; it's a real, severe domain-shift problem at
+  full scale. One reassuring result: the 64 out-of-taxonomy negative-
+  control clips (burpees, man_maker, walk_the_box, etc.) scatter across
+  predicted classes with no dominant confident-wrong answer (pullup at
+  48%, next-most 30%, rest low single digits) — consistent with a
+  classifier that's honestly uncertain on movements it was never trained
+  for, rather than confidently hallucinating. Per the hard constraint
+  already established above: **diagnostic only** — Fit3D is
+  validation-license-only, so any fix has to come from RepCount (already
+  licensed) or real gym footage once available, never from fine-tuning on
+  this data.
+
+  **Track C — camera-rig geometry as a second real data point.** Fit3D's
+  4-camera rig is bimodal, not evenly spaced: adjacent-camera gaps
+  cluster at **~47° and ~132–133°**, identical in pattern across all 8
+  subjects (same physical rig every time; elevation ~1.54m and radius
+  ~4.39m equally consistent). **0 of 32 adjacent-camera gaps fall inside
+  `CAMERA_PLACEMENT.md`'s recommended 60–90° band.** Yet Track A's
+  triangulation accuracy on this same rig (10.1° mean) lands in the same
+  range as CMU Panoptic's dome rig. That's a second independent real data
+  point suggesting the 60–90° guidance may be tighter than strictly
+  necessary for usable accuracy — worth folding into `CAMERA_PLACEMENT.md`
+  as a caveat/data point alongside the Panoptic-derived rule, not as
+  grounds to relax it outright (Panoptic and Fit3D are both controlled
+  studio rigs; a real gym floor per Phase D is still the test that
+  matters most).
+
 Exit criteria: C1–C2 are documents ready to hand to whoever holds the
 camera; C3 is submitted/requested, not necessarily approved yet. C3's
-Fit3D half exceeds that bar — real validation results, not just access.
+Fit3D half exceeds that bar — real validation results, not just access,
+now at full dataset scale across all three planned tracks.
 
 (C4, Sussex gym floor plan, dropped 2026-08-05 — that deployment is no
 longer the target.)

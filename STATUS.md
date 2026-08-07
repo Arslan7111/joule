@@ -44,10 +44,13 @@ single-view 2D fallback.
   gym-core class (squat, front raise, pull-up, push-up) improved over the
   heuristic rules.
 - 3D triangulation also validated against Fit3D mocap ground truth — real
-  gym exercises (squat, deadlift, curls, rows, presses), not generic dome
-  poses. Standing/unencumbered exercises land in the same 5–7° range as
-  the Panoptic figures above; squat/pushup show real, larger error (up to
-  13.3° mean) on genuinely harder, more self-occluded poses. See
+  gym exercises, not generic dome poses. Full-scale run: all 8 licensed
+  subjects × all 28 named exercises (224 clips, ~1.16M joint-frame
+  samples) — mean 10.1°, median 6.2°, zero failed/empty/missing clips.
+  Standing/unencumbered exercises land in the same 5–7° range as the
+  Panoptic figures above; squat/pushup show real, larger error on
+  genuinely harder, more self-occluded poses; one subject (s10) is an
+  unexplained outlier at 13.0° mean despite a normal median. See
   [ROADMAP.md](ROADMAP.md) Phase C3.
 
 **All of the above is committed and pushed** to
@@ -63,6 +66,13 @@ single-view 2D fallback.
 - Sit-ups deliberately count zero — no hip-driven rep counter exists yet.
 - Full body **including feet** must stay in frame.
 - Risk signals are training-load indicators, not medical claims.
+- Exercise classifier shows severe domain-shift on non-RepCount footage:
+  a full-scale Fit3D check (224 clips) found 0% accuracy on press/raise/
+  situp, confidently wrong rather than just uncertain (e.g. press read as
+  "pullup" 88% of the time at 0.68 avg confidence). Diagnostic only — the
+  fix has to come from RepCount or real gym footage (Phase D), never from
+  fine-tuning on Fit3D (validation-license-only). See
+  [ROADMAP.md](ROADMAP.md) Phase C3.
 
 ## What's left
 
