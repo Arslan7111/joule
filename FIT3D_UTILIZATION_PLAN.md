@@ -112,8 +112,31 @@ or noise from a 7-exercise sample?
   shipped model is not**. This track is diagnostic only. If it surfaces
   a real, fixable domain-shift problem, the fix has to be executed via
   RepCount (already licensed for this) or real gym footage once
-  available — never by fine-tuning on Fit3D frames directly, no matter
-  how tempting the labeled data looks.
+  available — never by fine-tuning on Fit3D frames directly.
+
+  **2026-08-10 update — the initial 0% numbers were mostly measuring the
+  wrong thing, not the classifier.** See `ROADMAP.md` Phase C3's dated
+  addendum for the full writeup and `AIFit`/Fieraru et al. CVPR'21 (the
+  Fit3D paper) reading that prompted a closer look at what was actually
+  being compared. Two root causes, both fixed, no Fit3D data used for
+  training either fix:
+  1. The exercise→class mapping table above conflated different real
+     exercises under a shared English word (RepCount's `press` class is
+     bench press, lying/chest-driven; Fit3D's mapped `press` exercises are
+     standing overhead presses, shoulder-driven — a different movement the
+     classifier was never trained on). Corrected in
+     `tools/analyze_fit3d_domain_shift.py`; `press`, `raise`, and `situp`
+     are now out-of-scope negative controls, not scored classes.
+  2. A separate, real bug in `src/camera.py`/`src/fusion.py`: the classifier
+     re-runs every `CLASSIFY_INTERVAL_SECONDS` on a trailing
+     `CLASSIFY_WINDOW_SECONDS` window, and the *last* call before a track
+     ends was simply overwriting the class — a single noisy snapshot, not
+     an aggregate. Fixed with a confidence-weighted vote across every call
+     (`_record_classification`).
+  On the classes that were actually the same movement as training (squat,
+  pushup), accuracy went from the original 25%/62% to **100%/88%**. Fix 2
+  also validated as a net improvement on RepCount itself (the classifier's
+  own licensed domain) — see `ROADMAP.md` Phase C3 for the full breakdown.
 
 ## Track C — Camera-rig geometry as a second real data point
 

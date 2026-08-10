@@ -36,7 +36,7 @@ import cv2
 import numpy as np
 
 from .angles import compute_all_angles
-from .camera import _init_person, _init_track
+from .camera import _init_person, _init_track, _record_classification
 from .config import (
     CLASSIFY_INTERVAL_SECONDS,
     CLASSIFY_WINDOW_SECONDS,
@@ -297,9 +297,7 @@ class FusedCameraProcessor:
                             t_start=timestamp - CLASSIFY_WINDOW_SECONDS,
                             t_end=timestamp,
                         )
-                        if cls != 'unknown':
-                            pd['exercise_class'] = cls
-                            pd['exercise_conf'] = cconf
+                        _record_classification(pd, cls, cconf)
                         pd['_next_classify_t'] = timestamp + CLASSIFY_INTERVAL_SECONDS
 
                     totals = (pd['squat_sm'].rep_count, pd['upper_sm'].rep_count)

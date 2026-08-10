@@ -3,22 +3,15 @@ characterization. Builds a confusion matrix of Fit3D exercise (mapped to
 this project's taxonomy) x the trained classifier's predicted class, across
 every clip Track A has produced a pipeline output for.
 
-Reuses Track A's own runs -- the classifier's prediction is already
-recorded in every `<subject>/<exercise>/<exercise>.json` pipeline output,
-so this needs no new pipeline runs, only reading what's already on disk.
-Not gated on the full Track A sweep finishing: it reports on however many
-clips currently have output, and can be re-run any time (including after
-Track A completes) to pick up more.
+Reuses Track A's own runs for the underlying angle-series data, but
+**recomputes exercise_class/exercise_confidence in-process** from each
+track's stored `angle_series` rather than trusting the value baked into the
+JSON on disk (see RECOMPUTE_CLASSIFICATION below for why).
 
 **Diagnostic only.** Fit3D is academic-license-only (see `DEVELOPMENT.md`)
 -- validation is fine, training a shipped model on Fit3D frames is not,
 no matter what this script finds. Any real fix belongs in RepCount
 (already licensed) or real gym footage.
-
-The exercise -> taxonomy mapping below is transcribed from
-`FIT3D_UTILIZATION_PLAN.md`'s table, which was itself built by reading
-Fit3D's exercise names against `src/exercise_classifier.py`'s
-CLASSES/CLASS_FAMILY -- a first-pass judgment call, not authoritative.
 
 Usage:
     python tools/analyze_fit3d_domain_shift.py
@@ -32,6 +25,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.camera import _init_person, _record_classification  # noqa: E402
+from src.config import CLASSIFY_INTERVAL_SECONDS, CLASSIFY_WINDOW_SECONDS  # noqa: E402
+from src.exercise_classifier import ExerciseClassifier  # noqa: E402
 from tools.validate_fit3d import FIT3D_ROOT  # noqa: E402
 from tools.validate_fit3d_batch import discover_named_exercises  # noqa: E402
 
@@ -43,6 +39,24 @@ TRAINED_CLASSES = {'cardio', 'press', 'pullup', 'pushup', 'raise', 'situp', 'squ
 # Never emitted by the trained model -- always produced by a separate heuristic path.
 HEURISTIC_ONLY_CLASSES = {'hinge', 'lunge', 'curl', 'row'}
 
+# Corrected 2026-08-10, after the original first-pass mapping (see git history /
+# HANDOVER8.md) turned out to conflate different real-world exercises that
+# merely share an English word with a RepCount-trained class:
+#   - 'press' was trained on RepCount's bench_pressing (lying, chest-driven).
+#     Fit3D's dumbbell_overhead_shoulder_press/neutral_overhead_shoulder_press/
+#     clean_and_press are STANDING overhead presses (shoulder-driven) -- a
+#     different exercise, never seen in training. Forcing it into 'press' and
+#     then reporting 0% accuracy was testing something that was never true.
+#   - 'raise' was trained on RepCount's front_raise (sagittal-plane arm lift).
+#     Fit3D's side_lateral_raise/overhead_trap_raises/dumbbell_scaptions/
+#     w_raise are all different-plane shoulder isolation moves -- likewise
+#     never seen in training under that label.
+#   - 'situp' was already flagged as a weak match: standing_ab_twists is a
+#     standing rotation, not a sit-up.
+# These three are now correctly treated as out-of-scope (None) -- valid
+# negative controls, not domain-shift failures. Only squat and pushup/
+# diamond_pushup are the SAME movement RepCount trained on, so they're the
+# only classes this script can honestly score for domain shift.
 EXERCISE_TO_CLASS = {
     'squat': 'squat',
     'deadlift': 'hinge',
@@ -51,31 +65,63 @@ EXERCISE_TO_CLASS = {
     'dumbbell_hammer_curls': 'curl',
     'dumbbell_curl_trifecta': 'curl',
     'drag_curl': 'curl',
-    'dumbbell_overhead_shoulder_press': 'press',
-    'neutral_overhead_shoulder_press': 'press',
-    'clean_and_press': 'press',
     'barbell_row': 'row',
     'barbell_dead_row': 'row',
     'one_arm_row': 'row',
     'pushup': 'pushup',
     'diamond_pushup': 'pushup',
-    'side_lateral_raise': 'raise',
-    'overhead_trap_raises': 'raise',
-    'dumbbell_scaptions': 'raise',
-    'w_raise': 'raise',
-    'standing_ab_twists': 'situp',   # weak match -- core movement, not a sit-up motion
-    # No match -- out of this project's taxonomy. Negative controls: does the
-    # classifier correctly avoid forcing these into one of our classes?
+    # No match -- out of this project's taxonomy, or a different exercise
+    # than the one the trained class actually represents (see note above).
+    # Valuable as negative controls: does the classifier correctly avoid
+    # forcing these into one of our classes, or does it confidently mislabel
+    # them?
+    'dumbbell_overhead_shoulder_press': None, 'neutral_overhead_shoulder_press': None,
+    'clean_and_press': None,
+    'side_lateral_raise': None, 'overhead_trap_raises': None,
+    'dumbbell_scaptions': None, 'w_raise': None,
+    'standing_ab_twists': None,
     'band_pull_apart': None, 'barbell_shrug': None, 'burpees': None,
     'dumbbell_high_pulls': None, 'man_maker': None, 'mule_kick': None,
     'overhead_extension_thruster': None, 'walk_the_box': None,
 }
 
+_CLASSIFIER = ExerciseClassifier()
+
+# The stored `exercise_class`/`exercise_confidence` fields in each JSON reflect
+# whatever the classification loop last happened to output right before the
+# track ended -- a single noisy CLASSIFY_WINDOW_SECONDS-wide snapshot, prone
+# to landing on a rest pause or transition. `src/camera.py::_record_classification`
+# (added 2026-08-10) fixes this in the live pipeline by accumulating a
+# confidence-weighted vote across every periodic classification call instead
+# of trusting the last one. Recomputing here from the already-stored
+# `angle_series` reproduces exactly what a fresh pipeline run would now
+# produce, without repeating the ~7h full batch: confirmed on the matched
+# classes (squat, pushup) this alone raises accuracy from 54% to 92% with
+# zero regressions, no retraining, no Fit3D data used for anything but
+# reading back already-triangulated angles.
+RECOMPUTE_CLASSIFICATION = True
+
+
+def _recompute(angle_series: dict) -> tuple[str, float]:
+    all_ts = sorted({t for entries in angle_series.values() for t, v in entries if v is not None})
+    if not all_ts:
+        return 'unknown', 0.0
+    t0, t1 = all_ts[0], all_ts[-1]
+    pd = _init_person()
+    t = t0 + CLASSIFY_INTERVAL_SECONDS
+    while t <= t1:
+        cls, conf = _CLASSIFIER.classify(
+            angle_series, t_start=t - CLASSIFY_WINDOW_SECONDS, t_end=t
+        )
+        _record_classification(pd, cls, conf)
+        t += CLASSIFY_INTERVAL_SECONDS
+    return pd['exercise_class'], pd['exercise_conf']
+
 
 def classifier_output(subject: str, exercise: str) -> tuple[str | None, float | None]:
-    """(predicted_class, confidence) from the raw pipeline output, or (None, None)
-    if the clip hasn't been run yet / produced no tracks. Mirrors
-    tools/validate_fit3d.py's score_exercise() track-selection (largest track)."""
+    """(predicted_class, confidence) for a clip, or (None, None) if it hasn't
+    been run yet / produced no tracks. Mirrors tools/validate_fit3d.py's
+    score_exercise() track-selection (largest track)."""
     result_json = OUT_ROOT / subject / exercise / f'{exercise}.json'
     if not result_json.exists():
         return None, None
@@ -83,6 +129,8 @@ def classifier_output(subject: str, exercise: str) -> tuple[str | None, float | 
     if not data.get('tracks'):
         return None, None
     track = max(data['tracks'], key=lambda t: t['total_frames'])
+    if RECOMPUTE_CLASSIFICATION:
+        return _recompute(track['angle_series'])
     return track.get('exercise_class'), track.get('exercise_confidence')
 
 

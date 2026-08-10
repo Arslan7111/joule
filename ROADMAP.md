@@ -478,6 +478,85 @@ a real gym.
   licensed) or real gym footage once available, never from fine-tuning on
   this data.
 
+  **Track B correction (2026-08-10), after reading the Fit3D paper
+  (Fieraru et al., "AIFit," CVPR'21) and diagnosing the 0% numbers directly
+  against the classifier's own weights.** The paper doesn't classify
+  exercises at all — it assumes the exercise label is already known and
+  compares a trainee's per-repetition angular signature against an
+  instructor's — which prompted checking whether this project's own
+  exercise→class *mapping* (not just the classifier) was actually testing
+  a like-for-like comparison. It wasn't, and there was a second, unrelated
+  bug found at the same time. Root-caused both with real numbers, not
+  guesses:
+
+  1. **Taxonomy mismatch, not domain shift.** Inspecting the trained
+     model's weights directly on a misclassified press clip (`python`,
+     `np.load('models/exercise_clf.npz')`, per-feature logit contribution)
+     showed `trunk_lean_mean` was the single largest driver toward the
+     wrong answer (`pullup`). Tracing why: RepCount's `press` class is
+     **bench press** — lying down, chest-driven (`benchpressing` in the
+     annotations). Fit3D's exercises mapped to `press`
+     (`dumbbell_overhead_shoulder_press`, `neutral_overhead_shoulder_press`,
+     `clean_and_press`) are **standing overhead presses** — a different,
+     shoulder-driven exercise the classifier was never trained on under
+     that label. Same problem for `raise` (RepCount trained on
+     `front_raise`; Fit3D's mapped `side_lateral_raise` /
+     `overhead_trap_raises` / `dumbbell_scaptions` / `w_raise` are
+     different-plane shoulder isolation moves) and `situp` (already
+     flagged in `FIT3D_UTILIZATION_PLAN.md` as a weak match —
+     `standing_ab_twists` is a standing rotation, not a sit-up). These
+     three were reporting 0% because they were never a valid test of the
+     trained class, not because the model failed to generalize. Fixed in
+     `tools/analyze_fit3d_domain_shift.py`'s `EXERCISE_TO_CLASS`: these
+     exercises now map to `None` (out-of-scope negative controls) instead
+     of a mismatched class.
+  2. **A real bug, independent of Fit3D**: `pd['exercise_class']` in
+     `src/camera.py`/`src/fusion.py` was being *overwritten* by each
+     periodic classification call (every `CLASSIFY_INTERVAL_SECONDS` on a
+     trailing `CLASSIFY_WINDOW_SECONDS` window) rather than aggregated —
+     so the value written to a track's final JSON was whichever single
+     ~6s window happened to be last before the track ended, not a
+     representative sample of the whole set. Confirmed by simulating the
+     periodic-classification loop offline from stored `angle_series` data
+     (no pipeline re-run needed): classifying off the full track at once
+     already scored far better than the live "last window" value, and a
+     **confidence-weighted vote across every periodic call** (new
+     `src/camera.py::_record_classification`, used by both the
+     single-view and fused paths) closes nearly all of that gap while
+     staying usable live (it updates incrementally, unlike a
+     whole-track-only approach). This is a pipeline fix, not a Fit3D-data
+     fix — it changes nothing about the model or its training data.
+
+  **Result, recomputed from the already-stored Fit3D `angle_series` data
+  (no pipeline re-run — `RECOMPUTE_CLASSIFICATION` in
+  `tools/analyze_fit3d_domain_shift.py`) with both fixes applied.** On the
+  two exercises that are genuinely the same movement as training (squat,
+  pushup/diamond_pushup — the only ones left in scope after the mapping
+  fix): **squat 8/8 (100%), pushup 14/16 (88%), overall 22/24 (92%)** — up
+  from the original 25%/62%/44%. `press`/`raise`/`situp` are now correctly
+  out of scope rather than reported as failures.
+
+  **Fix 2 validated independently on RepCount** (the classifier's actual
+  licensed training/eval domain, using the 133 already-cached
+  `test_videos/repcount/bench_results/*.json` from the last full
+  benchmark — again no pipeline re-run): recomputing classification with
+  the vote-aggregation logic improves 6 of 7 classes and overall accuracy
+  58%→62% (77/133 → 83/133), with one mild regression (squat 71%→59%, 2
+  videos, both landing on a different but still-low-confidence class,
+  <0.4). Net positive and not Fit3D-specific — this is a general
+  classification-robustness fix that also helps the model's real,
+  licensed domain, not something tuned to Fit3D's quirks.
+
+  **Still open**: the out-of-taxonomy negative controls now skew `pullup`
+  52% of the time at 0.59 avg confidence (down from the original sample's
+  more even scatter but not equivalent to it) — below this script's 60%
+  "concentrated" threshold, but a real, mild bias worth watching, not a
+  clean bill of health. And `hinge`/`lunge`/`curl`/`row` remain structurally
+  unreachable: the trained model's `CLASSES` list doesn't include them at
+  all, so real footage of those exercises will always be forced into one
+  of the 7 trained classes regardless of any fix here — a known, accepted
+  gap (`DEVELOPMENT.md` Phase 9), not something this session touched.
+
   **Track C — camera-rig geometry as a second real data point.** Fit3D's
   4-camera rig is bimodal, not evenly spaced: adjacent-camera gaps
   cluster at **~47° and ~132–133°**, identical in pattern across all 8

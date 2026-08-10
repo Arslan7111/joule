@@ -66,13 +66,18 @@ single-view 2D fallback.
 - Sit-ups deliberately count zero — no hip-driven rep counter exists yet.
 - Full body **including feet** must stay in frame.
 - Risk signals are training-load indicators, not medical claims.
-- Exercise classifier shows severe domain-shift on non-RepCount footage:
-  a full-scale Fit3D check (224 clips) found 0% accuracy on press/raise/
-  situp, confidently wrong rather than just uncertain (e.g. press read as
-  "pullup" 88% of the time at 0.68 avg confidence). Diagnostic only — the
-  fix has to come from RepCount or real gym footage (Phase D), never from
-  fine-tuning on Fit3D (validation-license-only). See
-  [ROADMAP.md](ROADMAP.md) Phase C3.
+- Exercise classifier: the original full-scale Fit3D check (224 clips)
+  reported 0% accuracy on press/raise/situp — largely a mismapped-test
+  artifact (RepCount's `press` is bench press, not the standing overhead
+  press Fit3D was mapped to; same issue for `raise`/`situp`), not a real
+  domain-shift failure. Corrected mapping + a real classification-
+  aggregation bug fix (`src/camera.py::_record_classification`, was
+  keeping only the last ~6s snapshot instead of voting across a track)
+  brings the two genuinely-matched classes (squat, pushup) to 100%/88%,
+  and independently improves 6 of 7 classes on RepCount itself (58%→62%
+  overall). `hinge`/`lunge`/`curl`/`row` still can't be predicted by the
+  trained model at all (not in its class list) — a known, separate gap.
+  See [ROADMAP.md](ROADMAP.md) Phase C3.
 
 ## What's left
 
