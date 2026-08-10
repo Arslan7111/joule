@@ -75,8 +75,22 @@ single-view 2D fallback.
   keeping only the last ~6s snapshot instead of voting across a track)
   brings the two genuinely-matched classes (squat, pushup) to 100%/88%,
   and independently improves 6 of 7 classes on RepCount itself (58%→62%
-  overall). `hinge`/`lunge`/`curl`/`row` still can't be predicted by the
-  trained model at all (not in its class list) — a known, separate gap.
+  overall).
+- Follow-up: added a confidence gate on the *final* classification
+  (`FINAL_CONFIDENCE_GATE = 0.40`, withholds the answer as `'unknown'`
+  rather than guessing when unconfident) plus a confined heuristic
+  fallback for `hinge`/`lunge`/`curl`/`row` (still not in the trained
+  model's own class list, but the heuristic rules can now surface them
+  when the trained model is unconfident *and* the heuristic has a clear
+  majority). Real tradeoff, not a free win: RepCount overall accuracy
+  moves 62%→58% (20/133 tracks now honestly `'unknown'` instead of a
+  guess — mostly former wrong answers, a few low-confidence-correct
+  ones). `curl` recognition goes 0%→41% on Fit3D; `hinge`/`lunge` are
+  still essentially unrecognized (0%), just honestly so now instead of a
+  confident wrong guess. Fit3D's out-of-scope `pullup` bias drops
+  52%→43%. Actually recognizing hinge/lunge/row still needs a dataset
+  with those exact movements (RepCount doesn't have them) or real gym
+  footage.
   See [ROADMAP.md](ROADMAP.md) Phase C3.
 
 ## What's left

@@ -81,16 +81,45 @@ def _init_person() -> dict:
         'exercise_conf': 0.0,
         '_class_conf_sum': {},         # class -> summed confidence across votes
         '_class_conf_n': {},           # class -> vote count
+        '_heuristic_votes': {},        # heuristic-only class -> vote count (coverage-extension probe)
         '_next_classify_t': CLASSIFY_INTERVAL_SECONDS,
         '_last_rep_totals': (0, 0),    # (squat, upper) — detect new reps for live form
         'last_form': None,             # form dict of the most recent rep
     }
 
 
-def _record_classification(pd: dict, cls: str, conf: float) -> None:
+# Below this AGGREGATE confidence (the winning class's average confidence
+# across every vote cast so far, not any single window), the final class
+# stays 'unknown' rather than committing. Deliberately gates only the
+# published answer, not individual votes -- every window still contributes
+# to the aggregate, preserving the denoising _record_classification already
+# does. Calibrated 2026-08-10 on RepCount's own licensed eval set (never
+# Fit3D): swept 0.0-0.8, this range (0.30-0.45) converts several wrong
+# final answers to honest 'unknown' at a small cost in correct-but-cautious
+# ones (0.40: 18 wrong tracks caught for 6 correct ones withheld, out of
+# 133) -- and 'unknown' isn't a broken state downstream, src/form.py falls
+# back to a deliberately generous generic trunk-lean tolerance rather than
+# a wrong exercise-specific one. Also holds Fit3D's matched-class accuracy
+# exactly flat (92%, zero cost) while cutting the out-of-scope negative
+# controls' pullup bias from 52% to 43%. Per-window gating at the same
+# confidence levels was tried first and made things worse either place
+# (see the note in src/exercise_classifier.py) -- this is a different,
+# safer mechanism, not the same idea at a different threshold.
+FINAL_CONFIDENCE_GATE = 0.40
+
+# A heuristic-only vote (see ExerciseClassifier.heuristic_fallback_class)
+# only overrides an unconfident trained-model result if it has this many
+# votes AND a strict majority among heuristic-only votes cast so far --
+# a couple of stray heuristic hits shouldn't relabel a whole track.
+MIN_HEURISTIC_VOTES = 3
+
+
+def _record_classification(
+    pd: dict, cls: str, conf: float, heuristic_hint: str | None = None,
+) -> None:
     """Accumulate one periodic classification call into a running,
-    confidence-weighted vote and update pd['exercise_class']/'exercise_conf'
-    to the current leader.
+    confidence-weighted vote, then update pd['exercise_class']/'exercise_conf'
+    from the full vote history so far (not just this call).
 
     A single trailing CLASSIFY_WINDOW_SECONDS window is a noisy sample of
     the whole set (e.g. a rest pause or transition right before the track
@@ -101,15 +130,42 @@ def _record_classification(pd: dict, cls: str, conf: float) -> None:
     zero regressions, purely by changing which already-computed vote wins,
     no retraining involved.
     """
-    if cls == 'unknown':
-        return
+    if cls != 'unknown':
+        conf_sum = pd['_class_conf_sum']
+        conf_n = pd['_class_conf_n']
+        conf_sum[cls] = conf_sum.get(cls, 0.0) + conf
+        conf_n[cls] = conf_n.get(cls, 0) + 1
+    if heuristic_hint is not None:
+        hvotes = pd['_heuristic_votes']
+        hvotes[heuristic_hint] = hvotes.get(heuristic_hint, 0) + 1
+
     conf_sum = pd['_class_conf_sum']
+    if not conf_sum:
+        return
     conf_n = pd['_class_conf_n']
-    conf_sum[cls] = conf_sum.get(cls, 0.0) + conf
-    conf_n[cls] = conf_n.get(cls, 0) + 1
     best_cls = max(conf_sum, key=conf_sum.get)
-    pd['exercise_class'] = best_cls
-    pd['exercise_conf'] = conf_sum[best_cls] / conf_n[best_cls]
+    best_conf = conf_sum[best_cls] / conf_n[best_cls]
+
+    if best_conf >= FINAL_CONFIDENCE_GATE:
+        pd['exercise_class'] = best_cls
+        pd['exercise_conf'] = best_conf
+        return
+
+    # Trained model isn't confident enough to publish. Only reach for the
+    # heuristic when it has a clear, well-supported plurality among classes
+    # the trained model structurally cannot output (lunge/hinge/curl/row) --
+    # never among the trained model's own 7 classes, where a stray heuristic
+    # opinion would just be noise competing with real evidence.
+    hvotes = pd['_heuristic_votes']
+    if hvotes:
+        top_cls, top_n = max(hvotes.items(), key=lambda kv: kv[1])
+        if top_n >= MIN_HEURISTIC_VOTES and top_n > sum(hvotes.values()) - top_n:
+            pd['exercise_class'] = top_cls
+            pd['exercise_conf'] = 0.5
+            return
+
+    pd['exercise_class'] = 'unknown'
+    pd['exercise_conf'] = best_conf
 
 
 class CameraProcessor:
@@ -325,7 +381,12 @@ class CameraProcessor:
                             t_start=timestamp - CLASSIFY_WINDOW_SECONDS,
                             t_end=timestamp,
                         )
-                        _record_classification(pd, cls, cconf)
+                        heur_hint = classifier.heuristic_fallback_class(
+                            pd['angles'],
+                            t_start=timestamp - CLASSIFY_WINDOW_SECONDS,
+                            t_end=timestamp,
+                        ) if classifier.is_trained else None
+                        _record_classification(pd, cls, cconf, heur_hint)
                         pd['_next_classify_t'] = timestamp + CLASSIFY_INTERVAL_SECONDS
 
                     # Live form scoring for a just-completed rep

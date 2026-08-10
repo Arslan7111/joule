@@ -33,11 +33,19 @@ from tools.validate_fit3d_batch import discover_named_exercises  # noqa: E402
 
 OUT_ROOT = PROJECT_ROOT / 'validation_results_fit3d'
 
+_CLASSIFIER = ExerciseClassifier()
+
 # Classes the trained model can actually emit (src/exercise_classifier.py CLASSES,
 # minus the heuristic-only ones and 'unknown').
 TRAINED_CLASSES = {'cardio', 'press', 'pullup', 'pushup', 'raise', 'situp', 'squat'}
-# Never emitted by the trained model -- always produced by a separate heuristic path.
-HEURISTIC_ONLY_CLASSES = {'hinge', 'lunge', 'curl', 'row'}
+# No slot in the trained model's own output classes at all -- single source of
+# truth is ExerciseClassifier._heuristic_only (derived from CLASSES minus the
+# loaded model's classes), not a hardcoded duplicate here. Before 2026-08-10
+# these were unreachable no matter what; classify() now falls back to the
+# heuristic for exactly this set when the trained model is low-confidence
+# (see MIN_CONFIDENCE in src/exercise_classifier.py), so these can score
+# correct/incorrect for real now, not just "most common prediction."
+HEURISTIC_ONLY_CLASSES = _CLASSIFIER._heuristic_only
 
 # Corrected 2026-08-10, after the original first-pass mapping (see git history /
 # HANDOVER8.md) turned out to conflate different real-world exercises that
@@ -85,8 +93,6 @@ EXERCISE_TO_CLASS = {
     'overhead_extension_thruster': None, 'walk_the_box': None,
 }
 
-_CLASSIFIER = ExerciseClassifier()
-
 # The stored `exercise_class`/`exercise_confidence` fields in each JSON reflect
 # whatever the classification loop last happened to output right before the
 # track ended -- a single noisy CLASSIFY_WINDOW_SECONDS-wide snapshot, prone
@@ -110,10 +116,11 @@ def _recompute(angle_series: dict) -> tuple[str, float]:
     pd = _init_person()
     t = t0 + CLASSIFY_INTERVAL_SECONDS
     while t <= t1:
-        cls, conf = _CLASSIFIER.classify(
-            angle_series, t_start=t - CLASSIFY_WINDOW_SECONDS, t_end=t
-        )
-        _record_classification(pd, cls, conf)
+        window = dict(t_start=t - CLASSIFY_WINDOW_SECONDS, t_end=t)
+        cls, conf = _CLASSIFIER.classify(angle_series, **window)
+        heur_hint = (_CLASSIFIER.heuristic_fallback_class(angle_series, **window)
+                     if _CLASSIFIER.is_trained else None)
+        _record_classification(pd, cls, conf, heur_hint)
         t += CLASSIFY_INTERVAL_SECONDS
     return pd['exercise_class'], pd['exercise_conf']
 
@@ -180,11 +187,13 @@ def main() -> None:
         correct = confusion[mapped].get(mapped, 0)
         print(f'  {mapped:12s} {correct}/{total} ({correct / total:.0%})')
 
-    print('\n=== Heuristic-only classes (domain-shift/coverage-gap probes, not "wrong") ===')
+    print('\n=== Heuristic-only classes (no trained-model slot; fallback-eligible since 2026-08-10) ===')
     for mapped in sorted(HEURISTIC_ONLY_CLASSES & confusion.keys()):
         total = sum(confusion[mapped].values())
+        correct = confusion[mapped].get(mapped, 0)
         top = confusion[mapped].most_common(1)[0]
-        print(f'  {mapped:12s} n={total}, most common prediction: {top[0]} ({top[1]}/{total})')
+        print(f'  {mapped:12s} {correct}/{total} ({correct / total:.0%}) correct via fallback'
+              f' -- most common prediction: {top[0]} ({top[1]}/{total})')
 
     if 'out_of_scope' in confusion:
         print('\n=== Out-of-taxonomy negative controls: scattered/low-confidence (good) '

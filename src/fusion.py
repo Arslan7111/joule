@@ -297,7 +297,12 @@ class FusedCameraProcessor:
                             t_start=timestamp - CLASSIFY_WINDOW_SECONDS,
                             t_end=timestamp,
                         )
-                        _record_classification(pd, cls, cconf)
+                        heur_hint = classifier.heuristic_fallback_class(
+                            pd['angles'],
+                            t_start=timestamp - CLASSIFY_WINDOW_SECONDS,
+                            t_end=timestamp,
+                        ) if classifier.is_trained else None
+                        _record_classification(pd, cls, cconf, heur_hint)
                         pd['_next_classify_t'] = timestamp + CLASSIFY_INTERVAL_SECONDS
 
                     totals = (pd['squat_sm'].rep_count, pd['upper_sm'].rep_count)

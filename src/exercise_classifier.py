@@ -30,6 +30,26 @@ MODEL_PATH = Path(__file__).parent.parent / 'models' / 'exercise_clf.npz'
 CLASSES = ['squat', 'lunge', 'hinge', 'curl', 'press', 'pullup', 'row',
            'pushup', 'raise', 'situp', 'cardio', 'unknown']
 
+# NOTE on where confidence gating happens: NOT here, per-window. An earlier
+# version of this fix gated each classify() call individually at a 0.5
+# threshold, calibrated on RepCount's per-window confidence distribution
+# (correct calls cluster at 0.68 median vs. 0.45 for incorrect). That
+# measurement was real but the design built on it wasn't: discarding
+# low-confidence windows BEFORE voting throws away evidence the vote
+# aggregation in src/camera.py/_record_classification actually needs --
+# validated on RepCount's own 133-track eval set, every threshold from
+# 0.30 up made track-level accuracy worse (62%->53% at 0.5), because
+# "hard but correct" classes (squat/press/raise/situp) sit in the same
+# confidence band as "wrong/out-of-distribution" calls. Margin (top1-top2)
+# was tried too and showed the same monotonic harm.
+#
+# What does work, gating the FINAL aggregated answer instead of individual
+# votes (src/camera.py::_record_classification): every window still votes,
+# so the aggregation's denoising is untouched; only the published class is
+# withheld ('unknown') when the winning class's aggregate confidence is
+# still below FINAL_CONFIDENCE_GATE. See that function for the gate value
+# and the heuristic-fallback logic layered on top of it.
+
 # Which rep state machine drives the count for each class.
 # 'none' = no rep counting (locomotion/cardio is not a rep exercise;
 # sit-ups are hip-driven — honest 'none' until a hip counter exists).
@@ -112,6 +132,7 @@ class ExerciseClassifier:
         self._mu = None           # feature standardisation
         self._sigma = None
         self._classes: list[str] = []
+        self._heuristic_only: set[str] = set()   # classes the trained model has no slot for
 
         if MODEL_PATH.exists():
             try:
@@ -119,9 +140,11 @@ class ExerciseClassifier:
                 self._W, self._b = data['W'], data['b']
                 self._mu, self._sigma = data['mu'], data['sigma']
                 self._classes = [c for c in data['classes'].tolist()]
+                self._heuristic_only = set(CLASSES) - set(self._classes) - {'unknown'}
                 logger.info(
                     f"ExerciseClassifier: trained model loaded "
-                    f"({len(self._classes)} classes: {', '.join(self._classes)})"
+                    f"({len(self._classes)} classes: {', '.join(self._classes)}; "
+                    f"heuristic-only fallback for: {', '.join(sorted(self._heuristic_only)) or 'none'})"
                 )
             except Exception:
                 logger.exception("Failed to load trained classifier — using heuristics")
@@ -155,6 +178,26 @@ class ExerciseClassifier:
             return self._classes[i], float(p[i])
 
         return classify_heuristic(vec), 0.5   # heuristics carry fixed confidence
+
+    def heuristic_fallback_class(
+        self,
+        angle_series: dict[str, list[tuple]],
+        t_start: float | None = None,
+        t_end: float | None = None,
+    ) -> str | None:
+        """If this window's heuristic answer names a class the trained model
+        has no output slot for at all (self._heuristic_only — lunge/hinge/
+        curl/row), return it as a coverage-extension candidate. Returns None
+        otherwise, deliberately: a heuristic answer that duplicates one of
+        the trained model's own classes isn't a coverage extension, it's
+        just a second, less validated opinion, and mixing it in would steal
+        votes from the trained model on exactly the classes it already
+        handles (confirmed harmful on RepCount when tried)."""
+        vec = extract_features(angle_series, t_start, t_end)
+        if not np.any(vec):
+            return None
+        cls = classify_heuristic(vec)
+        return cls if cls in self._heuristic_only else None
 
     def family(self, class_name: str) -> str:
         """Map an exercise class to its rep-counting family."""

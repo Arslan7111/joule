@@ -547,15 +547,63 @@ a real gym.
   classification-robustness fix that also helps the model's real,
   licensed domain, not something tuned to Fit3D's quirks.
 
-  **Still open**: the out-of-taxonomy negative controls now skew `pullup`
-  52% of the time at 0.59 avg confidence (down from the original sample's
-  more even scatter but not equivalent to it) — below this script's 60%
-  "concentrated" threshold, but a real, mild bias worth watching, not a
-  clean bill of health. And `hinge`/`lunge`/`curl`/`row` remain structurally
-  unreachable: the trained model's `CLASSES` list doesn't include them at
-  all, so real footage of those exercises will always be forced into one
-  of the 7 trained classes regardless of any fix here — a known, accepted
-  gap (`DEVELOPMENT.md` Phase 9), not something this session touched.
+  **Still open** (as of the fix above): the out-of-taxonomy negative
+  controls skewed `pullup` 52% of the time at 0.59 avg confidence, and
+  `hinge`/`lunge`/`curl`/`row` remained structurally unreachable — the
+  trained model's `CLASSES` list doesn't include them at all. Both
+  addressed in the follow-up below.
+
+  **Track B follow-up (2026-08-11) — confidence-gated abstention +
+  confined heuristic fallback, for the two gaps left open above.** A
+  first attempt gated each `classify()` call individually at a threshold
+  calibrated on RepCount's per-window confidence distribution (correct
+  calls: 0.68 median; incorrect: 0.45 median). It failed its own
+  validation gate before shipping: track-level RepCount accuracy dropped
+  62%→53% at that threshold, and every threshold tried from 0.30 up made
+  it worse, monotonically (margin-based gating, tried as an alternative
+  signal, showed the same pattern). Root cause: the vote-aggregation
+  above already denoises across every window in a track; discarding
+  individual low-confidence votes *before* that aggregation throws away
+  evidence the vote needs, and "hard but correct" classes (squat/press/
+  raise/situp) sit in the same confidence band as wrong/out-of-
+  distribution calls — not separable by a single per-window threshold.
+
+  Working design instead: **gate only the final published answer**, never
+  individual votes. Every window still contributes to
+  `_class_conf_sum`/`_class_conf_n` exactly as the vote-aggregation fix
+  above already does; `src/camera.py::_record_classification` withholds
+  `exercise_class` (`'unknown'`) only when the current leader's aggregate
+  confidence is below `FINAL_CONFIDENCE_GATE = 0.40` — chosen by sweeping
+  0.0–0.8 on RepCount and comparing against Fit3D. Confirmed `'unknown'`
+  is a safe downstream state, not a broken one: `src/form.py`'s
+  `TRUNK_LEAN_LIMIT` has an explicit, deliberately generous
+  `'unknown': 60.0` fallback rather than applying a wrong exercise-
+  specific threshold. Layered a heuristic-only fallback on top
+  (`ExerciseClassifier.heuristic_fallback_class()`), confined to only
+  override an unconfident trained result when the heuristic has a clear
+  majority (`MIN_HEURISTIC_VOTES = 3`) among classes the trained model
+  has no output slot for at all — never among its own 7 classes, which is
+  why it doesn't reintroduce the first attempt's damage (verified
+  bit-for-bit identical RepCount accuracy with the fallback on or off).
+
+  **Result:**
+
+  | | RepCount (licensed, 133 tracks) | Fit3D matched (squat/pushup) | Fit3D fallback (hinge/lunge/curl/row) | Fit3D out-of-scope bias |
+  |---|---|---|---|---|
+  | Before this follow-up | 62% (83/133) | 92% | 0% (unreachable) | pullup 52% |
+  | After (gate 0.40) | 58% (77/133), 20 now honest `unknown` | 92% (unchanged) | 21% overall — curl 41%, row 8%, hinge/lunge 0% | pullup 43%, 16% now honest `unknown` |
+
+  Reported plainly: RepCount's raw accuracy does drop 4 points — a real
+  cost, not a free lunch, though every one of those 20 newly-`unknown`
+  tracks was previously either wrong (majority) or a low-confidence-
+  correct guess, never a confidently-correct one converted to nothing.
+  `curl` is the one real coverage win (0%→41%); `hinge`/`lunge` are still
+  essentially unrecognized (0%), just more honestly so (landing on
+  `unknown` instead of a confidently wrong trained-class guess). Actually
+  recognizing `hinge`/`lunge`/`row` still needs a labeled dataset
+  containing those exact movements (RepCount doesn't have them) or real
+  gym footage — this fix only reached as far as the existing heuristic
+  rules already could.
 
   **Track C — camera-rig geometry as a second real data point.** Fit3D's
   4-camera rig is bimodal, not evenly spaced: adjacent-camera gaps
