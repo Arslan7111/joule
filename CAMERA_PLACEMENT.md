@@ -76,6 +76,19 @@ pipeline yet (backlogged, not built).
   to collapse; both data points so far are controlled studio rigs, so a
   real gym floor (Phase D) is still the test that actually settles how
   tight this needs to be on site.
+- **For a 2-camera station specifically, avoid placing the two cameras
+  directly opposite each other (~180° convergence).** Measured directly
+  (`ROADMAP.md` Phase C3, camera-count/angle sensitivity sweep,
+  `tools/validate_fit3d_camsweep.py`) on Fit3D's real rig: every camera
+  pair sitting at 47–133° convergence scored 7.7–11.8° mean joint-angle
+  error on squat — several of them *beating* the 4-camera baseline (10.7°)
+  — while the two pairs sitting at ~180° scored 16.5° and 18.2°, clearly
+  worse than the same rig's 4-camera result. Confirmed the same direction
+  on pushup (a harder pose). This isn't the same claim as the "60–90°
+  adjacent-gap" rule above, which is about spacing for 3+ cameras — it's a
+  narrower, 2-camera-specific finding that matters most for a minimal
+  install or a station temporarily down to 2 cameras: which two matters
+  more than simply having two.
 - **Elevate cameras** — synthetic testing (`README.md`) used ~2m elevated
   mounts and found single-view squat-depth error collapses from ~11° at the
   bottom of the rep to <1° once fused in 3D; ground-level or low mounts

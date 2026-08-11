@@ -49,9 +49,16 @@ single-view 2D fallback.
   samples) — mean 10.1°, median 6.2°, zero failed/empty/missing clips.
   Standing/unencumbered exercises land in the same 5–7° range as the
   Panoptic figures above; squat/pushup show real, larger error on
-  genuinely harder, more self-occluded poses; one subject (s10) is an
-  unexplained outlier at 13.0° mean despite a normal median. See
-  [ROADMAP.md](ROADMAP.md) Phase C3.
+  genuinely harder, more self-occluded poses. One subject (s10)'s 13.0°
+  mean outlier is now root-caused: an isolated tracking dropout on one
+  exercise (`walk_the_box`) plus a separate, consistent `left_hip` bias
+  across several other exercises — neither threatens the headline number.
+  A follow-up camera-count/angle sweep found 3-of-4 cameras barely matters
+  (any combination), but for a 2-camera station specifically, avoid
+  placing the two cameras directly opposite each other (~180°) — measured
+  7.7–11.8° mean error at 47–133° convergence vs. 16.5–18.2° at ~180°,
+  confirmed on two different exercises. See [ROADMAP.md](ROADMAP.md)
+  Phase C3 and [CAMERA_PLACEMENT.md](CAMERA_PLACEMENT.md) rule 4.
 
 **All of the above is committed and pushed** to
 [github.com/Arslan7111/joule](https://github.com/Arslan7111/joule) (private).

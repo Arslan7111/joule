@@ -620,6 +620,70 @@ a real gym.
   studio rigs; a real gym floor per Phase D is still the test that
   matters most).
 
+**Track A follow-up (2026-08-11) — s10 outlier, root-caused.** The
+13.0°-mean-vs-8.7–10.2° outlier flagged above turned out to be two
+distinct, unrelated effects, found by breaking `batch_report.json`'s
+per-subject data down by exercise and joint rather than treating the
+subject-level mean as one number:
+1. **`walk_the_box`, isolated and severe**: s10's right-side joints on
+   this one exercise are catastrophically wrong (`right_hip` mean 47.2°,
+   `right_knee` mean 44.4° — every other subject's equivalent numbers sit
+   at 4–16°), and `right_elbow` has almost no valid tracked frames at all
+   (n=45 vs. ~1000–2200 for every other subject on the same exercise).
+   That sample-count collapse is the tell: this reads as a tracking/
+   visibility dropout on one side during this specific clip — plausibly
+   real occlusion from the stepping/turning motion the exercise involves
+   — not a triangulation or calibration bug, and not representative of
+   s10's tracking quality generally.
+2. **A second, different pattern across six other elevated exercises**
+   (`man_maker`, `burpees`, `diamond_pushup`, `pushup`, `barbell_dead_row`,
+   `deadlift`): `left_hip` is consistently the worst-scoring joint for
+   s10, *without* the sample-count collapse seen in (1) — full coverage,
+   just a consistently elevated error on one specific joint across many
+   different movements. This looks like a subject-specific landmark/
+   tracking bias rather than occlusion, though the exact cause (body
+   shape, clothing, a GHUM body-model fit quirk in Fit3D's own ground
+   truth for this subject) wasn't pinned down further — diminishing
+   returns without frame-level video inspection, which wasn't done this
+   session.
+
+Neither explanation threatens the 10.1° headline figure — both are
+consistent with the already-documented "harder poses, more self-
+occlusion" pattern, now precisely localized instead of just gestured at.
+
+**Track A follow-up (2026-08-11) — camera-count/angle sensitivity sweep,
+the stretch goal `FIT3D_UTILIZATION_PLAN.md` flagged but never ran.**
+`tools/validate_fit3d.py` already supports an explicit `--cams` subset;
+built `tools/validate_fit3d_camsweep.py` to run all 6 two-camera pairs and
+all 4 three-camera triples on s03/squat (writes to a separate
+`validation_results_fit3d_camsweep/` root so the canonical 4-of-4 batch
+results are never touched), then spot-checked the best/worst pair on
+s03/pushup (the hardest exercise in the existing results) to check
+whether the pattern holds on a harder pose.
+
+- **3-of-4, any combination, barely matters**: 10.10–11.77° mean across
+  all four triples, tightly clustered around the 4-of-4 baseline (10.7°
+  mean/8.8° median). Dropping one camera of four costs almost nothing on
+  this rig, regardless of which one.
+- **2-of-4 varies enormously by which pair — and the reason is exactly
+  what stereo-triangulation theory predicts, not noise.** Cross-referencing
+  each pair's accuracy against `rig_geometry.json`'s actual pairwise
+  convergence angle for s03's rig: the two best-performing pairs sit at
+  47–133° convergence (7.69–11.79° mean — several *beat* the 4-camera
+  baseline), while the two worst are the two pairs sitting at ~180°
+  (cameras nearly opposite each other): 16.54° and 18.23° mean. Confirmed
+  the same direction on pushup (47° pair: 12.0° mean, beats the 13.3°
+  4-camera baseline; 179° pair: 14.5° mean, worse) — smaller gap than
+  squat's, plausibly because pushup's floor-lying pose already has lower
+  keypoint coverage (~30–40% for hip/knee on 2 cameras) for reasons
+  unrelated to camera angle, but the direction holds.
+- **Actionable, and different from the existing 60–90° adjacent-gap
+  guidance**: that rule is about spacing for 3+ cameras. This is a
+  distinct, 2-camera-specific finding — a minimal 2-camera install (or a
+  station that's temporarily down to 2 cameras) should avoid placing the
+  two cameras directly opposite each other, not just "more cameras is
+  better." Folded into `CAMERA_PLACEMENT.md` as a new rule.
+
 Exit criteria: C1–C2 are documents ready to hand to whoever holds the
 camera; C3 is submitted/requested, not necessarily approved yet. C3's
 Fit3D half exceeds that bar — real validation results, not just access,

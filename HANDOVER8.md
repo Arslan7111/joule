@@ -226,36 +226,100 @@ revisiting if a future session weighs it differently.
   instead of a hardcoded duplicate; heuristic-only classes section now
   reports real correct/total accuracy, not just "most common prediction."
 - `FIT3D_UTILIZATION_PLAN.md`, `ROADMAP.md`, `STATUS.md` — Thread 2
-  addenda (already committed in `01d99de`); Thread 3 findings not yet
-  folded in as of this line — see "What's next."
+  addenda. (Thread 3's numbers were folded into `ROADMAP.md`/`STATUS.md`
+  before committing — see Thread 3's own final state below, not stale.)
 - `validation_results_fit3d/domain_shift_report.json` — regenerated
   (gitignored, disk-only).
+
+Threads 1–3 committed and pushed: `c62f439`, `01d99de`, `b3ecfda`.
+
+## Thread 4 — Phase C follow-through: s10 root-cause + camera-count sweep (2026-08-11)
+
+User asked how to improve Phase C specifically ("product depends on it").
+Clarified Phase C is de-risking work, not the product itself, then
+identified two pieces of real, unblocked work still open inside it (the
+only blocked item is M3GYM access, needs the user to submit a form) and
+did both.
+
+**s10 outlier, root-caused.** Broke `batch_report.json`'s per-subject data
+down by exercise and joint instead of treating the 13.0° subject-level
+mean as one number. Found two distinct, unrelated causes: (1)
+`walk_the_box` alone has a severe, isolated right-side tracking dropout
+(`right_elbow` n=45 valid frames vs. ~1000–2200 for every other subject
+on the same exercise — a visibility/occlusion signature, not a
+triangulation bug); (2) a separate pattern across six other elevated
+exercises where `left_hip` is consistently the worst joint *without* a
+sample-count collapse — a subject-specific tracking/landmark bias, not
+occlusion, exact cause not pinned down further (would need frame-level
+video inspection, not done this session). Neither threatens the 10.1°
+headline figure.
+
+**Camera-count/angle sensitivity sweep, the stretch goal
+`FIT3D_UTILIZATION_PLAN.md` flagged but never ran.** Built
+`tools/validate_fit3d_camsweep.py` (writes to a separate
+`validation_results_fit3d_camsweep/` root so canonical batch results are
+untouched) and ran all 6 two-camera pairs + 4 three-camera triples on
+s03/squat, then spot-checked the best/worst pair on s03/pushup (harder
+pose). Result: 3-of-4 barely matters regardless of which camera is
+dropped (10.10–11.77° vs. 10.7° baseline); 2-of-4 varies enormously, and
+cross-referencing against `rig_geometry.json`'s actual pairwise
+convergence angles showed exactly why — pairs at 47–133° convergence
+score 7.7–11.8° (several beat the 4-camera baseline), while the two
+pairs at ~180° (cameras nearly opposite each other) score 16.5° and
+18.2°, confirmed worse on pushup too. This is textbook stereo-
+triangulation geometry (near-180° convergence is a known degenerate
+case), now measured directly on this project's actual rig rather than
+just asserted. Folded into `CAMERA_PLACEMENT.md` as a new, 2-camera-
+specific rule (distinct from the existing 60–90° adjacent-gap guidance,
+which is about 3+ camera spacing).
+
+**A near-miss worth recording**: re-deriving the 4-of-4 baseline numbers
+for direct comparison (`validate_fit3d.py s03 squat --skip-run --out
+validation_results_fit3d`) overwrote `validation_results_fit3d/s03/
+report.json` — a small file force-committed in an earlier session as an
+auditable artifact of the *original* 1-subject/7-exercise pilot pass
+(all 7 exercises combined). My re-run only asked for one exercise at a
+time, so it silently collapsed that 7-exercise report down to just the
+one exercise, twice. Caught it via `git status`/`git diff` before
+committing anything and restored with `git checkout --`. Lesson for next
+time: check `git status` before re-running any `--out` pointed at a
+directory that might contain previously force-committed files, not just
+before destructive git commands.
+
+## Files changed, Thread 4
+
+- `tools/validate_fit3d_camsweep.py` — new.
+- `ROADMAP.md` — Phase C3 addenda for both findings above.
+- `CAMERA_PLACEMENT.md` — new 2-camera convergence-angle rule.
+- `STATUS.md` — updated Fit3D summary line.
+- `.gitignore` — added `validation_results_fit3d_camsweep*/` (12MB+,
+  regenerable, same policy as `validation_results_fit3d/`).
+- `validation_results_fit3d_camsweep/`, `_pushup47/`, `_pushup179/` —
+  new, gitignored, disk-only. Contains `sweep_summary.json` (small,
+  same "arguably worth force-committing" situation `HANDOVER7` already
+  flagged for the batch's own aggregate reports and nobody has acted on
+  yet — flagging again here rather than assuming either way).
 - This file.
 
 ## What's on disk, not committed
 
-Everything from Thread 3 (the `src/camera.py`, `src/fusion.py`,
-`src/exercise_classifier.py`, `tools/analyze_fit3d_domain_shift.py`
-changes described above, and this file's Thread 3 section). Threads 1–2
-are already committed (`c62f439`, `01d99de`). Per this project's standing
-git-safety norms, waiting on the user before staging/committing/pushing
-Thread 3.
+Thread 4's `tools/validate_fit3d_camsweep.py`, `ROADMAP.md`,
+`CAMERA_PLACEMENT.md`, `STATUS.md`, and `.gitignore` changes. Per this
+project's standing git-safety norms, waiting on the user before staging/
+committing/pushing.
 
 ## What's next
 
-- Commit decision needed for Thread 3's code + doc changes.
-- `ROADMAP.md`/`STATUS.md` don't yet reflect Thread 3's numbers — only
-  this handover does. Worth folding in before the next session picks
-  this up, so the roadmap doc stays the authoritative record rather than
-  the handover being the only place with current numbers.
+- Commit decision needed for Thread 4.
+- The `left_hip` bias pattern found in s10 (task item above) wasn't
+  root-caused past "consistent across six exercises, not occlusion" —
+  would need frame-level video inspection to go further, not attempted.
 - `hinge`/`lunge` recognition is still genuinely unsolved (0% even after
-  this fix) — the real fix needs either a labeled dataset containing
-  these exact movements (RepCount doesn't have them) or real gym footage
-  (Phase D). `curl`'s 41% recovery shows the ceiling for a heuristic-only
-  approach isn't zero, but it's well short of what a proper trained class
-  would give.
-- The `FINAL_CONFIDENCE_GATE`/`MIN_HEURISTIC_VOTES` values (0.40/3) were
-  chosen from a coarse sweep (0.05–0.1 increments), not finely tuned —
-  reasonable defaults, not claimed-optimal ones.
+  Thread 3's fix) — the real fix needs either a labeled dataset
+  containing these exact movements (RepCount doesn't have them) or real
+  gym footage (Phase D).
+- M3GYM access remains the one blocked Phase C item — needs the user to
+  submit [the form](https://forms.gle/stJZgHaji7KNa5t7A) (academic email/
+  affiliation/purpose required), then days for approval.
 - Phase D (real gym footage) is still the actual next milestone and is
   still blocked on camera/gym access, same as every prior handover.

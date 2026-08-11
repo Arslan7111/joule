@@ -15,6 +15,7 @@ Fit3D/
 results/
 results_validation/
 validation_results_fit3d/
+validation_results_fit3d_camsweep*/
 *.mp4
 
 # Calibration outputs (site-specific)
