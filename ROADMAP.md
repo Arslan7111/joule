@@ -605,6 +605,33 @@ a real gym.
   gym footage — this fix only reached as far as the existing heuristic
   rules already could.
 
+  **Track B follow-up (2026-08-12) — `lunge` heuristic recovered, `hinge`
+  investigated and rejected.** `classify_heuristic()` previously had *no
+  code path that could ever return `'lunge'`* — a deliberate prior call
+  that left/right hip ROM asymmetry was too unreliable from a side-on
+  camera to use. Re-examined empirically now that Fit3D's
+  `dumbbell_reverse_lunge` tracks (validation only, all 8 subjects) are
+  available: hip ROM asymmetry is a clean, consistent signal there
+  (0.55–0.85 across every subject, vs. 0.01–0.33 for squat/deadlift).
+  Naively applied to RepCount's real single-camera footage it produced
+  false positives two distinct ways — a fully-occluded hip landmark reads
+  as `rom=0.0` (a raw ratio misreads that as *maximum* asymmetry; found on
+  a real squat clip with 0 valid `right_hip` samples), and a couple of
+  already-known-noisy bench-press clips (foreshortened bent-leg bracing,
+  see the lying-posture note in `src/exercise_classifier.py`) crossed a
+  low threshold too. Guarded against the first (require both sides >1°
+  ROM before trusting the ratio) and swept the threshold against the
+  second on RepCount's 149 licensed tracks as the regression check: 0.72
+  is the lowest threshold with **zero RepCount false positives and zero
+  tracks flipped from baseline**, while recovering **6/8 Fit3D lunge
+  tracks (0/8 before)**. Shipped in `src/exercise_classifier.py`.
+  `hinge` was investigated the same way (hip:knee ROM ratio) and
+  rejected: sit-ups are also a hip-flexion-dominant, knee-static movement,
+  so every threshold that recovered real deadlift tracks also
+  misclassified real RepCount sit-up tracks as `'hinge'` — a genuine
+  feature-space overlap, not noise. `hinge` and `row` remain unrecovered;
+  real recognition still needs labeled training data, not a heuristic.
+
   **Track C — camera-rig geometry as a second real data point.** Fit3D's
   4-camera rig is bimodal, not evenly spaced: adjacent-camera gaps
   cluster at **~47° and ~132–133°**, identical in pattern across all 8

@@ -98,6 +98,15 @@ single-view 2D fallback.
   52%→43%. Actually recognizing hinge/lunge/row still needs a dataset
   with those exact movements (RepCount doesn't have them) or real gym
   footage.
+- Follow-up (2026-08-12): recovered `lunge` via a hip-ROM-asymmetry
+  heuristic — `classify_heuristic()` previously had no path that could
+  ever return `'lunge'` at all. Validated against RepCount's 149 licensed
+  tracks as the regression check (zero false positives, zero flipped
+  tracks) and Fit3D's `dumbbell_reverse_lunge` as the recovery check
+  (0/8 → 6/8). `hinge` was tried the same way (hip:knee ratio) and
+  rejected — sit-ups share the same ratio signature, so no threshold
+  separates them without misclassifying real sit-ups. `hinge`/`row`
+  remain unrecognized; still need labeled training data, not a heuristic.
   See [ROADMAP.md](ROADMAP.md) Phase C3.
 
 ## What's left

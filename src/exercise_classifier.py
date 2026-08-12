@@ -70,6 +70,39 @@ def _f(vec: np.ndarray, name: str) -> float:
     return float(vec[_IDX[name]])
 
 
+# Reverse-lunge check inside the knee-dominant branch of classify_heuristic:
+# one leg (front) flexes/extends through a large hip ROM while the other
+# (trailing) barely moves at the hip. A prior version of this heuristic
+# considered this signal unreliable from a side-on camera and never emitted
+# 'lunge' at all -- confirmed empirically (2026-08-12) via Fit3D's
+# dumbbell_reverse_lunge tracks (validation only, all 8 subjects): hip ROM
+# asymmetry is a clean, consistent signal there (0.55-0.85), but naively
+# applied to RepCount's real single-camera squat/press footage it produced
+# false positives two different ways: (1) a fully-occluded hip landmark
+# reads as rom=0.0 from extract_features' too-few-samples fallback, which a
+# raw ratio misreads as *maximum* asymmetry (measured on a real squat clip
+# with 0 valid right_hip samples) -- MIN_HIP_ROM_FOR_ASYM guards this; (2)
+# below this threshold, noisy monocular pose on a few bench-press clips
+# (already known to fool the knee-dominant check via foreshortened bent-leg
+# bracing, see the lying-posture note above) crossed it too. Swept 0.50-0.85
+# on RepCount's 149 licensed tracks as the regression check: 0.72 is the
+# lowest threshold with zero RepCount false positives and zero tracks
+# flipped from their baseline prediction, while recovering 6/8 Fit3D lunge
+# tracks (0/8 before).
+LUNGE_HIP_ASYM_THRESHOLD = 0.72
+MIN_HIP_ROM_FOR_ASYM = 1.0
+
+# A hip:knee ROM ratio was also tried as a hinge (deadlift) signal, using
+# the same track-level validation approach. Rejected: sit-ups are also a
+# hip-flexion-dominant, knee-static movement, so they produce the same high
+# ratio as a real hinge -- every threshold tested (1.4-2.2) that recovered
+# any real deadlift tracks also misclassified real RepCount sit-up tracks
+# as 'hinge'. This is a genuine feature-space overlap, not noise -- no
+# threshold on this feature separates them safely. hinge recognition still
+# needs labeled training data (RepCount has none; Fit3D is validation-only
+# per license), not a heuristic. Left as the pre-existing knee<25 rule.
+
+
 def classify_heuristic(vec: np.ndarray) -> str:
     """
     Rule-based classification from a feature vector.  Thresholds assume a
@@ -77,7 +110,8 @@ def classify_heuristic(vec: np.ndarray) -> str:
     so they tolerate perspective compression.
     """
     knee = max(_f(vec, 'left_knee_rom'), _f(vec, 'right_knee_rom'))
-    hip = max(_f(vec, 'left_hip_rom'), _f(vec, 'right_hip_rom'))
+    left_hip, right_hip = _f(vec, 'left_hip_rom'), _f(vec, 'right_hip_rom')
+    hip = max(left_hip, right_hip)
     elbow = max(_f(vec, 'left_elbow_rom'), _f(vec, 'right_elbow_rom'))
     shoulder = max(_f(vec, 'left_shoulder_rom'), _f(vec, 'right_shoulder_rom'))
     trunk_rom = _f(vec, 'trunk_lean_rom')
@@ -102,9 +136,12 @@ def classify_heuristic(vec: np.ndarray) -> str:
     # not separable by trunk thresholds across viewpoints — the trained
     # classifier owns them.
     if lower_active and (knee >= hip * 0.6 or knee > 40):
-        # Knee-dominant lower-body movement.  (Lunge is only distinguishable
-        # by the trained classifier — side-view occlusion makes the
-        # left/right ROM asymmetry heuristic unreliable.)
+        # Knee-dominant lower-body movement -- squat, unless the hips show
+        # a real, large left/right asymmetry (reverse lunge). See the
+        # LUNGE_HIP_ASYM_THRESHOLD note above for calibration.
+        if (left_hip > MIN_HIP_ROM_FOR_ASYM and right_hip > MIN_HIP_ROM_FOR_ASYM
+                and abs(left_hip - right_hip) / max(left_hip, right_hip) > LUNGE_HIP_ASYM_THRESHOLD):
+            return 'lunge'
         return 'squat'
 
     if lower_active and hip > 30 and knee < 25:

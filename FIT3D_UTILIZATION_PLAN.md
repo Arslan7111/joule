@@ -138,6 +138,22 @@ or noise from a 7-exercise sample?
   also validated as a net improvement on RepCount itself (the classifier's
   own licensed domain) — see `ROADMAP.md` Phase C3 for the full breakdown.
 
+  **2026-08-12 update — `lunge` recovered via a heuristic fix, `hinge`
+  investigated and rejected.** `classify_heuristic()` had no code path
+  that could ever emit `'lunge'` at all (a prior deliberate call that
+  side-view hip-asymmetry was too unreliable to use). Fit3D's
+  `dumbbell_reverse_lunge` tracks (used for validation only, per license)
+  showed hip ROM asymmetry is actually a clean signal there — but
+  RepCount's real single-camera footage exposed two real noise sources
+  (a fully-occluded hip landmark reading as maximum asymmetry; a couple
+  of already-known-noisy bench-press clips). Guarded and threshold-swept
+  against RepCount's 149 licensed tracks as the regression check: zero
+  false positives, zero flipped tracks, while recovering 6/8 Fit3D lunge
+  tracks (0/8 before). `hinge` was tried the same way (hip:knee ROM
+  ratio) and rejected — sit-ups share the same ratio signature, so no
+  threshold separates them without misclassifying real sit-up tracks.
+  Full writeup in `ROADMAP.md` Phase C3.
+
 ## Track C — Camera-rig geometry as a second real data point
 
 **Question**: `CAMERA_PLACEMENT.md`'s spacing/count guidance (3+
