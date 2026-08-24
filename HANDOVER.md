@@ -2,16 +2,17 @@
 
 Last updated: 2026-08-24. Consolidates `HANDOVER.md` through `HANDOVER8.md`
 (commit `18330df`), plus the un-handed-off "Recover lunge heuristic"
-session (commit `248adea`), plus this session's own work (design
-prototyping kickoff + Stitch MCP setup — no engine code changed), into a
-single running log. Read this before doing anything else in this repo.
-`STATUS.md` is the always-current engine done/left-to-do snapshot;
-`ROADMAP.md` is the phased engine execution plan (Phases A–E, plus F–L for
-the product-strategy docs); `DEVELOPMENT.md` is the full dated technical
+session (commit `248adea`), plus two design-prototyping sessions on this
+same date (kickoff + Stitch MCP setup, then Stitch import + an Apple-HIG
+candidate — no engine code changed either time), into a single running
+log. Read this before doing anything else in this repo. `STATUS.md` is
+the always-current engine done/left-to-do snapshot; `ROADMAP.md` is the
+phased engine execution plan (Phases A–E, plus F–L for the
+product-strategy docs); `DEVELOPMENT.md` is the full dated technical
 log. `design/PROTOTYPES.md` is the equivalent tracking index for the
-member-app front-end design work that started this session. This file is
-the session-by-session narrative behind all of those — read it when you
-need *why*, not just *what*.
+member-app front-end design work (3 candidates as of this update — see
+below). This file is the session-by-session narrative behind all of
+those — read it when you need *why*, not just *what*.
 
 ## What this is
 
@@ -730,13 +731,101 @@ that document, just builds toward it visually).
    in-progress Stitch design can actually be pulled in and saved as
    candidate 02 in `design/prototypes/`.
 
+### 2026-08-24 (continued) — Stitch import, spec root-cause finding, Apple HIG candidate
+
+Fresh session (as required by the previous entry's point 6 — confirmed
+the Stitch MCP tools loaded this time). No engine code touched. Three
+threads, all within the same design-prototyping effort.
+
+**Thread 1 — Pulled the user's Stitch design in as candidate 02.**
+`mcp__stitch__list_projects` found "Joule Coach Member App"
+(`projects/7511907646849515592`, TEXT_TO_UI_PRO, built from
+`design/stitch-prompt.md`). Fetched all 8 screens via `get_screen`,
+downloaded each screen's exported HTML and screenshot into
+`design/prototypes/02-stitch/`. **Found `01` and `07` are byte-identical
+duplicates** (verified with `diff`) — Stitch generated the same "What
+Joule Sees" onboarding screen twice under two different titles — so 7
+unique screens in practice, not 8. Reviewed all 7 (screenshots for 6,
+raw HTML for the one screen with no screenshot) and logged a full
+per-screen breakdown in `design/PROTOTYPES.md`. Built and published a
+screenshot-gallery artifact (`joule-coach-stitch-review.html`, own
+Fraunces/Source Sans/IBM Plex Mono system, deliberately distinct from
+both the Stitch and Claude candidates' own type systems since it's a
+neutral review tool, not a candidate) so the user could actually see the
+screens: https://claude.ai/code/artifact/d1832ec9-edac-4455-a699-be27f484ac51 —
+raw Stitch HTML couldn't be embedded directly, since it depends on the
+Tailwind CDN `<script>` tag, which the artifact sandbox's CSP blocks.
+
+**Thread 2 — Found a real content bug, then traced it to its actual
+source.** Cross-checking the onboarding screen's "Supported Movements"
+list (Deadlift/Curl/Row/Overhead Press/Lateral Raise marked ACTIVE,
+Sit-ups marked pending) against `src/exercise_classifier.py`'s `CLASSES`
+and this file's own 2026-08-11/12 sessions found it flatly contradicts
+validated reality: Deadlift isn't a recognized class at all (`hinge` was
+investigated and rejected the same session); Row is heuristic-fallback-
+only at 8%; Curl is heuristic-fallback-only at 41%; Overhead
+Press/Lateral Raise map to the Fit3D Track B domain-shift finding
+(trained on a different physical movement under the same label);
+Sit-ups is actually one of the genuinely trained classes, shown
+backwards. Initially logged this as a Stitch-specific issue. **Then,
+while grounding candidate 03's onboarding copy in `PRODUCT_SPEC.md`
+directly, found the real source**: §3.3 point 1 contains the near-
+identical claim verbatim — *"Joule currently tracks: squat, deadlift,
+curl, row, overhead press. It does not yet count sit-ups."* `git log`
+confirms `PRODUCT_SPEC.md` was written 2026-08-07 (`fb9427b`), *before*
+the 2026-08-11/12 sessions that contradict it — the design tool didn't
+invent the overclaim, it faithfully inherited a stale first-draft claim
+from the spec doc `stitch-prompt.md` was grounded in. `PRODUCT_SPEC.md`
+§4's own Sprint 0 already anticipates this ("finalize the MVP exercise
+list against whatever Phase D actually confirms holds up"), so this is
+a known-provisional line, not a settled decision silently going stale.
+**`PRODUCT_SPEC.md` §3.3 itself has not been edited** — flagged for the
+user's call, since it's a product-strategy doc, not engine code.
+
+**Thread 3 — Candidate 03, using the user's newly-installed
+`apple-design` skill.** Loaded the skill's `color.md`, `typography.md`,
+`layout.md`, `accessibility.md`, and `materials.md` HIG references
+before building (per the skill's own "look up the actual guidelines,
+don't rely on memory" instruction). Built the same 4-screen core loop as
+candidate 01 (onboarding included specifically to demonstrate the
+capability-list fix in place, not just describe it), as an interactive
+phone-frame mockup with a working screen switcher — `design/prototypes/
+03-apple-hig-core-loop.html`, published at
+https://claude.ai/code/artifact/bf0442c4-2957-4bb8-9181-72f54805a67f.
+Deliberate, guideline-traced departures from both other candidates:
+real system-font pairing (`-apple-system`/`BlinkMacSystemFont` for UI,
+`ui-serif "New York"` for headlines — Apple's own SF+NY pairing,
+independently satisfying `PRODUCT_SPEC.md` §3.2's "characterful display
+face distinct from the data face" without a Google Font); a **working
+light/dark toggle** with distinct (not just inverted) teal/red tints
+tuned for contrast in each appearance — candidates 01 and 02 are both
+dark-only; a corrected **3-tier** capability list (tracked / early
+support / not yet) instead of the flat 2-tier split both other
+candidates used, with shape (not just color) distinguishing tiers per
+`accessibility.md`'s color-blindness guidance; a live-session screen
+showing *only* the rep counter and stay-in-frame cue (a literal reading
+of §3.3's "minimal UI... only... deliberately not a live overlay in
+MVP," stricter than candidate 02's HR+velocity live screen); the report
+screen presented as a real iOS sheet (grabber handle, rounded top,
+scrim), literalizing "the report screen slides up automatically"; 44pt
+touch targets and a `backdrop-filter` material on the live-session HUD
+per `layout.md`/`materials.md`.
+
+All three candidates' screens, the two flagged content issues, and the
+`PRODUCT_SPEC.md` root-cause finding are written up in full in
+`design/PROTOTYPES.md`. No user visual feedback recorded yet on
+candidates 02 or 03 — only candidate 01 has feedback so far ("didn't
+land visually," see above). Decision not made; `design/PROTOTYPES.md`'s
+"Decision" section is still empty pending that. User asked to save,
+update this handover, and commit/push everything — done this session
+(see "Repo hygiene" below); `PRODUCT_SPEC.md` itself was deliberately
+left unedited pending the user's own call.
+
 ## What's on disk, not committed
 
-`design/` is new and fully untracked (`design/PROTOTYPES.md`,
-`design/stitch-prompt.md`, `design/prototypes/01-claude-core-loop.html`)
-— not committed yet; user hadn't been asked/asked back about committing
-as of this handover. Otherwise, working tree is clean — `git status`
-shows nothing else outstanding. Real datasets remain on disk, all
+`design/` is now fully committed (see "Repo hygiene" below) — the prior
+open question about whether/when to commit it is resolved as of this
+handover. Real datasets remain on disk, all
 gitignored and re-acquirable/regenerable rather than committed:
 `test_videos/panoptic/` + `panoptic_pose2/`, `test_videos/repcount/videos/`
 (1.4GB) + `bench_results/*.json` (51MB, except the committed
@@ -750,17 +839,19 @@ demo video, disk-only, easily regenerable).
 ## What's next
 
 **Immediate, this design thread:**
-0. **Start the next session fresh** (not a `--continue`/`--resume` mid-
-   session) so the newly-registered Stitch MCP server's tools actually
-   load — then import the user's in-progress Stitch design and save it as
-   candidate 02 in `design/prototypes/` + `design/PROTOTYPES.md`, per the
-   process set up this session.
-0a. Once 2+ design candidates exist, compare them against `PRODUCT_SPEC.md`
-    §3 (tone/visual identity) and §2.1 (actual screen requirements) and
-    fill in `design/PROTOTYPES.md`'s "Decision" section — don't just pick
-    on aesthetic preference alone.
-0b. Decide whether to commit `design/` now or wait for more candidates —
-    open as of this handover, user hadn't been asked back.
+1. **Decide whether to correct `PRODUCT_SPEC.md` §3.3's stale exercise
+   list** (see the root-cause finding above) — a product-strategy-doc
+   edit, deliberately left for the user's call rather than done silently
+   mid-design-session. If corrected, candidate 03's 3-tier onboarding
+   copy is a ready-made replacement to adapt from.
+2. **3 candidates now exist (01 Claude, 02 Stitch, 03 Claude/Apple HIG)**
+   — get the user's visual feedback on 02 and 03 (only 01 has feedback
+   so far), then compare all three against `PRODUCT_SPEC.md` §3
+   (tone/visual identity) and §2.1 (actual screen requirements) and fill
+   in `design/PROTOTYPES.md`'s "Decision" section — don't just pick on
+   aesthetic preference alone.
+3. Optional cleanup, not urgent: dedupe `design/prototypes/02-stitch/01`
+   vs `07` (byte-identical) if `design/` ever gets tidied.
 
 **Engine-side (unchanged, still blocked on the user):**
 1. **Phase D (real gym footage)** is the actual next milestone — still
@@ -793,10 +884,12 @@ demo video, disk-only, easily regenerable).
 
 ## Repo hygiene
 
-Engine side fully pushed to `origin/main` as of this handover (commit
-`18330df`, the handover consolidation). `design/` (see above) is new,
-untracked, not yet pushed — a deliberate pause pending the user's call on
-when to commit it, not an oversight. `.venv/`, model files, and all real
+Everything from today — engine-side and `design/` alike — is committed
+and pushed to `origin/main` as of this handover, including all three
+design candidates (`design/prototypes/01-claude-core-loop.html`,
+`design/prototypes/02-stitch/` (8 files), `design/prototypes/
+03-apple-hig-core-loop.html`), `design/PROTOTYPES.md`, `design/
+stitch-prompt.md`, and this file. `.venv/`, model files, and all real
 datasets (`test_videos/`, `Fit3D/`,
 `validation_results_fit3d*/`) are gitignored and machine-local/disk-only —
 a fresh clone starts from this file's description plus needs its own

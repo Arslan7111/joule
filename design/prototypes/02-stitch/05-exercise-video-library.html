@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JOULE COACH - Exercise Video Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#7e2c00",
+                        "on-surface-variant": "#e3bfb1",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#001c38",
+                        "primary-fixed-dim": "#ffb598",
+                        "surface": "#131313",
+                        "on-primary-fixed": "#360f00",
+                        "tertiary-container": "#0f93fe",
+                        "surface-dim": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-low": "#1c1b1b",
+                        "on-background": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#005228",
+                        "tertiary": "#a3c9ff",
+                        "on-tertiary": "#00315c",
+                        "on-primary": "#591d00",
+                        "on-surface": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-primary-container": "#4e1800",
+                        "primary": "#ffb598",
+                        "secondary-container": "#06bb63",
+                        "tertiary-fixed-dim": "#a3c9ff",
+                        "inverse-on-surface": "#313030",
+                        "outline": "#aa8a7e",
+                        "tertiary-fixed": "#d3e4ff",
+                        "surface-tint": "#ffb598",
+                        "surface-container-highest": "#353534",
+                        "background": "#131313",
+                        "on-secondary-container": "#00431f",
+                        "on-tertiary-fixed-variant": "#004882",
+                        "on-secondary-fixed": "#00210c",
+                        "primary-fixed": "#ffdbce",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#5a4137",
+                        "surface-bright": "#393939",
+                        "primary-container": "#f75f05",
+                        "secondary": "#4ae183",
+                        "inverse-primary": "#a53c00",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#6bfe9c",
+                        "on-error": "#690005",
+                        "on-secondary": "#003919",
+                        "secondary-fixed-dim": "#4ae183",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-container": "#002a50"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-lg": "32px",
+                        "gutter": "12px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "container-padding": "24px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-metrics": ["Hanken Grotesk"],
+                        "data-label": ["JetBrains Mono"],
+                        "data-value": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-metrics": ["48px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-label": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "data-value": ["20px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Custom scrollbar for horizontal lists */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary font-headline-md text-headline-md w-full top-0 sticky border-b border-outline-variant dark:border-outline-variant z-40 flex justify-between items-center px-container-padding h-16">
+<button class="hover:bg-surface-container-high transition-colors active:opacity-80 p-2 -ml-2 rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-primary tracking-tight">JOULE COACH</div>
+<button class="hover:bg-surface-container-high transition-colors active:opacity-80 p-2 -mr-2 rounded-full flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="videocam">videocam</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-[1200px] mx-auto px-container-padding pt-stack-md pb-stack-lg flex flex-col gap-stack-lg">
+<!-- Search & Filter -->
+<div class="flex flex-col gap-stack-sm md:flex-row md:items-center md:justify-between w-full">
+<div class="relative w-full md:w-96 border-b border-outline-variant">
+<span class="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-transparent border-none text-on-surface focus:ring-0 focus:outline-none pl-8 py-2 font-body-md text-body-md placeholder:text-on-surface-variant" placeholder="Search patterns..." type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto hide-scrollbar py-2">
+<span class="bg-primary-container text-on-primary-container px-3 py-1 font-data-label text-data-label uppercase tracking-widest whitespace-nowrap cursor-pointer">ALL</span>
+<span class="bg-surface-container text-on-surface px-3 py-1 font-data-label text-data-label uppercase tracking-widest whitespace-nowrap border border-outline-variant cursor-pointer hover:bg-surface-container-high">SQUAT</span>
+<span class="bg-surface-container text-on-surface px-3 py-1 font-data-label text-data-label uppercase tracking-widest whitespace-nowrap border border-outline-variant cursor-pointer hover:bg-surface-container-high">HINGE</span>
+<span class="bg-surface-container text-on-surface px-3 py-1 font-data-label text-data-label uppercase tracking-widest whitespace-nowrap border border-outline-variant cursor-pointer hover:bg-surface-container-high">PRESS</span>
+</div>
+</div>
+<!-- Section: Squat Patterns -->
+<section class="flex flex-col gap-stack-md w-full">
+<div class="flex items-center gap-gutter w-full">
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Squat Patterns</h2>
+<div class="h-px bg-outline-variant flex-grow"></div>
+<span class="font-data-label text-data-label text-on-surface-variant">04 ITEMS</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-unit">
+<!-- Video Card 1 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a deep squat movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing joint angles and mechanical efficiency. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKUr5JVAYbJogWAGUVEh_COtirBJN1RRTcifCSW1Ieox_uNxd-970AhbyCab3Q3MpCaDeJAL9NPTF6JUxX54TJYN6vQUjwo0Qe2jMPHZsxVmUd2oGgYu1G0mFvoLZ5gxi2N9MTDsfiYeizpQvFphHSpWJourQc9N6D5PSS3WbR1AvcgeKVws90SWSoLPY7evYSI9zbsqvZevnGciYH9rEGL5cG9fZJJFKQF7JwICrgB-jPTAtS5sZF"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">SQ-01</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            02:15
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">BILATERAL SQUAT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Primary lower body push pattern.</p>
+</div>
+</div>
+<!-- Video Card 2 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a front squat movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing upright torso angles and elbow positioning. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKvgrfyJSyCLHoUt2Tlpat0XrOlrdfxXTnoivPCCbMDB4BN8VL7KEDmihXQkxLRonsiSMYyZpZcRh8pLf_u9oHryjK343F2wHyiRoP7RPXhFsm1ACrL7Xr7ETi4GwLpGriGSKL3tBVsYJSfqLh8TdgWqbxJdyUVoPwHTYDpsM-hVpMjcvavPSRyl9uB1tKFl0ry7pFKJ1-2uUo_kOQJHKeLJq02ZEgk6_GIIFTQOE0ohM6zhVFQP17"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">SQ-02</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            03:45
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">FRONT SQUAT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Anterior loaded variation.</p>
+</div>
+</div>
+<!-- Video Card 3 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a split squat movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing asymmetrical leg positioning and balance. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmet6U-R-9py6_qs-21Dolj8ue2rvVGtCO4qma6JtvKqAi9Z2UQKVkbeNhRRlDqxOlaaQGJk0OK7OskD1NJKoEBSl_9K7_23MNdVEpKcWNlk2-4Mu3LYN8GmAL-5VfQAFgYIumU4eB1qlfOin4VIlWtBPMwtkx5pORIpjNizOQIq7HyPLT0Vnd8lX3lP-uxikrx_0rPNIEJHKYffGAyOdqKIkunhyPYWocRMr6bULXHVg12Y52yHPU"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">SQ-03</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            01:50
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">SPLIT SQUAT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Unilateral strength focus.</p>
+</div>
+</div>
+<!-- Video Card 4 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting an overhead squat movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing mobility and vertical alignment from hands to feet. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChYzf1bNxzGTqIddIT5Vl1-9irlL3beXxvj-e5icM4i51dRkRCupz5arGSxX52GjlYWbzc8g5jvH3bdhvJdaMgVaOIpvUDWQOOBllnjr71zAchO5Dtb7GZuMww3WHmYFx5rv3E_T7TNzFQpGWelsmir19rrx_aDocUr7EuQFFQHeP-2T4QQGPnqk72IrTSALTuCEMP1ytk1sLSytJEdW95FuwGaHgTCeVMf3O8vNaKhj8l_AgWIgEM"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">SQ-04</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            04:10
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">OVERHEAD SQUAT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Advanced mobility integration.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Hinge Patterns -->
+<section class="flex flex-col gap-stack-md w-full">
+<div class="flex items-center gap-gutter w-full">
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Hinge Patterns</h2>
+<div class="h-px bg-outline-variant flex-grow"></div>
+<span class="font-data-label text-data-label text-on-surface-variant">02 ITEMS</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-unit">
+<!-- Video Card 1 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a deadlift hinge movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing hip flexion and a neutral spine. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXJr-fY4TAyPFEivHkD6McfdUIhvbxJLQ7NCH0t121IoNag-ZvqdInHT5LOnVVy9svlKlNC93rfKXt6EaUJ66LjieHdF0rr-4tRhVrtgyv9430xgRmT6_0qgfxyaZCiLepAzUEapbwl4CHAoD6QsBB3LRTqN4T8pBw85fHPaBClytwIlA4-OpTZJzZ20mDlheoxIVUKjvUgqGwPNmOhfvbsvJyfbG_jcgDhILeUVUkTjruDJ4Ytc3c"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">HG-01</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            03:20
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">CONVENTIONAL DEADLIFT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Primary posterior chain pull.</p>
+</div>
+</div>
+<!-- Video Card 2 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a Romanian deadlift movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing minimal knee bend and maximum hip extension. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJmlFA7ouhlHDSMHGQi8STctFHtaCPyLv5NLZNSQ_joK9Ael-e0o52KtumHqM8mbqZL0NMs_pXkDO0P99-AsoG17DiiSMScbyJHbkUE0IWvzhlx1m1qUKUCDBWRlvi2T-3BG2RK3O_fpuk-jn_9SUuzQPfSY9hHPSPfWJ0K6DV5vABQN_hAROcrgGzBWz55W2GbVazylTPOiHtnqz30y63Rx-P2Qvhk_bL3K9cEOjTVEZMVozyxaW6"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">HG-02</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            02:45
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">ROMANIAN DEADLIFT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Hamstring dominant hinge.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Press Patterns -->
+<section class="flex flex-col gap-stack-md w-full">
+<div class="flex items-center gap-gutter w-full">
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Press Patterns</h2>
+<div class="h-px bg-outline-variant flex-grow"></div>
+<span class="font-data-label text-data-label text-on-surface-variant">02 ITEMS</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-unit">
+<!-- Video Card 1 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a strict overhead press movement pattern. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing vertical arm extension and shoulder mechanics. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_NeSyB82qCsqtqjGUhPSPRa7KvEFYLTT3gTEc5OGsFOEua9kXBeXLm9ypaYGl9Kx0iHd_Rma9Kaqn2sf17wK4EorsHs1E1N5U3pSPy4a2W1xgNmhyEWzv17TYdTS76YOX4uJv0TZ0SU8OZRt75t1l6irX4cmirfx7ldVcX8C64yzUtJql0SJDvnNJE6FWQLPlUO3OnMFNh3i9f-v9sg4dWBkCqacjsN4wsud3rN2XC3vT7EgBCGv9"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">PR-01</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            01:30
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">STRICT PRESS</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Vertical push strength.</p>
+</div>
+</div>
+<!-- Video Card 2 -->
+<div class="bg-surface-container-low border border-outline-variant flex flex-col group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="aspect-square relative w-full overflow-hidden bg-surface-dim flex items-center justify-center p-4">
+<img class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist wireframe skeleton depicting a bench press movement pattern from a side profile. The graphic uses precise geometric lines and nodes on a stark black background, emphasizing chest expansion and triceps extension. The mood is technical and clinical, with high contrast primary orange accents on the active joints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcdOiU9AZYxgcr6hTZPD-i4PmD-EwWegVCVW0jnBE7BR_p3u9ZPowMPiaDu3ClS8UrpWKwqIGc-zbFxRaxN1npYolubEPX5Ic7sGyR7rFIxPx7EyoAHR5aBpZl4YqRlNJA9r7kbXSoFwMjiPCX_DbhIRmFLyEJBJWhK7FdSHxH4U_RpKkYQlD0mDttzXbPNPDh1EPAbveQ0n5G-AmbEUwMArbRthdH7wONJMyQjPXvdnTnfVCrXdH0"/>
+<div class="absolute top-2 left-2 bg-surface text-on-surface font-data-label text-data-label px-2 py-0.5 border border-outline-variant">PR-02</div>
+<div class="absolute bottom-2 right-2 bg-surface/80 backdrop-blur-sm text-primary font-data-label text-data-label px-2 py-0.5 border border-primary/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+                            02:05
+                        </div>
+</div>
+<div class="p-3 flex flex-col gap-1 border-t border-outline-variant">
+<h3 class="font-data-value text-data-value text-on-surface truncate">BENCH PRESS</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Horizontal push strength.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container text-primary dark:text-primary font-data-label text-data-label font-headline-md text-headline-md text-primary fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline-variant flex justify-around items-center h-20 px-4 pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-75 w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="home_precision_guidance">multiple_airports</span>
+<span class="text-[10px] tracking-wider">HOME</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold hover:text-on-surface transition-colors active:scale-95 duration-75 w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="local_library" data-weight="fill" style="font-variation-settings: 'FILL' 1;">local_library</span>
+<span class="text-[10px] tracking-wider">LIBRARY</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-75 w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="person">person</span>
+<span class="text-[10px] tracking-wider">PROFILE</span>
+</a>
+</nav>
+</body></html>

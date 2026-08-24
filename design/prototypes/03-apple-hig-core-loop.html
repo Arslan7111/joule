@@ -1,0 +1,507 @@
+<title>Joule Coach Native</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<style>
+  /* ---------- Page chrome tokens (outer studio page, standard 3-state theming) ---------- */
+  :root {
+    --page-bg: #f6f4f0;
+    --page-surface: #ffffff;
+    --page-ink: #1e1c18;
+    --page-muted: #6b6659;
+    --page-line: #e2ddd0;
+    --page-accent: #b5651d;
+    --flag-bg: #fdf1e4;
+    --flag-line: #e3b98a;
+    --flag-ink: #7a4210;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #17150f;
+      --page-surface: #201d16;
+      --page-ink: #ecE6d8;
+      --page-muted: #a89d89;
+      --page-line: #362f22;
+      --page-accent: #e08a4a;
+      --flag-bg: #2e2013;
+      --flag-line: #5c3f22;
+      --flag-ink: #f0c493;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #17150f;
+    --page-surface: #201d16;
+    --page-ink: #ecE6d8;
+    --page-muted: #a89d89;
+    --page-line: #362f22;
+    --page-accent: #e08a4a;
+    --flag-bg: #2e2013;
+    --flag-line: #5c3f22;
+    --flag-ink: #f0c493;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--page-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 52px 28px 96px; }
+
+  header.page { max-width: 700px; margin-bottom: 34px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--page-accent); margin: 0 0 12px; font-weight: 600;
+  }
+  h1 {
+    font-family: ui-serif, "New York", Georgia, "Times New Roman", serif;
+    font-weight: 600; font-size: clamp(30px, 4.4vw, 42px); line-height: 1.08;
+    letter-spacing: -0.01em; margin: 0 0 16px; text-wrap: balance;
+  }
+  .lede { font-size: 16.5px; color: var(--page-muted); margin: 0; max-width: 62ch; }
+  .lede code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em;
+    background: var(--page-surface); border: 1px solid var(--page-line);
+    border-radius: 4px; padding: 0.05em 0.35em;
+  }
+
+  .flag {
+    background: var(--flag-bg); border: 1px solid var(--flag-line); border-radius: 12px;
+    padding: 20px 24px; max-width: 780px; margin: 0 0 40px;
+  }
+  .flag .flag-title {
+    font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 700;
+    color: var(--flag-ink); margin: 0 0 10px;
+  }
+  .flag p { margin: 0 0 10px; font-size: 14.5px; color: var(--page-ink); }
+  .flag p:last-child { margin-bottom: 0; }
+  .flag code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em;
+    background: var(--page-surface); border: 1px solid var(--page-line);
+    border-radius: 4px; padding: 0.05em 0.35em;
+  }
+
+  .studio {
+    display: grid;
+    grid-template-columns: minmax(240px, 300px) auto 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .controls { display: flex; flex-direction: column; gap: 22px; }
+  .control-group label {
+    display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--page-muted); font-weight: 600; margin-bottom: 10px;
+  }
+  .screen-tabs { display: flex; flex-direction: column; gap: 6px; }
+  .screen-tabs button {
+    text-align: left; padding: 11px 14px; border-radius: 9px; border: 1px solid transparent;
+    background: transparent; color: var(--page-ink); font: inherit; font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; gap: 10px;
+  }
+  .screen-tabs button .num {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px;
+    color: var(--page-muted); width: 16px;
+  }
+  .screen-tabs button:hover { background: var(--page-surface); }
+  .screen-tabs button.active {
+    background: var(--page-surface); border-color: var(--page-line);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); font-weight: 600;
+  }
+  .screen-tabs button.active .num { color: var(--page-accent); }
+
+  .theme-toggle {
+    display: flex; border: 1px solid var(--page-line); border-radius: 9px; overflow: hidden;
+  }
+  .theme-toggle button {
+    flex: 1; padding: 9px 0; border: none; background: var(--page-surface); color: var(--page-ink);
+    font: inherit; font-size: 13px; cursor: pointer;
+  }
+  .theme-toggle button.active { background: var(--page-accent); color: #1c1108; font-weight: 700; }
+
+  .grounding {
+    font-size: 13px; color: var(--page-muted); border-top: 1px solid var(--page-line);
+    padding-top: 16px; margin-top: 4px;
+  }
+  .grounding strong { color: var(--page-ink); display: block; margin-bottom: 4px; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* ---------- Phone stage ---------- */
+  .stage { display: flex; justify-content: center; }
+  .phone-shell {
+    width: 390px; height: 844px; border-radius: 54px; padding: 12px;
+    background: #0b0b0c; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .phone-screen {
+    position: relative; width: 100%; height: 100%; border-radius: 42px; overflow: hidden;
+    background: var(--bg); color: var(--label);
+  }
+  .island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 100px; height: 30px; background: #000; border-radius: 16px; z-index: 40;
+  }
+
+  /* App-level dynamic color tokens, toggled independently of page theme */
+  .phone-screen.theme-light {
+    --bg: #f4f2ee; --bg-elevated: #ffffff; --bg-grouped: #ece7dd;
+    --label: #1c1f22; --label-secondary: #6f6a60; --label-tertiary: #a19c8f;
+    --separator: #ddd7c9; --accent: #f5a623; --accent-ink: #241a02;
+    --teal: #1f7a6e; --teal-fill: #2a9d8f; --red: #c0392b;
+    --sheet-scrim: rgba(28,31,34,0.35); --material: rgba(244,242,238,0.72);
+  }
+  .phone-screen.theme-dark {
+    --bg: #1c1f22; --bg-elevated: #24282c; --bg-grouped: #202327;
+    --label: #f4f2ee; --label-secondary: #a9a496; --label-tertiary: #767267;
+    --separator: #34383c; --accent: #f5a623; --accent-ink: #241a02;
+    --teal: #5cc9ba; --teal-fill: #2a9d8f; --red: #e8776a;
+    --sheet-scrim: rgba(0,0,0,0.55); --material: rgba(28,31,34,0.72);
+  }
+
+  .app-view { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; }
+  .app-view.active { opacity: 1; pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) { .app-view { transition: none; } }
+
+  .nav-bar {
+    padding: 64px 20px 14px; font-family: ui-serif, "New York", Georgia, serif;
+    font-weight: 600; font-size: 30px; letter-spacing: -0.01em;
+  }
+  .nav-sub { font-family: -apple-system, sans-serif; font-weight: 400; font-size: 14.5px; color: var(--label-secondary); margin-top: 6px; }
+
+  /* ---- Screen 1: Onboarding ---- */
+  .section-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 0 4px; margin: 22px 0 8px;
+  }
+  .section-title { font-size: 12.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--label-secondary); font-weight: 600; }
+  .section-caption { font-size: 12px; color: var(--label-tertiary); padding: 0 4px 8px; }
+  .list-group { background: var(--bg-elevated); border-radius: 12px; overflow: hidden; margin: 0 16px; border: 1px solid var(--separator); }
+  .list-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 13px 16px; border-bottom: 1px solid var(--separator); font-size: 16px; min-height: 44px;
+  }
+  .list-row:last-child { border-bottom: none; }
+  .list-row .cam-note { font-size: 12px; color: var(--label-tertiary); display: block; margin-top: 2px; }
+  .glyph { width: 22px; height: 22px; flex-shrink: 0; }
+  .scroll-body { padding: 0 4px 100px; overflow-y: auto; height: calc(100% - 150px); }
+
+  .cta-dock {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 20px 28px;
+    background: linear-gradient(to top, var(--bg) 60%, transparent); display: flex; flex-direction: column; gap: 8px;
+  }
+  .btn-primary {
+    width: 100%; padding: 13px 20px; min-height: 44px; border-radius: 12px; border: none;
+    background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 700; font-size: 16.5px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-secondary {
+    width: 100%; padding: 11px 20px; min-height: 44px; border-radius: 12px;
+    background: transparent; border: 1px solid var(--separator); color: var(--label);
+    font: inherit; font-size: 14.5px; cursor: pointer;
+  }
+  .footnote-center { text-align: center; font-size: 12px; color: var(--label-tertiary); margin-top: 2px; }
+
+  /* ---- Screen 2: Kiosk check-in ---- */
+  .kiosk { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 28px; }
+  .kiosk .big-check { width: 84px; height: 84px; margin-bottom: 22px; }
+  .kiosk h2 { font-family: ui-serif, "New York", Georgia, serif; font-size: 30px; font-weight: 600; margin: 0 0 10px; }
+  .kiosk .ts { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: var(--label-secondary); margin-bottom: 30px; }
+  .station-card {
+    width: 100%; background: var(--bg-elevated); border: 1px solid var(--separator); border-radius: 14px;
+    padding: 16px 18px; text-align: left; margin-bottom: 14px;
+  }
+  .station-card .k { font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--label-tertiary); margin-bottom: 4px; }
+  .station-card .v { font-size: 19px; font-weight: 600; }
+  .kiosk-help { font-size: 13.5px; color: var(--label-secondary); margin-top: 18px; }
+  .kiosk-help a { color: var(--accent); font-weight: 600; text-decoration: none; }
+
+  /* ---- Screen 3: Live session ---- */
+  .live-view { height: 100%; position: relative; background:
+    radial-gradient(120% 90% at 50% 20%, #2a2f33 0%, #121417 55%, #0a0b0c 100%); }
+  .live-topbar {
+    position: absolute; top: 0; left: 0; right: 0; padding: 56px 20px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--material); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    color: var(--label);
+  }
+  .rec-pill { display: flex; align-items: center; gap: 7px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; }
+  .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+  .close-tap { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+
+  .live-center { position: absolute; top: 44%; left: 0; right: 0; transform: translateY(-50%); text-align: center; color: #f4f2ee; }
+  .live-exercise { font-family: ui-serif, "New York", Georgia, serif; font-size: 19px; font-weight: 500; opacity: 0.85; margin-bottom: 4px; }
+  .live-count { font-size: 108px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+  .live-count-label { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; margin-top: 6px; }
+
+  .live-warning {
+    position: absolute; left: 16px; right: 16px; bottom: 40px; padding: 14px 16px; border-radius: 14px;
+    background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 15px; min-height: 44px;
+  }
+  .live-warning .glyph { flex-shrink: 0; }
+  .live-warning span.msg { flex: 1; }
+
+  /* ---- Screen 4: Report sheet ---- */
+  .sheet-scrim { position: absolute; inset: 0; background: var(--sheet-scrim); }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; top: 64px; background: var(--bg);
+    border-radius: 28px 28px 0 0; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--separator); margin: 10px auto 4px; }
+  .sheet-nav { display: flex; justify-content: space-between; align-items: center; padding: 6px 18px 4px; }
+  .sheet-nav .title { font-weight: 700; font-size: 15px; }
+  .sheet-nav .done { color: var(--accent-ink); background: var(--accent); font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 20px; }
+  .sheet-body { flex: 1; overflow-y: auto; padding: 10px 20px 32px; }
+
+  .compare-row { display: flex; gap: 14px; margin: 8px 0 4px; }
+  .compare-card { flex: 1; background: var(--bg-elevated); border: 1px solid var(--separator); border-radius: 14px; padding: 10px; text-align: center; }
+  .compare-card .cap { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--label-tertiary); margin-bottom: 4px; font-weight: 600; }
+  .compare-card svg { width: 100%; height: 108px; }
+
+  .deviation-note {
+    display: flex; gap: 10px; align-items: flex-start; background: var(--bg-elevated);
+    border: 1px solid var(--separator); border-left: 3px solid var(--red); border-radius: 10px;
+    padding: 12px 14px; margin: 14px 0; font-size: 14px;
+  }
+  .deviation-note strong { display: block; font-size: 13px; margin-bottom: 2px; color: var(--red); }
+
+  .rep-strip { display: flex; gap: 4px; margin: 16px 0 6px; }
+  .rep-seg { flex: 1; height: 30px; border-radius: 6px; background: var(--teal-fill); }
+  .rep-seg.flag { background: var(--red); }
+  .rep-seg.low-conf { background: transparent; border: 1.5px dashed var(--label-tertiary); }
+  .rep-caption { font-size: 12px; color: var(--label-tertiary); margin-bottom: 18px; }
+
+  .summary {
+    font-family: ui-serif, "New York", Georgia, serif; font-size: 16.5px; line-height: 1.5;
+    color: var(--label); margin: 4px 0 22px;
+  }
+
+  .confidence-badge {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600;
+    color: var(--teal); border: 1.5px solid var(--teal); border-radius: 20px; padding: 4px 10px; margin-bottom: 14px;
+  }
+
+  @media (max-width: 980px) {
+    .studio { grid-template-columns: 1fr; }
+    .stage { order: -1; margin-bottom: 8px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <p class="eyebrow">Design prototype &middot; Candidate 03 of 3</p>
+    <h1>Joule Coach Native</h1>
+    <p class="lede">Same four core-loop screens, rebuilt against Apple's Human Interface Guidelines rather than a custom design system: real system-font pairing, working light &amp; dark appearance, 44pt targets, and materials for layering. Grounded in <code>PRODUCT_SPEC.md</code> &sect;3.2&ndash;3.3.</p>
+  </header>
+
+  <div class="flag">
+    <p class="flag-title">Correction carried over from candidate 02's review</p>
+    <p><strong>The "supported movements" list on this screen is deliberately different from <code>PRODUCT_SPEC.md</code> &sect;3.3's own onboarding copy.</strong> That copy ("Joule currently tracks: squat, deadlift, curl, row, overhead press") turns out to be the actual source both candidate 02's Stitch screens inherited &mdash; and it predates almost all of this project's classifier validation work (spec written 2026-08-07, commit <code>fb9427b</code>; the confidence-gating and lunge-recovery findings that contradict it landed 2026-08-11/12).</p>
+    <p>This screen uses the current validated state from <code>HANDOVER.md</code> instead: a three-tier disclosure (tracked / early support / not yet) rather than the spec's flat two-tier list, so "developing" claims don't get flattened into either "yes" or "no." <code>PRODUCT_SPEC.md</code> &sect;3.3 itself already anticipates this &mdash; &sect;4's Sprint&nbsp;0 says to "finalize the MVP exercise list against whatever Phase D actually confirms holds up" &mdash; this screen is a candidate for that finalized copy, not a deviation from intent.</p>
+  </div>
+
+  <div class="studio">
+    <div class="controls">
+      <div class="control-group">
+        <label>Screen</label>
+        <div class="screen-tabs" id="tabs">
+          <button class="active" data-screen="onboarding" data-idx="1">01</button>
+          <button data-screen="checkin" data-idx="2">02</button>
+          <button data-screen="live" data-idx="3">03</button>
+          <button data-screen="report" data-idx="4">04</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Appearance</label>
+        <div class="theme-toggle">
+          <button class="active" data-appearance="light">Light</button>
+          <button data-appearance="dark">Dark</button>
+        </div>
+      </div>
+      <div class="grounding" id="grounding">
+        <strong>Grounded in</strong>
+        <span id="grounding-text">&sect;3.3 "Onboarding / Check-in," point 1 &mdash; the liability/limitations disclosure card.</span>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="phone-shell">
+        <div class="phone-screen theme-light" id="phoneScreen">
+          <div class="island"></div>
+
+          <!-- Screen 1: Onboarding -->
+          <div class="app-view active" data-view="onboarding">
+            <div class="nav-bar">What Joule tracks<div class="nav-sub">A plain read on what we can score today.</div></div>
+            <div class="scroll-body">
+              <div class="section-header"><span class="section-title">Tracked today</span></div>
+              <div class="list-group">
+                <div class="list-row"><span>Squat</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="list-row"><span>Push-up</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="list-row"><span>Pull-up</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="list-row"><span>Bench press<span class="cam-note">Marked stations only &mdash; needs a side-on camera</span></span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="list-row"><span>Front raise</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="list-row"><span>Sit-up</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </div>
+
+              <div class="section-header"><span class="section-title">Early support</span></div>
+              <p class="section-caption">Recognized with lower confidence. We'll tell you when we're not sure.</p>
+              <div class="list-group">
+                <div class="list-row"><span>Bicep curl</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2"><circle cx="12" cy="12" r="9.5" stroke-dasharray="3 3"/></svg></div>
+                <div class="list-row"><span>Lunge</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2"><circle cx="12" cy="12" r="9.5" stroke-dasharray="3 3"/></svg></div>
+              </div>
+
+              <div class="section-header"><span class="section-title">Not yet</span></div>
+              <p class="section-caption">On the roadmap. We won't guess at these.</p>
+              <div class="list-group">
+                <div class="list-row" style="color:var(--label-secondary)"><span>Row</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" opacity="0.55"><circle cx="12" cy="12" r="9.5"/><path d="M7 17L17 7" stroke-linecap="round"/></svg></div>
+                <div class="list-row" style="color:var(--label-secondary)"><span>Deadlift</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" opacity="0.55"><circle cx="12" cy="12" r="9.5"/><path d="M7 17L17 7" stroke-linecap="round"/></svg></div>
+                <div class="list-row" style="color:var(--label-secondary)"><span>Overhead press</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" opacity="0.55"><circle cx="12" cy="12" r="9.5"/><path d="M7 17L17 7" stroke-linecap="round"/></svg></div>
+                <div class="list-row" style="color:var(--label-secondary)"><span>Lateral raise</span><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" opacity="0.55"><circle cx="12" cy="12" r="9.5"/><path d="M7 17L17 7" stroke-linecap="round"/></svg></div>
+              </div>
+            </div>
+            <div class="cta-dock">
+              <button class="btn-primary">Continue<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <p class="footnote-center">Step 1 of 3</p>
+            </div>
+          </div>
+
+          <!-- Screen 2: Kiosk check-in -->
+          <div class="app-view" data-view="checkin">
+            <div class="kiosk">
+              <svg class="big-check" viewBox="0 0 24 24" fill="none" stroke="#1f7a6e" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <h2>Checked in</h2>
+              <p class="ts">08:42:15 &middot; Wed</p>
+              <div class="station-card">
+                <div class="k">Assigned station</div>
+                <div class="v">Squat rack 4</div>
+              </div>
+              <div class="station-card">
+                <div class="k">Reference sync</div>
+                <div class="v" style="font-size:15px;color:var(--label-secondary)">Matched to your last capture</div>
+              </div>
+              <p class="kiosk-help">Not you? <a href="#">Get staff help</a></p>
+            </div>
+          </div>
+
+          <!-- Screen 3: Live session -->
+          <div class="app-view" data-view="live">
+            <div class="live-view">
+              <div class="live-topbar">
+                <div class="rec-pill"><span class="rec-dot"></span>01:42</div>
+                <div class="close-tap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg></div>
+              </div>
+              <div class="live-center">
+                <div class="live-exercise">Back squat</div>
+                <div class="live-count">08</div>
+                <div class="live-count-label">reps</div>
+              </div>
+              <div class="live-warning">
+                <svg class="glyph" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2L12 3z" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke-linecap="round"/></svg>
+                <span class="msg">Step back &mdash; stay fully in frame</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 4: Post-set report (sheet) -->
+          <div class="app-view" data-view="report">
+            <div class="sheet-scrim"></div>
+            <div class="sheet">
+              <div class="grabber"></div>
+              <div class="sheet-nav"><span class="title">Set complete</span><span class="done">Done</span></div>
+              <div class="sheet-body">
+                <span class="confidence-badge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9.5"/></svg>
+                  3D fused &middot; 2 cameras
+                </span>
+                <div class="compare-row">
+                  <div class="compare-card">
+                    <div class="cap">Rep 6</div>
+                    <svg viewBox="0 0 100 100">
+                      <g stroke="var(--label-tertiary)" stroke-width="2.4" fill="none" stroke-linecap="round">
+                        <line x1="50" y1="22" x2="50" y2="46"/>
+                        <line x1="50" y1="46" x2="34" y2="60"/>
+                        <line x1="34" y1="60" x2="30" y2="82"/>
+                        <line x1="50" y1="46" x2="62" y2="60"/>
+                        <line x1="62" y1="60" x2="66" y2="82"/>
+                        <line x1="50" y1="28" x2="34" y2="38"/>
+                        <line x1="50" y1="28" x2="66" y2="38"/>
+                      </g>
+                      <circle cx="50" cy="16" r="7" fill="none" stroke="var(--label-tertiary)" stroke-width="2.4"/>
+                      <circle cx="34" cy="60" r="4.5" fill="var(--red)" stroke="none"/>
+                    </svg>
+                  </div>
+                  <div class="compare-card">
+                    <div class="cap">Reference</div>
+                    <svg viewBox="0 0 100 100">
+                      <g stroke="var(--label-tertiary)" stroke-width="2.4" fill="none" stroke-linecap="round">
+                        <line x1="50" y1="22" x2="50" y2="46"/>
+                        <line x1="50" y1="46" x2="38" y2="60"/>
+                        <line x1="38" y1="60" x2="34" y2="82"/>
+                        <line x1="50" y1="46" x2="62" y2="60"/>
+                        <line x1="62" y1="60" x2="66" y2="82"/>
+                        <line x1="50" y1="28" x2="34" y2="38"/>
+                        <line x1="50" y1="28" x2="66" y2="38"/>
+                      </g>
+                      <circle cx="50" cy="16" r="7" fill="none" stroke="var(--label-tertiary)" stroke-width="2.4"/>
+                      <circle cx="38" cy="60" r="4.5" fill="var(--teal-fill)" stroke="none"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="deviation-note">
+                  <div>
+                    <strong>Left knee drifted inward</strong>
+                    Reps 5&ndash;6, compared to your reference capture.
+                  </div>
+                </div>
+                <div class="rep-strip">
+                  <div class="rep-seg"></div><div class="rep-seg"></div><div class="rep-seg"></div><div class="rep-seg"></div>
+                  <div class="rep-seg flag"></div><div class="rep-seg flag"></div>
+                  <div class="rep-seg low-conf"></div><div class="rep-seg"></div>
+                </div>
+                <p class="rep-caption">Rep-by-rep &middot; solid teal = clean, red = flagged, dashed = lower confidence</p>
+                <p class="summary">Strong depth through most of the set. Reps 5 and 6 pulled load off your glutes as your left knee tracked inward &mdash; worth a look before your next session.</p>
+                <button class="btn-primary">Watch the 40-second fix-it clip</button>
+                <button class="btn-secondary" style="margin-top:8px;">Log without watching</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('#tabs button');
+  const views = document.querySelectorAll('.app-view');
+  const groundingText = document.getElementById('grounding-text');
+  const groundings = {
+    onboarding: '&sect;3.3 "Onboarding / Check-in," point 1 &mdash; the liability/limitations disclosure card.',
+    checkin: '&sect;3.3 point 3 &mdash; kiosk QR/badge tap, confirmation within 3 seconds, staff-assisted fallback one tap away.',
+    live: '&sect;3.3 "Live Session View" &mdash; rep counter and stay-in-frame cue only; deliberately no live form-accuracy overlay in MVP.',
+    report: '&sect;3.3 "Post-Session Report" &mdash; worst-rep skeleton vs. reference, rep-by-rep strip, plain-language summary, one next-action.'
+  };
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.screen;
+      views.forEach(v => v.classList.toggle('active', v.dataset.view === target));
+      groundingText.innerHTML = groundings[target];
+    });
+  });
+
+  const appearanceBtns = document.querySelectorAll('.theme-toggle button');
+  const phoneScreen = document.getElementById('phoneScreen');
+  appearanceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      appearanceBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = btn.dataset.appearance;
+      phoneScreen.classList.toggle('theme-light', mode === 'light');
+      phoneScreen.classList.toggle('theme-dark', mode === 'dark');
+    });
+  });
+</script>

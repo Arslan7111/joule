@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Joule Coach - Adherence</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Brand Anchors -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed-variant": "#7e2c00",
+                        "on-surface-variant": "#e3bfb1",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#001c38",
+                        "primary-fixed-dim": "#ffb598",
+                        "surface": "#131313",
+                        "on-primary-fixed": "#360f00",
+                        "tertiary-container": "#0f93fe",
+                        "surface-dim": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-low": "#1c1b1b",
+                        "on-background": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#005228",
+                        "tertiary": "#a3c9ff",
+                        "on-tertiary": "#00315c",
+                        "on-primary": "#591d00",
+                        "on-surface": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-primary-container": "#4e1800",
+                        "primary": "#ffb598",
+                        "secondary-container": "#06bb63",
+                        "tertiary-fixed-dim": "#a3c9ff",
+                        "inverse-on-surface": "#313030",
+                        "outline": "#aa8a7e",
+                        "tertiary-fixed": "#d3e4ff",
+                        "surface-tint": "#ffb598",
+                        "surface-container-highest": "#353534",
+                        "background": "#131313",
+                        "on-secondary-container": "#00431f",
+                        "on-tertiary-fixed-variant": "#004882",
+                        "on-secondary-fixed": "#00210c",
+                        "primary-fixed": "#ffdbce",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#5a4137",
+                        "surface-bright": "#393939",
+                        "primary-container": "#f75f05",
+                        "secondary": "#4ae183",
+                        "inverse-primary": "#a53c00",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#6bfe9c",
+                        "on-error": "#690005",
+                        "on-secondary": "#003919",
+                        "secondary-fixed-dim": "#4ae183",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-container": "#002a50"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "stack-lg": "32px",
+                        "gutter": "12px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "container-padding": "24px",
+                        "unit": "4px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-metrics": ["Hanken Grotesk"],
+                        "data-label": ["JetBrains Mono"],
+                        "data-value": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "display-metrics": ["48px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "data-label": ["14px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "500" }],
+                        "data-value": ["20px", { lineHeight: "20px", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom pattern for unobserved data state mapping to surface-variant color */
+        .bg-pattern-unobserved {
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 4px,
+                #353534 4px, /* surface-variant */
+                #353534 8px
+            );
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar from JSON -->
+<!-- Applying: style_bg_color, style_primary_color, style_typography, style_component_shape, style_separation_logic, style_shell_layout, style_brand_logo -->
+<header class="bg-surface text-primary font-headline-md text-headline-md w-full top-0 sticky border-b border-outline-variant flex justify-between items-center px-container-padding h-16 w-full z-40">
+<button class="hover:bg-surface-container-high transition-colors active:opacity-80 p-2 rounded flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">sensors</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-primary tracking-tight">
+            JOULE COACH
+        </div>
+<button class="hover:bg-surface-container-high transition-colors active:opacity-80 p-2 rounded flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">videocam</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-container-padding py-stack-md flex flex-col gap-stack-lg max-w-5xl mx-auto w-full pb-32 md:pb-stack-md">
+<!-- Summary Section -->
+<section class="flex flex-col gap-unit">
+<h1 class="font-data-label text-data-label text-on-surface-variant uppercase">Adherence Protocol</h1>
+<div class="flex items-baseline gap-gutter">
+<span class="font-display-metrics text-display-metrics text-primary">82%</span>
+<span class="font-body-md text-body-md text-on-surface">Weekly Target</span>
+</div>
+<div class="bg-surface-container border border-outline-variant px-3 py-2 mt-stack-sm flex items-start gap-gutter">
+<span class="material-symbols-outlined text-outline-variant text-[18px] mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
+<p class="font-data-label text-data-label text-on-surface-variant leading-relaxed">
+                    1 SESSION UNOBSERVED DUE TO CAMERA MAINTENANCE. DATA EXCLUDED FROM KINEMATIC AVERAGES.
+                </p>
+</div>
+</section>
+<!-- Chart Section (Bento style) -->
+<section class="flex flex-col gap-stack-sm">
+<!-- Legend -->
+<div class="flex flex-wrap gap-stack-md items-center font-data-label text-data-label text-on-surface mb-unit">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-primary border border-primary"></div>
+<span>DETECTED</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-transparent border border-outline"></div>
+<span>PLANNED</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-pattern-unobserved border border-surface-variant"></div>
+<span>UNOBSERVED</span>
+</div>
+</div>
+<!-- Planned vs Detected Chart Grid -->
+<div class="bg-surface-container-lowest border border-outline-variant p-stack-md relative h-72 flex flex-col">
+<!-- Y-Axis Lines (Background) -->
+<div class="absolute inset-0 px-stack-md py-stack-md flex flex-col justify-between pointer-events-none z-0">
+<div class="border-t border-surface-variant w-full h-0"></div>
+<div class="border-t border-surface-variant w-full h-0"></div>
+<div class="border-t border-surface-variant w-full h-0"></div>
+<div class="border-t border-surface-variant w-full h-0"></div>
+<div class="border-t border-surface-variant w-full h-0"></div>
+</div>
+<!-- X-Axis Bars -->
+<div class="flex-grow flex justify-between items-end z-10 relative mt-4">
+<!-- Day 1: M (Full adherence) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center group">
+<!-- Planned -->
+<div class="absolute bottom-0 w-full h-[90%] border border-outline"></div>
+<!-- Detected -->
+<div class="absolute bottom-0 w-full h-[88%] bg-primary opacity-90 transition-all"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant">M</span>
+</div>
+<!-- Day 2: T (Unobserved) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center">
+<!-- Planned -->
+<div class="absolute bottom-0 w-full h-[80%] border border-outline"></div>
+<!-- Unobserved Hash -->
+<div class="absolute bottom-0 w-full h-[80%] bg-pattern-unobserved border-t border-surface-variant"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant">T</span>
+</div>
+<!-- Day 3: W (Partial adherence) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center">
+<div class="absolute bottom-0 w-full h-[95%] border border-outline"></div>
+<div class="absolute bottom-0 w-full h-[45%] bg-primary opacity-90"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant">W</span>
+</div>
+<!-- Day 4: T (Rest day / minimal planned) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center">
+<div class="absolute bottom-0 w-full h-[15%] border border-outline"></div>
+<div class="absolute bottom-0 w-full h-[15%] bg-primary opacity-90"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant">T</span>
+</div>
+<!-- Day 5: F (Full adherence) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center">
+<div class="absolute bottom-0 w-full h-[100%] border border-outline"></div>
+<div class="absolute bottom-0 w-full h-[98%] bg-primary opacity-90"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant">F</span>
+</div>
+<!-- Day 6: S (Over adherence) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center">
+<div class="absolute bottom-0 w-full h-[70%] border border-outline"></div>
+<div class="absolute bottom-0 w-full h-[85%] bg-primary opacity-90 border-t-2 border-secondary"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant">S</span>
+</div>
+<!-- Day 7: S (Missed session) -->
+<div class="flex flex-col items-center gap-2 w-1/7">
+<div class="relative w-8 h-48 flex items-end justify-center">
+<div class="absolute bottom-0 w-full h-[60%] border border-outline"></div>
+<div class="absolute bottom-0 w-full h-[0%] bg-primary opacity-90"></div>
+</div>
+<span class="font-data-label text-data-label text-outline-variant">S</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Technical Metrics -->
+<section class="grid grid-cols-2 gap-gutter">
+<div class="border border-outline-variant bg-surface p-stack-sm flex flex-col gap-unit">
+<span class="font-data-label text-data-label text-on-surface-variant">KINEMATIC FIDELITY</span>
+<span class="font-data-value text-data-value text-on-surface">94.2%</span>
+<div class="w-full bg-surface-container h-1 mt-1">
+<div class="bg-primary h-full w-[94%]"></div>
+</div>
+</div>
+<div class="border border-outline-variant bg-surface p-stack-sm flex flex-col gap-unit">
+<span class="font-data-label text-data-label text-on-surface-variant">VOLUME LOAD</span>
+<span class="font-data-value text-data-value text-on-surface">12,450 KG</span>
+<div class="w-full bg-surface-container h-1 mt-1">
+<div class="bg-primary h-full w-[80%]"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar from JSON -->
+<!-- Profile is Active. Applying contextual logic from JSON. -->
+<nav class="bg-surface-container font-data-label text-data-label fixed bottom-0 w-full z-50 border-t border-outline-variant flex justify-around items-center h-20 px-4 pb-safe md:hidden">
+<!-- HOME (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-75 gap-1">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">multiple_airports</span>
+<span>HOME</span>
+</button>
+<!-- LIBRARY (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-75 gap-1">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">local_library</span>
+<span>LIBRARY</span>
+</button>
+<!-- PROFILE (Active for Adherence/Progress) -->
+<button class="flex flex-col items-center justify-center text-primary font-bold active:scale-95 duration-75 gap-1">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">person</span>
+<span>PROFILE</span>
+</button>
+</nav>
+<!-- Desktop Nav Fallback Overlay (Optional based on design system, usually integrated in top bar for desktop, but hiding bottom bar is required) -->
+<div class="hidden md:flex fixed left-0 top-16 h-full w-24 flex-col gap-8 items-center pt-8 border-r border-outline-variant bg-surface-container z-30">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors gap-1">
+<span class="material-symbols-outlined text-[24px]">multiple_airports</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors gap-1">
+<span class="material-symbols-outlined text-[24px]">local_library</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold border-l-2 border-primary w-full gap-1">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">person</span>
+</button>
+</div>
+</body></html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Weekly Plan Builder - JOULE COACH</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#7e2c00",
+                        "on-surface-variant": "#e3bfb1",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#001c38",
+                        "primary-fixed-dim": "#ffb598",
+                        "surface": "#131313",
+                        "on-primary-fixed": "#360f00",
+                        "tertiary-container": "#0f93fe",
+                        "surface-dim": "#131313",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-low": "#1c1b1b",
+                        "on-background": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#005228",
+                        "tertiary": "#a3c9ff",
+                        "on-tertiary": "#00315c",
+                        "on-primary": "#591d00",
+                        "on-surface": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-primary-container": "#4e1800",
+                        "primary": "#ffb598",
+                        "secondary-container": "#06bb63",
+                        "tertiary-fixed-dim": "#a3c9ff",
+                        "inverse-on-surface": "#313030",
+                        "outline": "#aa8a7e",
+                        "tertiary-fixed": "#d3e4ff",
+                        "surface-tint": "#ffb598",
+                        "surface-container-highest": "#353534",
+                        "background": "#131313",
+                        "on-secondary-container": "#00431f",
+                        "on-tertiary-fixed-variant": "#004882",
+                        "on-secondary-fixed": "#00210c",
+                        "primary-fixed": "#ffdbce",
+                        "error": "#ffb4ab",
+                        "outline-variant": "#5a4137",
+                        "surface-bright": "#393939",
+                        "primary-container": "#f75f05",
+                        "secondary": "#4ae183",
+                        "inverse-primary": "#a53c00",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#6bfe9c",
+                        "on-error": "#690005",
+                        "on-secondary": "#003919",
+                        "secondary-fixed-dim": "#4ae183",
+                        "surface-container": "#201f1f",
+                        "on-tertiary-container": "#002a50"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-lg": "32px",
+                        "gutter": "12px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "container-padding": "24px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "display-metrics": ["Hanken Grotesk"],
+                        "data-label": ["JetBrains Mono"],
+                        "data-value": ["JetBrains Mono"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-metrics": ["48px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-label": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "data-value": ["20px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .drag-ghost {
+            opacity: 0.5;
+            border: 1px dashed var(--tw-colors-primary);
+        }
+        .drag-over {
+            background-color: var(--tw-colors-surface-container-highest);
+            border-color: var(--tw-colors-primary);
+        }
+        /* Custom scrollbar for technical look */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--tw-colors-surface);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--tw-colors-surface-variant);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--tw-colors-outline);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface text-primary dark:text-primary font-headline-md text-headline-md border-b border-outline-variant dark:border-outline-variant flex justify-between items-center px-container-padding h-16 z-50">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container-high transition-colors p-2 rounded-full active:opacity-80 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="sensors" style="font-variation-settings: 'FILL' 0;">sensors</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">JOULE COACH</span>
+</div>
+<button class="hover:bg-surface-container-high transition-colors p-2 rounded-full active:opacity-80 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="videocam" style="font-variation-settings: 'FILL' 0;">videocam</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden">
+<!-- Sidebar: Exercise Library -->
+<aside class="w-80 bg-surface-container-low border-r border-surface-variant flex flex-col">
+<div class="p-4 border-b border-surface-variant">
+<h2 class="font-headline-md text-headline-md mb-2">Library</h2>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface border-b border-outline-variant text-on-surface font-body-md py-2 pl-9 pr-3 focus:outline-none focus:border-primary-container transition-colors placeholder:text-on-surface-variant/50" placeholder="Search movements..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- Trackable Exercises Group -->
+<div>
+<h3 class="font-data-label text-data-label text-on-surface-variant mb-3 uppercase tracking-widest">Trackable Protocol</h3>
+<div class="space-y-2">
+<!-- Exercise Item: Draggable -->
+<div class="bg-surface border border-outline-variant rounded p-3 cursor-grab hover:border-primary transition-colors group active:cursor-grabbing" draggable="true" id="ex-squat">
+<div class="flex justify-between items-start mb-2">
+<span class="font-body-md text-on-surface font-semibold">Barbell Back Squat</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-sm">drag_indicator</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-surface-container text-on-surface font-data-label text-[10px] px-1.5 py-0.5 rounded border border-surface-variant">LOWER</span>
+<span class="bg-surface-container text-on-surface font-data-label text-[10px] px-1.5 py-0.5 rounded border border-surface-variant">COMPOUND</span>
+</div>
+</div>
+<!-- Exercise Item: Draggable -->
+<div class="bg-surface border border-outline-variant rounded p-3 cursor-grab hover:border-primary transition-colors group active:cursor-grabbing" draggable="true" id="ex-deadlift">
+<div class="flex justify-between items-start mb-2">
+<span class="font-body-md text-on-surface font-semibold">Conventional Deadlift</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-sm">drag_indicator</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-surface-container text-on-surface font-data-label text-[10px] px-1.5 py-0.5 rounded border border-surface-variant">LOWER</span>
+<span class="bg-surface-container text-on-surface font-data-label text-[10px] px-1.5 py-0.5 rounded border border-surface-variant">HINGE</span>
+</div>
+</div>
+<!-- Exercise Item: Draggable -->
+<div class="bg-surface border border-outline-variant rounded p-3 cursor-grab hover:border-primary transition-colors group active:cursor-grabbing" draggable="true" id="ex-bench">
+<div class="flex justify-between items-start mb-2">
+<span class="font-body-md text-on-surface font-semibold">Bench Press</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-sm">drag_indicator</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-surface-container text-on-surface font-data-label text-[10px] px-1.5 py-0.5 rounded border border-surface-variant">UPPER</span>
+<span class="bg-surface-container text-on-surface font-data-label text-[10px] px-1.5 py-0.5 rounded border border-surface-variant">PUSH</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Untrackable Exercises Group -->
+<div>
+<h3 class="font-data-label text-data-label text-on-surface-variant mb-3 uppercase tracking-widest opacity-60">Pending Validation</h3>
+<div class="space-y-2 opacity-50">
+<!-- Exercise Item: Disabled -->
+<div class="bg-surface-dim border border-surface-variant rounded p-3 cursor-not-allowed">
+<div class="flex justify-between items-start mb-2">
+<span class="font-body-md text-on-surface-variant line-through">Sit-ups</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">block</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-surface-container-highest text-on-surface-variant font-data-label text-[10px] px-1.5 py-0.5 rounded">NO KINEMATIC DATA</span>
+</div>
+</div>
+<!-- Exercise Item: Disabled -->
+<div class="bg-surface-dim border border-surface-variant rounded p-3 cursor-not-allowed">
+<div class="flex justify-between items-start mb-2">
+<span class="font-body-md text-on-surface-variant line-through">Plank</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">block</span>
+</div>
+<div class="flex gap-2">
+<span class="bg-surface-container-highest text-on-surface-variant font-data-label text-[10px] px-1.5 py-0.5 rounded">STATIC HOLD</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-surface-variant">
+<button class="w-full bg-primary-container text-on-primary-container font-headline-md text-[14px] uppercase font-bold py-3 rounded hover:bg-primary transition-colors">
+                    Save Protocol
+                </button>
+</div>
+</aside>
+<!-- Main Canvas: Weekly Grid -->
+<section class="flex-1 p-6 bg-surface overflow-y-auto">
+<header class="mb-6 flex justify-between items-end border-b border-surface-variant pb-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-1">Microcycle 04</h1>
+<p class="font-data-label text-data-label text-on-surface-variant">WEEK OF OCT 23 - OCT 29</p>
+</div>
+<div class="flex gap-2">
+<button class="border border-outline-variant text-on-surface px-4 py-2 rounded font-data-label text-data-label hover:bg-surface-container transition-colors">CLEAR</button>
+<button class="border border-outline-variant text-on-surface px-4 py-2 rounded font-data-label text-data-label hover:bg-surface-container transition-colors">TEMPLATE</button>
+</div>
+</header>
+<!-- Calendar Grid -->
+<div class="grid grid-cols-7 gap-1 h-full min-h-[600px]">
+<!-- Day Column: Monday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container py-2 text-center border border-surface-variant border-b-0">
+<span class="font-data-label text-data-label text-on-surface-variant block">MON</span>
+<span class="font-data-value text-data-value text-on-surface">23</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors" data-day="mon">
+<!-- Example pre-populated item -->
+<div class="bg-surface border border-outline-variant p-2 rounded relative group">
+<span class="font-data-label text-[12px] text-on-surface block mb-1">Barbell Back Squat</span>
+<div class="flex justify-between items-center text-[10px] font-data-label text-on-surface-variant">
+<span>5 x 5</span>
+<span>@75%</span>
+</div>
+<button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-error hover:text-error-container transition-opacity">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Day Column: Tuesday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container py-2 text-center border border-surface-variant border-b-0">
+<span class="font-data-label text-data-label text-on-surface-variant block">TUE</span>
+<span class="font-data-value text-data-value text-on-surface">24</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors" data-day="tue">
+<!-- Empty Day State -->
+<div class="h-full w-full flex items-center justify-center opacity-20 pointer-events-none">
+<span class="material-symbols-outlined text-4xl">add</span>
+</div>
+</div>
+</div>
+<!-- Day Column: Wednesday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container py-2 text-center border border-surface-variant border-b-0">
+<span class="font-data-label text-data-label text-on-surface-variant block">WED</span>
+<span class="font-data-value text-data-value text-on-surface">25</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors" data-day="wed">
+</div>
+</div>
+<!-- Day Column: Thursday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container py-2 text-center border border-surface-variant border-b-0">
+<span class="font-data-label text-data-label text-on-surface-variant block">THU</span>
+<span class="font-data-value text-data-value text-on-surface">26</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors" data-day="thu">
+</div>
+</div>
+<!-- Day Column: Friday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container py-2 text-center border border-surface-variant border-b-0">
+<span class="font-data-label text-data-label text-on-surface-variant block">FRI</span>
+<span class="font-data-value text-data-value text-on-surface">27</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors" data-day="fri">
+</div>
+</div>
+<!-- Day Column: Saturday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container-highest py-2 text-center border border-surface-variant border-b-0 text-primary">
+<span class="font-data-label text-data-label block">SAT</span>
+<span class="font-data-value text-data-value">28</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors" data-day="sat">
+</div>
+</div>
+<!-- Day Column: Sunday -->
+<div class="flex flex-col h-full">
+<div class="bg-surface-container-highest py-2 text-center border border-surface-variant border-b-0 text-primary opacity-50">
+<span class="font-data-label text-data-label block">SUN</span>
+<span class="font-data-value text-data-value">29</span>
+</div>
+<div class="flex-1 border border-surface-variant bg-surface-dim p-2 flex flex-col gap-2 dropzone transition-colors opacity-50" data-day="sun">
+<div class="h-full flex items-center justify-center">
+<span class="font-data-label text-[10px] text-on-surface-variant tracking-widest">REST</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Hidden on md, shown on small screens) -->
+<nav class="md:hidden bg-surface-container dark:bg-surface-container text-primary dark:text-primary font-data-label text-data-label border-t border-outline-variant dark:border-outline-variant flex justify-around items-center h-20 px-4 pb-safe fixed bottom-0 w-full z-50">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-75">
+<span class="material-symbols-outlined" data-icon="home_precision_guidance" style="font-variation-settings: 'FILL' 0;">multiple_airports</span>
+<span class="mt-1 text-[10px]">HOME</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold hover:text-on-surface transition-colors active:scale-95 duration-75">
+<span class="material-symbols-outlined" data-icon="local_library" style="font-variation-settings: 'FILL' 1;">local_library</span>
+<span class="mt-1 text-[10px]">LIBRARY</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-75">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="mt-1 text-[10px]">PROFILE</span>
+</button>
+</nav>
+<script>
+        // Simple drag and drop visual feedback script
+        const draggables = document.querySelectorAll('[draggable="true"]');
+        const dropzones = document.querySelectorAll('.dropzone');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('drag-ghost');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('drag-ghost');
+            });
+        });
+
+        dropzones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+                // Hide empty state icon if present during drag
+                const emptyIcon = zone.querySelector('.pointer-events-none');
+                if(emptyIcon) emptyIcon.style.display = 'none';
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+                const emptyIcon = zone.querySelector('.pointer-events-none');
+                if(emptyIcon && zone.children.length <= 1) emptyIcon.style.display = 'flex';
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                // In a real app, this would clone the node and create an editable instance
+                // For demonstration, we just remove the empty state icon
+                const emptyIcon = zone.querySelector('.pointer-events-none');
+                if(emptyIcon) emptyIcon.remove();
+            });
+        });
+    </script>
+</body></html>
