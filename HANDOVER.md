@@ -1,13 +1,17 @@
 # Handover — Joule
 
-Last updated: 2026-08-12 (consolidates `HANDOVER.md` through `HANDOVER8.md`,
-plus the un-handed-off "Recover lunge heuristic" session — commit
-`248adea`, into a single running log). Read this before doing anything else
-in this repo. `STATUS.md` is the always-current done/left-to-do snapshot;
-`ROADMAP.md` is the phased execution plan (Phases A–E, plus F–L for the
-product-strategy docs); `DEVELOPMENT.md` is the full dated technical log.
-This file is the session-by-session narrative behind those three — read it
-when you need *why*, not just *what*.
+Last updated: 2026-08-24. Consolidates `HANDOVER.md` through `HANDOVER8.md`
+(commit `18330df`), plus the un-handed-off "Recover lunge heuristic"
+session (commit `248adea`), plus this session's own work (design
+prototyping kickoff + Stitch MCP setup — no engine code changed), into a
+single running log. Read this before doing anything else in this repo.
+`STATUS.md` is the always-current engine done/left-to-do snapshot;
+`ROADMAP.md` is the phased engine execution plan (Phases A–E, plus F–L for
+the product-strategy docs); `DEVELOPMENT.md` is the full dated technical
+log. `design/PROTOTYPES.md` is the equivalent tracking index for the
+member-app front-end design work that started this session. This file is
+the session-by-session narrative behind all of those — read it when you
+need *why*, not just *what*.
 
 ## What this is
 
@@ -629,21 +633,136 @@ needs labeled training data (RepCount has none; Fit3D is validation-only),
 not a heuristic. `FIT3D_UTILIZATION_PLAN.md`, `ROADMAP.md`, `STATUS.md`
 updated with the finding; committed and pushed.
 
+### 2026-08-24 — Handover consolidation + member-app design prototyping kickoff
+
+No engine code touched this session. Two threads:
+
+**Thread 1 — Handover consolidation.** User asked to combine all numbered
+handover files into one running log. Merged `HANDOVER.md`–`HANDOVER8.md`
+into a single chronological file (this file), including the 2026-08-12
+lunge/hinge session that had never been written up in any handover.
+Updated the three stale cross-references to the deleted numbered files
+(`PRODUCT_ROADMAP.md` ×3, `tools/analyze_fit3d_domain_shift.py`) to point
+at this file instead, deleted `HANDOVER2.md`–`HANDOVER8.md`. Committed and
+pushed (`18330df`).
+
+**Thread 2 — Member-app design prototyping, kicked off.** Separate from
+the engine work: with real-gym-footage access still blocked on the user,
+we pivoted to the member-facing app's front-end design (`PRODUCT_SPEC.md`
+§2.1–3.4 is the source of truth for scope/tone — this thread doesn't touch
+that document, just builds toward it visually).
+
+1. Asked the user two scoping questions up front (deliverable type,
+   screen scope) rather than assuming: answered as an interactive visual
+   mockup (not real app code yet — Phase F–L backend doesn't exist to
+   talk to), covering the core loop only (check-in → live session →
+   post-set report), matching `PRODUCT_SPEC.md`'s own Sprint-1 "walking
+   skeleton" framing.
+2. Found the user's own design-reference library on this machine
+   (`~/design-references/awesome-design-md/design-md/`, ~80 real product
+   design systems as structured `DESIGN.md` specs — Stripe, Linear, Nike,
+   Raycast, Warp, etc.) and read four for texture/pattern-language before
+   building anything: Nike (pill CTAs, photography-first restraint),
+   Raycast (near-black surface ladder, hairline borders, no drop
+   shadows), Linear (aggressive negative-tracking display type, product-
+   screenshot-as-hero), Warp (warm-tinted dark canvas, tight button
+   radii, Inter+mono pairing).
+3. Built and published an interactive HTML/CSS artifact ("Joule Coach") —
+   phone-frame mockup, switchable between the three core-loop screens.
+   Design tokens locked to `PRODUCT_SPEC.md` §3.2's own palette
+   (graphite/warm-white base, amber/teal/brick-red semantic-only accents)
+   rather than inventing a new one; typography paired Big Shoulders
+   Display (condensed/athletic, headlines + coaching-voice lines) with
+   IBM Plex Sans (UI/body) and IBM Plex Mono (tabular rep counts, angles,
+   timestamps) — a deliberate three-face system in the same spirit as
+   Linear's Display/Text/Mono split, not an Inter-default. Implemented
+   the spec's "confidence must be visible" rule literally: solid-outline
+   badge = 3D fused (report screen), dashed-outline badge = 2D
+   single-camera (live screen), shown once each. Content is real, not
+   lorem — actual RepCount-trained exercise names, the plain-language
+   coverage-disclosure copy from `PRODUCT_SPEC.md` §3.3, coaching-cue
+   language matching `src/form.py`'s style. Published at
+   https://claude.ai/code/artifact/2318654e-f7e1-4372-86b9-e902a1b49381 —
+   **user feedback: not a strong direction, didn't land visually.** Kept
+   as candidate 01 anyway (per point 5 below) — it's still useful as a
+   working reference for what content/behavior each screen needs, even if
+   a different candidate's visual language wins.
+4. User's plan going forward, stated explicitly: **generate several
+   independent prototypes from different sources** (this session's
+   Claude mockup, a Google Stitch attempt the user is making themselves,
+   possibly more), **keep all of them**, and pick a direction later by
+   comparing rather than committing to the first attempt. Wrote a
+   detailed Stitch prompt grounded in `PRODUCT_SPEC.md` (personas, tone,
+   the 7 MVP screens, the confidence-visibility rule, the skeleton-
+   overlay-as-signature-element requirement) but deliberately looser on
+   exact visual execution (no hex codes/font names mandated) than the
+   Claude mockup was, since the mockup's specific execution is what
+   didn't land — left room for Stitch to make its own calls within the
+   same content/tone brief.
+5. Set up `design/` as the tracking structure for this multi-candidate
+   process, in the same spirit as this repo's existing `ROADMAP.md`/
+   `STATUS.md` pattern for the engine side:
+   - `design/PROTOTYPES.md` — index: one row/entry per candidate (source,
+     screens covered, file/link, notes), a "how to add a candidate"
+     section, and a "Decision" section to fill in once 2+ candidates
+     exist. Candidate 01 (this session's Claude mockup) logged.
+   - `design/prototypes/01-claude-core-loop.html` — the mockup file
+     itself, copied out of session scratchpad into the repo so it
+     survives past this session (scratchpad is session-local and does
+     not persist).
+   - `design/stitch-prompt.md` — the Stitch prompt, saved for
+     reproducibility (it was only in-conversation before this).
+6. **Registered a Stitch MCP server** (`claude mcp add --transport http
+   stitch https://stitch.googleapis.com/mcp --header "X-Goog-Api-Key:
+   ..."`) at **local scope** (this machine + this project only,
+   `C:\Users\aa3163\.claude.json`) — the user's own Google API key, now
+   stored in plaintext in that config file. First attempt with `--header`
+   placed before the URL failed (`-H`/`--header` is variadic and silently
+   swallowed the URL as an extra header value, leaving no
+   `commandOrUrl`) — fixed by placing `--header` after the URL.
+   `claude mcp list` confirms it as `stitch: https://stitch.googleapis.com/mcp
+   (HTTP) - ✔ Connected`, but **its tools were not available in this
+   session** (MCP tools load at session start; adding a server mid-session
+   doesn't hot-load its tools) — `ToolSearch` for "stitch" found nothing.
+   **Next session must be a fresh one** (exit and relaunch `claude` in
+   this directory) before Stitch's MCP tools — presumably something like
+   "import/export a Stitch design" — become callable, so the user's
+   in-progress Stitch design can actually be pulled in and saved as
+   candidate 02 in `design/prototypes/`.
+
 ## What's on disk, not committed
 
-As of the latest session, working tree is **clean** — `git status` shows
-nothing outstanding. Real datasets remain on disk, all gitignored and
-re-acquirable/regenerable rather than committed: `test_videos/panoptic/`
-+ `panoptic_pose2/`, `test_videos/repcount/videos/` (1.4GB) +
-`bench_results/*.json` (51MB, except the committed `report.json`),
-`Fit3D/` (~44GB), `validation_results_fit3d/` (per-subject outputs, plus
-the small committed aggregate `report.json`s), `validation_results_fit3d_camsweep*/`
-(sweep outputs, `sweep_summary.json` still an open "arguably worth
-force-committing" item nobody has acted on). `results/demo_squat_s03/`
-(~19MB annotated demo video, disk-only, easily regenerable).
+`design/` is new and fully untracked (`design/PROTOTYPES.md`,
+`design/stitch-prompt.md`, `design/prototypes/01-claude-core-loop.html`)
+— not committed yet; user hadn't been asked/asked back about committing
+as of this handover. Otherwise, working tree is clean — `git status`
+shows nothing else outstanding. Real datasets remain on disk, all
+gitignored and re-acquirable/regenerable rather than committed:
+`test_videos/panoptic/` + `panoptic_pose2/`, `test_videos/repcount/videos/`
+(1.4GB) + `bench_results/*.json` (51MB, except the committed
+`report.json`), `Fit3D/` (~44GB), `validation_results_fit3d/`
+(per-subject outputs, plus the small committed aggregate `report.json`s),
+`validation_results_fit3d_camsweep*/` (sweep outputs,
+`sweep_summary.json` still an open "arguably worth force-committing"
+item nobody has acted on). `results/demo_squat_s03/` (~19MB annotated
+demo video, disk-only, easily regenerable).
 
 ## What's next
 
+**Immediate, this design thread:**
+0. **Start the next session fresh** (not a `--continue`/`--resume` mid-
+   session) so the newly-registered Stitch MCP server's tools actually
+   load — then import the user's in-progress Stitch design and save it as
+   candidate 02 in `design/prototypes/` + `design/PROTOTYPES.md`, per the
+   process set up this session.
+0a. Once 2+ design candidates exist, compare them against `PRODUCT_SPEC.md`
+    §3 (tone/visual identity) and §2.1 (actual screen requirements) and
+    fill in `design/PROTOTYPES.md`'s "Decision" section — don't just pick
+    on aesthetic preference alone.
+0b. Decide whether to commit `design/` now or wait for more candidates —
+    open as of this handover, user hadn't been asked back.
+
+**Engine-side (unchanged, still blocked on the user):**
 1. **Phase D (real gym footage)** is the actual next milestone — still
    blocked on camera/gym access, unchanged across every session in this
    log. Everything in Phase C exists to de-risk this first real capture,
@@ -663,7 +782,10 @@ force-committing" item nobody has acted on). `results/demo_squat_s03/`
 6. The product strategy docs (`PRODUCT_SPEC.md`/`PRODUCT_ROADMAP.md`/the
    two PDFs) are planning deliverables for the human team, committed but
    not yet actioned — no engineering work against Phase F onward has
-   started.
+   started. This session's design prototyping is the first actual
+   engineering-adjacent work against that plan (informally, ahead of
+   Phase J on the `PRODUCT_ROADMAP.md` sequencing — that's fine, it's
+   design exploration, not a build against unvalidated backend).
 7. `validation_results_fit3d_camsweep/sweep_summary.json` and the Fit3D
    batch's own small aggregate reports remain candidates for force-commit
    as auditable artifacts (matching the `report.json` pattern used
@@ -671,10 +793,11 @@ force-committing" item nobody has acted on). `results/demo_squat_s03/`
 
 ## Repo hygiene
 
-Working tree fully pushed to `origin/main` as of this handover (commit
-`248adea`, "Recover lunge heuristic recognition; investigate and reject
-hinge fix"). No uncommitted code changes outstanding. `.venv/`, model
-files, and all real datasets (`test_videos/`, `Fit3D/`,
+Engine side fully pushed to `origin/main` as of this handover (commit
+`18330df`, the handover consolidation). `design/` (see above) is new,
+untracked, not yet pushed — a deliberate pause pending the user's call on
+when to commit it, not an oversight. `.venv/`, model files, and all real
+datasets (`test_videos/`, `Fit3D/`,
 `validation_results_fit3d*/`) are gitignored and machine-local/disk-only —
 a fresh clone starts from this file's description plus needs its own
 environment setup (see "Environment" above) to actually run anything.

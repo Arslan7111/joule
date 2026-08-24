@@ -1,0 +1,861 @@
+<title>Joule Coach</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --canvas:        #f4f2ee;
+    --surface-1:      #ffffff;
+    --surface-2:      #eae6dd;
+    --surface-3:      #ded9cd;
+    --ink:            #1c1f22;
+    --ink-muted:      #55524b;
+    --ink-subtle:     #8b8579;
+    --hairline:       #ddd8cc;
+    --hairline-strong:#c9c3b4;
+
+    --accent:         #b5720a;   /* amber, darkened for AA on light */
+    --accent-on:      #ffffff;
+    --accent-soft:    rgba(181,114,10,0.12);
+
+    --good:           #1f7a6c;   /* teal, darkened for light */
+    --good-soft:      rgba(31,122,108,0.12);
+
+    --risk:           #a52f22;   /* brick red, darkened for light */
+    --risk-soft:      rgba(165,47,34,0.12);
+
+    --btn-fg:         var(--ink);
+    --btn-on:         var(--canvas);
+
+    --grid-line:      rgba(28,31,34,0.05);
+
+    --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+    --font-body:    'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:    'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --canvas:        #1c1f22;
+      --surface-1:      #24282c;
+      --surface-2:      #2b3034;
+      --surface-3:      #343a3f;
+      --ink:            #f4f2ee;
+      --ink-muted:      #b7b2a6;
+      --ink-subtle:     #837e73;
+      --hairline:       #383d42;
+      --hairline-strong:#454b51;
+
+      --accent:         #f5a623;
+      --accent-on:      #1c1f22;
+      --accent-soft:    rgba(245,166,35,0.14);
+
+      --good:           #35b3a3;
+      --good-soft:      rgba(53,179,163,0.14);
+
+      --risk:           #e2685b;
+      --risk-soft:      rgba(226,104,91,0.14);
+
+      --btn-fg:         var(--canvas);
+      --btn-on:         var(--ink);
+
+      --grid-line:      rgba(244,242,238,0.045);
+    }
+  }
+  :root[data-theme="dark"]{
+    --canvas:        #1c1f22;
+    --surface-1:      #24282c;
+    --surface-2:      #2b3034;
+    --surface-3:      #343a3f;
+    --ink:            #f4f2ee;
+    --ink-muted:      #b7b2a6;
+    --ink-subtle:     #837e73;
+    --hairline:       #383d42;
+    --hairline-strong:#454b51;
+
+    --accent:         #f5a623;
+    --accent-on:      #1c1f22;
+    --accent-soft:    rgba(245,166,35,0.14);
+
+    --good:           #35b3a3;
+    --good-soft:      rgba(53,179,163,0.14);
+
+    --risk:           #e2685b;
+    --risk-soft:      rgba(226,104,91,0.14);
+
+    --btn-fg:         var(--canvas);
+    --btn-on:         var(--ink);
+
+    --grid-line:      rgba(244,242,238,0.045);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--canvas);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{ background:var(--accent-soft); }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ============ PAGE SHELL ============ */
+  .page{
+    max-width:1180px;
+    margin:0 auto;
+    padding:56px 28px 80px;
+  }
+  .masthead{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:44px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .masthead-mark{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+  .masthead-mark span{ color:var(--accent); }
+  .masthead-sub{
+    font-size:13px;
+    color:var(--ink-subtle);
+    font-family:var(--font-mono);
+    letter-spacing:0.02em;
+  }
+
+  .stage{
+    display:grid;
+    grid-template-columns:minmax(0,380px) minmax(280px,1fr);
+    gap:56px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .stage{ grid-template-columns:1fr; }
+  }
+
+  /* ============ PHONE COLUMN ============ */
+  .phone-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:24px;
+    position:sticky;
+    top:32px;
+  }
+  @media (max-width:860px){ .phone-col{ position:static; } }
+
+  .switcher{
+    display:inline-flex;
+    gap:4px;
+    padding:4px;
+    background:var(--surface-2);
+    border:1px solid var(--hairline);
+    border-radius:999px;
+  }
+  .switcher button{
+    appearance:none;
+    border:0;
+    background:transparent;
+    color:var(--ink-muted);
+    font-family:var(--font-body);
+    font-weight:500;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  .switcher button.active{
+    background:var(--ink);
+    color:var(--btn-on);
+  }
+  .switcher button:hover:not(.active){ color:var(--ink); }
+
+  .device{
+    width:min(360px,88vw);
+    aspect-ratio:9/19.5;
+    background:var(--surface-1);
+    border:10px solid var(--ink);
+    border-radius:44px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.45);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  :root[data-theme="light"] .device,
+  body:not(:has([data-theme])) .device{ }
+  .device::before{
+    content:"";
+    position:absolute;
+    top:0; left:50%; transform:translateX(-50%);
+    width:38%; height:22px;
+    background:var(--ink);
+    border-radius:0 0 14px 14px;
+    z-index:5;
+  }
+
+  .statusbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 22px 6px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-muted);
+    flex:0 0 auto;
+  }
+
+  .screen{
+    flex:1 1 auto;
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    background:var(--canvas);
+  }
+  .screen.active{ display:flex; }
+
+  /* ============ SHARED APP CHROME ============ */
+  .app-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 20px 14px;
+    flex:0 0 auto;
+  }
+  .app-wordmark{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+  }
+  .app-station{
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:var(--ink-subtle);
+    text-align:right;
+    line-height:1.4;
+  }
+
+  .screen-body{
+    flex:1 1 auto;
+    overflow-y:auto;
+    padding:4px 20px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:0.03em;
+    padding:4px 9px;
+    border-radius:6px;
+    width:fit-content;
+  }
+  .badge-solid{
+    border:1.5px solid var(--good);
+    color:var(--good);
+    background:var(--good-soft);
+  }
+  .badge-dashed{
+    border:1.5px dashed var(--ink-subtle);
+    color:var(--ink-muted);
+  }
+  .badge-dot{ width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  .pill-btn{
+    appearance:none;
+    border:0;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    padding:14px 20px;
+    border-radius:999px;
+    cursor:pointer;
+    text-align:center;
+    width:100%;
+  }
+  .pill-btn.primary{ background:var(--ink); color:var(--btn-on); }
+  .pill-btn.ghost{
+    background:transparent;
+    color:var(--ink);
+    border:1.5px solid var(--hairline-strong);
+  }
+
+  /* ============ SCREEN A — CHECK-IN ============ */
+  .checkin-hero{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:10px;
+    padding:10px 6px 4px;
+  }
+  .ring{
+    width:76px; height:76px;
+    border-radius:50%;
+    border:2.5px solid var(--good);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .ring::after{
+    content:"";
+    position:absolute; inset:-6px;
+    border-radius:50%;
+    border:1.5px solid var(--good);
+    opacity:0.35;
+    animation:pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{ transform:scale(0.9); opacity:0.5; }
+    100%{ transform:scale(1.35); opacity:0; }
+  }
+  .ring svg{ width:30px; height:30px; }
+  .welcome-name{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:28px;
+    line-height:1.05;
+    margin:2px 0 0;
+  }
+  .welcome-meta{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--ink-subtle);
+  }
+
+  .card{
+    background:var(--surface-1);
+    border:1px solid var(--hairline);
+    border-radius:16px;
+    padding:16px;
+  }
+  .card-title{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-subtle);
+    margin:0 0 10px;
+  }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{
+    font-family:var(--font-body);
+    font-size:12px;
+    font-weight:500;
+    padding:6px 11px;
+    border-radius:8px;
+  }
+  .chip-on{ background:var(--good-soft); color:var(--good); }
+  .chip-off{
+    background:transparent;
+    border:1px dashed var(--hairline-strong);
+    color:var(--ink-subtle);
+  }
+
+  .frame-guide{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .frame-guide svg{ flex:0 0 auto; }
+  .frame-guide p{
+    margin:0;
+    font-size:12.5px;
+    color:var(--ink-muted);
+    line-height:1.45;
+  }
+
+  /* ============ SCREEN B — LIVE ============ */
+  .live-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .exercise-name{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:22px;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+  }
+  .set-of{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-subtle);
+  }
+
+  .counter-wrap{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    position:relative;
+  }
+  .skeleton-ghost{
+    position:absolute;
+    opacity:0.16;
+    width:150px;
+    top:50%; left:50%;
+    transform:translate(-50%,-56%);
+  }
+  .rep-count{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:96px;
+    line-height:0.9;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-0.02em;
+    position:relative;
+  }
+  .rep-count small{
+    font-size:0.32em;
+    color:var(--ink-subtle);
+    font-weight:400;
+  }
+  .rep-label{
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-subtle);
+    position:relative;
+  }
+
+  .instrument-row{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+  }
+
+  .frame-strip{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    background:var(--surface-1);
+    border:1px solid var(--hairline);
+    border-radius:14px;
+  }
+  .frame-led{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--good);
+    box-shadow:0 0 0 4px var(--good-soft);
+    flex:0 0 auto;
+  }
+  .frame-strip p{
+    margin:0;
+    font-size:11.5px;
+    color:var(--ink-muted);
+    line-height:1.4;
+  }
+  .frame-strip strong{ color:var(--ink); font-weight:600; }
+
+  /* ============ SCREEN C — REPORT ============ */
+  .report-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .report-title{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:20px;
+    text-transform:uppercase;
+  }
+  .report-sub{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--ink-subtle);
+  }
+
+  .skeleton-card{
+    background:var(--surface-1);
+    border:1px solid var(--hairline);
+    border-radius:16px;
+    padding:14px 14px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  .skeleton-caption{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--ink-subtle);
+    text-align:center;
+    line-height:1.5;
+  }
+  .skeleton-caption b{ color:var(--risk); font-weight:600; }
+
+  .rep-strip{
+    display:flex;
+    gap:5px;
+  }
+  .rep-seg{
+    flex:1 1 0;
+    height:30px;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-mono);
+    font-size:10px;
+    font-weight:600;
+  }
+  .rep-clean{ background:var(--good-soft); color:var(--good); }
+  .rep-flag{ background:var(--accent-soft); color:var(--accent); }
+
+  .summary-line{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:17px;
+    line-height:1.3;
+    margin:0;
+  }
+
+  .cue-list{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .cue-list li{
+    display:flex;
+    gap:9px;
+    font-size:12.5px;
+    line-height:1.45;
+    color:var(--ink-muted);
+  }
+  .cue-dot{
+    flex:0 0 auto;
+    width:7px; height:7px;
+    border-radius:50%;
+    margin-top:5px;
+  }
+  .cue-flag .cue-dot{ background:var(--accent); }
+  .cue-good .cue-dot{ background:var(--good); }
+  .cue-list b{ color:var(--ink); font-weight:600; }
+
+  .next-action{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:13px 16px;
+    border-radius:14px;
+    border:1.5px solid var(--hairline-strong);
+    cursor:pointer;
+  }
+  .next-action .play{
+    flex:0 0 auto;
+    width:28px; height:28px;
+    border-radius:50%;
+    background:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .next-action .play svg{ width:11px; height:11px; }
+  .next-action span{ font-size:13px; font-weight:500; }
+
+  /* ============ RAIL ============ */
+  .rail{ display:flex; flex-direction:column; gap:0; }
+  .rail-item{
+    display:flex;
+    gap:18px;
+    padding:26px 0;
+    border-bottom:1px solid var(--hairline);
+  }
+  .rail-item:first-child{ padding-top:6px; }
+  .rail-num{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--ink-subtle);
+    flex:0 0 26px;
+    padding-top:3px;
+  }
+  .rail-name{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:20px;
+    text-transform:uppercase;
+    letter-spacing:0.01em;
+    margin:0 0 6px;
+  }
+  .rail-body{
+    font-size:14px;
+    color:var(--ink-muted);
+    line-height:1.6;
+    max-width:52ch;
+  }
+  .rail-body b{ color:var(--ink); font-weight:600; }
+  .rail-tag{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--ink-subtle);
+    margin-bottom:8px;
+    letter-spacing:0.02em;
+  }
+
+  .legend{
+    margin-top:12px;
+    padding-top:24px;
+    border-top:1px solid var(--hairline);
+  }
+  .legend-title{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.07em;
+    text-transform:uppercase;
+    color:var(--ink-subtle);
+    margin:0 0 14px;
+  }
+  .legend-rows{ display:flex; flex-direction:column; gap:11px; }
+  .legend-row{ display:flex; align-items:center; gap:11px; }
+  .legend-row p{ margin:0; font-size:13px; color:var(--ink-muted); }
+  .legend-row b{ color:var(--ink); }
+</style>
+
+<div class="page">
+
+  <div class="masthead">
+    <div>
+      <div class="masthead-mark">Joule<span>·</span>Coach</div>
+      <div class="masthead-sub" style="margin-top:6px;">CORE LOOP — CHECK-IN → LIVE SESSION → POST-SET REPORT</div>
+    </div>
+    <div class="masthead-sub">MVP SPRINT 1 · WALKING SKELETON</div>
+  </div>
+
+  <div class="stage">
+
+    <div class="phone-col">
+      <div class="switcher" role="tablist" aria-label="Screen switcher">
+        <button class="active" data-screen="checkin" onclick="showScreen('checkin', this)">Check-in</button>
+        <button data-screen="live" onclick="showScreen('live', this)">Live</button>
+        <button data-screen="report" onclick="showScreen('report', this)">Report</button>
+      </div>
+
+      <div class="device">
+        <div class="statusbar">
+          <span>3:41</span>
+          <span>●●● JOULE-FLOOR</span>
+        </div>
+
+        <!-- SCREEN A: CHECK-IN -->
+        <section class="screen active" id="screen-checkin">
+          <div class="app-bar">
+            <div class="app-wordmark">Joule</div>
+            <div class="app-station">Sussex Perf. Floor<br>Station 04</div>
+          </div>
+          <div class="screen-body">
+            <div class="checkin-hero">
+              <div class="ring">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="var(--good)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="welcome-name">Welcome back,<br>Amara</div>
+              <div class="welcome-meta">CHECKED IN · SQUAT RACK 4 · 15:41</div>
+            </div>
+
+            <div class="card">
+              <p class="card-title">Joule currently tracks</p>
+              <div class="chip-row">
+                <span class="chip chip-on">Squat</span>
+                <span class="chip chip-on">Deadlift</span>
+                <span class="chip chip-on">Bicep curl</span>
+                <span class="chip chip-on">Row</span>
+                <span class="chip chip-on">Overhead press</span>
+                <span class="chip chip-on">Lateral raise</span>
+                <span class="chip chip-off">Sit-ups — coming soon</span>
+                <span class="chip chip-off">Bench press — side-cam only</span>
+              </div>
+            </div>
+
+            <div class="card frame-guide">
+              <svg width="46" height="58" viewBox="0 0 46 58" fill="none">
+                <rect x="1" y="1" width="44" height="56" rx="8" stroke="var(--hairline-strong)" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <circle cx="23" cy="12" r="4.5" stroke="var(--ink-muted)" stroke-width="1.6"/>
+                <path d="M23 17v16M23 22l-8 6M23 22l8 6M23 33l-6 15M23 33l6 15" stroke="var(--ink-muted)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <p>Keep your <b style="color:var(--ink)">full body, including feet,</b> inside the frame for the whole set.</p>
+            </div>
+          </div>
+          <div style="padding:16px 20px 22px;">
+            <button class="pill-btn primary">Start today's session</button>
+          </div>
+        </section>
+
+        <!-- SCREEN B: LIVE -->
+        <section class="screen" id="screen-live">
+          <div class="app-bar">
+            <div class="app-wordmark">Joule</div>
+            <div class="app-station">Elapsed<br><span style="font-family:var(--font-mono);color:var(--ink)">00:42</span></div>
+          </div>
+          <div class="screen-body" style="padding-bottom:4px;">
+            <div class="live-top">
+              <div class="exercise-name">Squat</div>
+              <div class="set-of">SET 2 OF 4 · TARGET 8</div>
+            </div>
+
+            <div class="instrument-row">
+              <span class="badge badge-dashed"><span class="badge-dot"></span>2D · SINGLE CAMERA</span>
+            </div>
+
+            <div class="counter-wrap">
+              <svg class="skeleton-ghost" viewBox="0 0 100 160" fill="none">
+                <circle cx="50" cy="18" r="10" stroke="var(--ink)" stroke-width="2.5"/>
+                <path d="M50 28v46M50 42l-24 18M50 42l24 18M50 74l-18 46M50 74l18 46" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <div class="rep-count">6<small>/8</small></div>
+              <div class="rep-label">Reps this set</div>
+            </div>
+
+            <div class="frame-strip">
+              <span class="frame-led"></span>
+              <p><strong>In frame.</strong> Cue fires the instant a foot leaves the calibrated volume — independent of form scoring.</p>
+            </div>
+          </div>
+          <div style="padding:12px 20px 22px;">
+            <button class="pill-btn ghost">End set</button>
+          </div>
+        </section>
+
+        <!-- SCREEN C: REPORT -->
+        <section class="screen" id="screen-report">
+          <div class="app-bar">
+            <div class="app-wordmark">Joule</div>
+            <div class="app-station">Set complete<br>15:44</div>
+          </div>
+          <div class="screen-body">
+            <div class="report-head">
+              <div>
+                <div class="report-title">Squat · Set 2</div>
+                <div class="report-sub">8 / 8 REPS VALID</div>
+              </div>
+              <span class="badge badge-solid"><span class="badge-dot"></span>3D · FUSED</span>
+            </div>
+
+            <div class="skeleton-card">
+              <svg width="120" height="128" viewBox="0 0 120 128" fill="none">
+                <g opacity="0.55">
+                  <circle cx="60" cy="16" r="9" stroke="var(--good)" stroke-width="2" stroke-dasharray="2 3"/>
+                  <path d="M60 25v34M60 36l-19 14M60 36l19 14M60 59l-15 40M60 59l15 40" stroke="var(--good)" stroke-width="2" stroke-dasharray="2 3" stroke-linecap="round"/>
+                </g>
+                <circle cx="66" cy="18" r="9" stroke="var(--ink)" stroke-width="2.4"/>
+                <path d="M66 27v34M66 38l-20 15M66 38l20 12M66 61l-9 38M66 61l19 22" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>
+                <circle cx="57" cy="99" r="6.5" fill="none" stroke="var(--risk)" stroke-width="2.4"/>
+              </svg>
+              <p class="skeleton-caption">REP 5 — WORST SCORING &nbsp;·&nbsp; <b>left knee tracking inward ~9°</b><br>solid = you &nbsp;·&nbsp; dashed = reference</p>
+            </div>
+
+            <div>
+              <p class="card-title" style="margin-bottom:8px;">Rep by rep</p>
+              <div class="rep-strip">
+                <div class="rep-seg rep-clean">1</div>
+                <div class="rep-seg rep-clean">2</div>
+                <div class="rep-seg rep-clean">3</div>
+                <div class="rep-seg rep-clean">4</div>
+                <div class="rep-seg rep-flag">5</div>
+                <div class="rep-seg rep-flag">6</div>
+                <div class="rep-seg rep-clean">7</div>
+                <div class="rep-seg rep-clean">8</div>
+              </div>
+            </div>
+
+            <p class="summary-line">Solid depth throughout. Watch the left knee on your last two reps.</p>
+
+            <ul class="cue-list">
+              <li class="cue-flag"><span class="cue-dot"></span><span>Reps <b>5–6</b>: left knee tracking inward — try 5–10% less load next set.</span></li>
+              <li class="cue-good"><span class="cue-dot"></span><span>Rep <b>3</b>: excellent depth and a controlled 2.1s tempo.</span></li>
+            </ul>
+
+            <div class="next-action">
+              <span class="play"><svg viewBox="0 0 24 24" fill="var(--btn-on)"><path d="M8 5v14l11-7z"/></svg></span>
+              <span>Watch: fixing knee valgus &nbsp;·&nbsp; 0:42</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="rail">
+
+      <div class="rail-item">
+        <div class="rail-num">01</div>
+        <div>
+          <div class="rail-tag">SPEC §2.1 · FEATURE 1 + 5</div>
+          <p class="rail-name">Check-in</p>
+          <p class="rail-body">Binds a fresh Re-ID embedding to the member within 3 seconds of a QR/badge tap. The coverage card is the plain-language limitations disclosure the spec insists on — <b>set on the very first screen</b>, not buried in settings, so no one discovers "sit-ups aren't counted" mid-set.</p>
+        </div>
+      </div>
+
+      <div class="rail-item">
+        <div class="rail-num">02</div>
+        <div>
+          <div class="rail-tag">SPEC §3.3 · LIVE SESSION VIEW</div>
+          <p class="rail-name">Live session</p>
+          <p class="rail-body">Deliberately <b>not</b> a live form overlay — mid-rep scoring at this fidelity isn't validated yet, so promising it would be the single most damaging overclaim the app could make. Just a glanceable counter and the frame-exit cue, which is engineered to be faster than and independent of the scoring pipeline.</p>
+        </div>
+      </div>
+
+      <div class="rail-item">
+        <div class="rail-num">03</div>
+        <div>
+          <div class="rail-tag">SPEC §3.3 · POST-SESSION REPORT</div>
+          <p class="rail-name">Report</p>
+          <p class="rail-body">The hero screen. The skeleton overlay — <b>this product's actual output, not an icon</b> — carries the one deviation that matters most, paired against a reference. Never more than two coaching cues, and one always names something done <i>well</i>, not only what to fix.</p>
+        </div>
+      </div>
+
+      <div class="legend">
+        <p class="legend-title">Confidence language</p>
+        <div class="legend-rows">
+          <div class="legend-row">
+            <span class="badge badge-solid"><span class="badge-dot"></span>3D · FUSED</span>
+            <p>Solid outline — 2+ calibrated cameras agree. Highest-confidence read.</p>
+          </div>
+          <div class="legend-row">
+            <span class="badge badge-dashed"><span class="badge-dot"></span>2D · SINGLE</span>
+            <p>Dashed outline — one camera's estimate. Never shown as equal to a fused read.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function showScreen(id, btn){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
