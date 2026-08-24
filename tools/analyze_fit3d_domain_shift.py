@@ -48,7 +48,7 @@ TRAINED_CLASSES = {'cardio', 'press', 'pullup', 'pushup', 'raise', 'situp', 'squ
 HEURISTIC_ONLY_CLASSES = _CLASSIFIER._heuristic_only
 
 # Corrected 2026-08-10, after the original first-pass mapping (see git history /
-# HANDOVER8.md) turned out to conflate different real-world exercises that
+# HANDOVER.md's "2026-08-10" entry) turned out to conflate different real-world exercises that
 # merely share an English word with a RepCount-trained class:
 #   - 'press' was trained on RepCount's bench_pressing (lying, chest-driven).
 #     Fit3D's dumbbell_overhead_shoulder_press/neutral_overhead_shoulder_press/

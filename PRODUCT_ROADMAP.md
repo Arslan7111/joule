@@ -172,7 +172,7 @@ for ts, val in entries:
         next_t = ts + interval
 ```
 
-`ROADMAP.md` C3 and `HANDOVER6.md` document that one transient
+`ROADMAP.md` C3 and `HANDOVER.md` (2026-08-05 entry) document that one transient
 single-frame confidence gap in one joint permanently shifts that joint's
 output timestamps off the shared frame grid. The Fit3D validation tool was
 fixed to score joints independently; **`src/output.py` itself was not
@@ -893,9 +893,9 @@ Split along the seams the code already implies:
    instances make it impossible by construction. Constraint:
    `PersonDetectorTracker` explicitly holds per-camera tracker state
    (`persist=True`), so **tracker state must stay per-camera even if model
-   weights are shared** — `HANDOVER6.md` records a bug caused by exactly
-   this (a shared ByteTrack instance across 4 feeds corrupting tracker
-   state).
+   weights are shared** — `HANDOVER.md` (2026-08-05 entry) records a bug
+   caused by exactly this (a shared ByteTrack instance across 4 feeds
+   corrupting tracker state).
 3. **Analysis** — per-person stateful actors. The existing `_init_person()`
    dict is already effectively an actor's state; make it one, visit-scoped
    rather than process-scoped.
@@ -1149,7 +1149,7 @@ to prove the refactor didn't break it.
 ## Appendix — Files referenced
 
 Docs read: `ROADMAP.md`, `STATUS.md`, `DEVELOPMENT.md`, `README.md`,
-`CAMERA_PLACEMENT.md`, `FIT3D_UTILIZATION_PLAN.md`, `HANDOVER6.md`.
+`CAMERA_PLACEMENT.md`, `FIT3D_UTILIZATION_PLAN.md`, `HANDOVER.md`.
 
 Code read: `pipeline.py`, `requirements.txt`, and in `src/`: `camera.py`,
 `fusion.py`, `session.py`, `reid.py`, `output.py`, `dashboard.py`,
