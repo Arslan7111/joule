@@ -1,0 +1,376 @@
+<title>Joule Coach Body Marks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Petrona:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#121416; --surface:#1c1f22; --surface-2:#24282b;
+  --line:#31363a; --line-2:#454c51;
+  --text:#f4f2ee; --text-2:#b2b6b9; --text-3:#8b9094;
+  --orange:#E85D0C; --amber:#F5A623;
+  --paper:#F4F2EE; --ink:#121416;
+  --hi:rgba(255,255,255,.055);
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --serif:'Petrona',Georgia,serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:15px;line-height:1.5;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--orange);color:var(--paper)}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+*{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-thumb{background:var(--line-2)}
+
+.page{max-width:1080px;margin:0 auto;padding:0 28px 96px}
+.masthead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;padding:30px 0 14px;border-bottom:1px solid var(--line-2)}
+.masthead h1{margin:0;font-size:19px;font-weight:700;font-stretch:96%;letter-spacing:-.018em}
+.masthead .sub{font-size:12px;color:var(--text-3);font-stretch:82%;letter-spacing:.07em;text-transform:uppercase}
+.masthead a{margin-left:auto;color:var(--text-3);font-size:12px;text-decoration:none;border-bottom:1px solid var(--line-2);padding-bottom:2px}
+.masthead a:hover{color:var(--text)}
+
+.lede{padding:26px 0 8px;font-family:var(--serif);font-size:19px;line-height:1.55;color:var(--text-2);max-width:64ch}
+.lede b{color:var(--text);font-weight:600}
+
+h2.sec{
+  margin:52px 0 4px;font-size:11px;font-stretch:82%;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-3);font-weight:600;
+  border-top:1px solid var(--line);padding-top:16px;
+}
+.body{font-size:15px;line-height:1.62;color:var(--text-2);max-width:66ch;margin:10px 0 0}
+.body b{color:var(--text);font-weight:600}
+.rut{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;max-width:70ch}
+.rut span{font-size:12.5px;color:var(--text-3);border:1px solid var(--line-2);padding:6px 10px;position:relative}
+.rut span::after{content:"";position:absolute;left:6px;right:6px;top:52%;height:1px;background:var(--line-2)}
+
+/* family strip */
+.family{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin-top:18px}
+@media (max-width:820px){.family{grid-template-columns:repeat(4,1fr)}}
+.family .fcell{border:1px solid var(--line);background:var(--surface);padding:14px 8px 10px;text-align:center}
+.family svg{width:100%;height:auto;color:var(--text)}
+.family .fn{margin-top:8px;font-size:9.5px;font-stretch:80%;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3)}
+
+.mark{margin-top:56px;border-top:1px solid var(--line-2)}
+.markhead{display:grid;grid-template-columns:240px 1fr}
+@media (max-width:820px){.markhead{grid-template-columns:1fr}}
+.stage{background:var(--surface);border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:34px;box-shadow:inset 0 1px 0 var(--hi)}
+@media (max-width:820px){.stage{border-right:0;border-bottom:1px solid var(--line)}}
+.stage svg{width:136px;height:136px;color:var(--text)}
+.accent-fill{fill:var(--orange)}
+.accent-stroke{stroke:var(--orange)}
+.mono .accent-fill{fill:currentColor}
+.mono .accent-stroke{stroke:currentColor}
+.dim{opacity:.42}
+
+.markmeta{padding:26px 0 22px 26px}
+@media (max-width:820px){.markmeta{padding:22px 0 0}}
+.markmeta .no{font-size:11px;font-stretch:82%;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.markmeta .no em{font-style:normal;color:var(--text-3);margin-left:9px}
+.markmeta h3{margin:7px 0 0;font-size:27px;font-weight:700;letter-spacing:-.028em;font-stretch:98%;line-height:1.08}
+.markmeta .thesis{margin:9px 0 0;font-family:var(--serif);font-size:17px;line-height:1.5;color:var(--text);max-width:46ch}
+.markmeta .why{margin:13px 0 0;font-size:14px;line-height:1.6;color:var(--text-2);max-width:56ch}
+.markmeta .why b{color:var(--text);font-weight:600}
+.risk{margin:14px 0 0;padding-left:15px;border-left:2px solid var(--line-2);font-size:13px;line-height:1.55;color:var(--text-3);max-width:54ch}
+.risk b{color:var(--text-2);font-weight:600}
+
+.strip2{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px}
+@media (max-width:820px){.strip2{grid-template-columns:1fr}}
+.cellbox{border:1px solid var(--line);padding:22px;display:flex;align-items:center;justify-content:center;min-height:104px}
+.cellbox.lightbg{background:var(--paper);color:var(--ink)}
+.cap{font-size:10.5px;font-stretch:82%;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);padding:9px 0 0}
+.tests{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:2px}
+@media (max-width:820px){.tests{grid-template-columns:repeat(2,1fr)}}
+.tests .cellbox{min-height:96px;flex-direction:column;gap:10px}
+
+.wm{display:flex;align-items:center;gap:14px}
+.wm.stack{flex-direction:column;gap:12px}
+.wm svg{width:46px;height:46px;flex:none}
+.wm.stack svg{width:58px;height:58px}
+.wtext{font-size:26px;line-height:1;letter-spacing:-.028em;white-space:nowrap}
+.wtext .j{font-weight:800;font-stretch:88%}
+.wtext .c{font-weight:300;font-stretch:88%}
+.wm.stack .wtext{font-size:22px}
+
+.rec{margin-top:22px;border:1px solid var(--orange);padding:20px 22px;background:rgba(232,93,12,.07);max-width:70ch}
+.rec h4{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--orange)}
+.rec p{margin:0 0 9px;font-size:14.5px;line-height:1.6;color:var(--text-2)}
+.rec p:last-child{margin-bottom:0}
+.rec b{color:var(--text);font-weight:600}
+.foot{margin-top:60px;padding-top:18px;border-top:1px solid var(--line-2);display:flex;flex-wrap:wrap;gap:8px 26px;font-size:11.5px;color:var(--text-3);font-stretch:84%;letter-spacing:.05em}
+.foot b{color:var(--text-2);font-weight:600}
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <h1>Joule Coach</h1>
+    <span class="sub">Body marks · round two · eight candidates</span>
+    <a href="index.html">Round one, geometry only</a>
+  </header>
+
+  <p class="lede">
+    Round one had no body in it. These eight put one back, in two treatments: a <b>drawn skeleton</b>
+    and a <b>solid figure</b>. Four are body alone. Four fuse the figure into a round-one mark, so the
+    geometry still carries the mechanism while the body says, immediately, that this is about lifting.
+  </p>
+
+  <h2 class="sec">Why a figure is the right move here</h2>
+  <p class="body">
+    This is not a decorative choice. <b>The product spec already names the skeleton overlay as the
+    brand's visual signature</b> (§3.2: use the real joint overlay as a first-class design element,
+    derived from actual pose data, not a generic icon, because it is the one thing a copycat cannot
+    fake). The app draws exactly this figure on the report screen. A mark built from it is the
+    identity agreeing with the product rather than decorating it.
+  </p>
+  <p class="body" style="margin-top:12px">
+    Everything below is a <b>squat at depth, seen from the front</b>. That is deliberate. It is the
+    exercise the engine measures best, it is the only view in which knee travel is visible, and it is
+    the pose the whole app is built around.
+  </p>
+
+  <h2 class="sec">Still rejected</h2>
+  <div class="rut">
+    <span>Flexing bicep</span><span>Running man pictogram</span><span>Yoga wellness figure</span>
+    <span>Swoosh made of two curves</span><span>Dumbbell in any form</span><span>Muscle diagram</span>
+  </div>
+
+  <h2 class="sec">The family</h2>
+  <div class="family" id="family"></div>
+
+  <div id="marks"></div>
+
+  <h2 class="sec">Where I would go</h2>
+  <div class="rec">
+    <h4>Recommendation</h4>
+    <p>
+      <b>06 Framed</b> is the one I would build on. It is the only mark in either round that draws
+      the product's hardest constraint, the rule that the whole body including the feet must stay
+      inside the calibrated volume, and it turns a limitation into the identity. It also fixes round
+      one's weakness: it has a body and it still carries the camera.
+    </p>
+    <p>
+      <b>12 The Chain</b> is the reduction play. Three dots and two lines is very little design to
+      defend, but it is unmistakably a limb, it is the app's own rep-strip glyph promoted, and it is
+      the only mark in either round that still reads at 12px.
+    </p>
+    <p>
+      <b>10 Bottom Position</b> and <b>11 The Lifter</b> are the same idea in the two treatments you
+      asked to compare. Pick 10 if the brand should feel like an instrument company, 11 if it should
+      feel like a gym. Neither says anything about measurement, which is the trade.
+    </p>
+    <p>
+      <b>09 Sightlines is the weakest and I would not ship it.</b> It was recomposed three times.
+      Overhead cameras made the sightlines read as raised arms twice over, and moving them to the
+      sides fixed that but left the mark cluttered. Two cameras plus a full figure is more than a
+      logo can hold. If you want the mechanism stated, round one's 02 does it cleanly without a body.
+    </p>
+  </div>
+
+  <footer class="foot">
+    <span><b>Numbering</b> continues from round one</span>
+    <span><b>Grid</b> 96 by 96</span>
+    <span><b>Pose</b> front view, squat at depth</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* the pose: front view of a back squat at depth. The signature of that view
+     is that the KNEES sit wider than both the hips and the feet (hips span 14
+     units, knees 36, feet 22). Get that wrong and the figure reads as someone
+     standing with their arms out, which is what a first pass did. */
+
+  function bar(w){
+    return '<line x1="20" y1="27" x2="76" y2="27" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>'+
+           '<line x1="21" y1="20" x2="21" y2="34" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>'+
+           '<line x1="75" y1="20" x2="75" y2="34" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+  }
+
+  function stick(o){
+    o = o || {}; var w = o.w || 4.2; var s = '';
+    if(o.bar) s += bar(w);
+    s += '<circle cx="48" cy="15" r="7" fill="none" stroke="currentColor" stroke-width="'+w+'"/>';
+    s += '<line x1="48" y1="22" x2="48" y2="32" stroke="currentColor" stroke-width="'+w+'"/>';
+    s += '<line x1="38" y1="32" x2="58" y2="32" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+    if(o.bar){
+      s += '<line x1="38" y1="32" x2="30" y2="27" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+      s += '<line x1="58" y1="32" x2="66" y2="27" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+    }
+    s += '<line x1="48" y1="32" x2="48" y2="50" stroke="currentColor" stroke-width="'+w+'"/>';
+    s += '<line x1="41" y1="50" x2="55" y2="50" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+    s += '<path d="M41 50 L30 64 L37 82" fill="none" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';
+    s += '<path d="M55 50 L66 64 L59 82" fill="none" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(o.feet !== false){
+      s += '<line x1="30" y1="82" x2="44" y2="82" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+      s += '<line x1="52" y1="82" x2="66" y2="82" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round"/>';
+    }
+    return s;
+  }
+
+  function solidTop(){
+    return bar(5) +
+      '<circle cx="48" cy="14" r="8" fill="currentColor"/>' +
+      '<line x1="48" y1="25" x2="48" y2="50" stroke="currentColor" stroke-width="15" stroke-linecap="round"/>' +
+      '<line x1="41" y1="32" x2="31" y2="27" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>' +
+      '<line x1="55" y1="32" x2="65" y2="27" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>';
+  }
+  function solidLegs(){
+    return '<path d="M42 50 L30 64 L37 82" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>' +
+           '<path d="M54 50 L66 64 L59 82" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+
+  function chain(cx, cy, k, w){
+    return '<g transform="translate('+cx+' '+cy+') scale('+k+') translate(-45 -50)">'+
+           '<path d="M60 18 L30 50 L52 82" fill="none" stroke="currentColor" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>'+
+           '<circle cx="60" cy="18" r="6" fill="currentColor"/>'+
+           '<circle cx="52" cy="82" r="6" fill="currentColor"/>'+
+           '<circle cx="30" cy="50" r="8" class="accent-fill"/></g>';
+  }
+
+  var MARKS = [
+    {
+      no:'06', kind:'Mixed \u00b7 solid figure', name:'Framed',
+      thesis:'The whole body, feet included, inside the volume.',
+      why:'A camera frame with a lifter in it, and the feet crossing the bottom edge in orange. That is the engine\u2019s hardest constraint drawn as the logo: <b>full body including feet must stay in frame</b> or tracking breaks and the product declines to score. Every other fitness brand shows a body performing. This one shows a body being measured, and shows the edge of what can be measured.',
+      risk:'<b>Risk.</b> Needs the orange to read. In one colour the feet stop being an alert and become just feet, which loses half the idea.',
+      svg: solidTop() +
+        '<path d="M42 50 L30 64 L30.8 66" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="M54 50 L66 64 L65.2 66" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="M30.8 66 L37 82" fill="none" class="accent-stroke" stroke-width="10" stroke-linecap="round"/>' +
+        '<path d="M65.2 66 L59 82" fill="none" class="accent-stroke" stroke-width="10" stroke-linecap="round"/>' +
+        '<rect x="11" y="4" width="74" height="62" fill="none" stroke="currentColor" stroke-width="3.5"/>'
+    },
+    {
+      no:'07', kind:'Mixed \u00b7 skeleton', name:'In the Overlap',
+      thesis:'The joint sits where two views agree.',
+      why:'Round one\u2019s Overlap, with the thing it was always about placed inside it. Two camera frames, and the measured limb standing in their intersection, which is the only volume the engine resolves in true 3D. <b>The mark now says who the geometry is for.</b> A first pass put a whole figure in there and it became a smudge, so it carries one limb instead.',
+      risk:'<b>Risk.</b> Still the busiest of the eight. Two frames plus a limb is a lot for a small mark, and below 32px the chain closes up inside the box.',
+      svg:'<rect x="34" y="30" width="28" height="36" fill="currentColor" fill-opacity="0.12"/>' +
+          chain(48, 48, 0.52, 10) +
+          '<rect x="12" y="16" width="50" height="50" fill="none" stroke="currentColor" stroke-width="4"/>' +
+          '<rect x="34" y="30" width="50" height="50" fill="none" stroke="currentColor" stroke-width="4"/>'
+    },
+    {
+      no:'08', kind:'Mixed \u00b7 skeleton', name:'The Measured Knee',
+      thesis:'The finding, drawn on the leg it belongs to.',
+      why:'Round one\u2019s Angle, moved onto an actual limb. Hip, knee, ankle, and the goniometer arc marking the angle between them. This is <b>literally what the app reports</b> after every set, reduced to a mark. The knee takes the orange because the knee is what the engine watches.',
+      risk:'<b>Risk.</b> Reads as a limb to anyone who has seen a physio chart and as an abstract zigzag to everyone else. Works hardest with the wordmark present.',
+      svg:'<path d="M62 18 L32 52 L54 84" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<path d="M45.4 42.2 A18 18 0 0 1 43.5 66.5" fill="none" class="accent-stroke" stroke-width="4.5" stroke-linecap="round"/>'+
+          '<circle cx="62" cy="18" r="4.5" fill="currentColor"/>'+
+          '<circle cx="54" cy="84" r="4.5" fill="currentColor"/>'+
+          '<circle cx="32" cy="52" r="6.5" class="accent-fill"/>'
+    },
+    {
+      no:'09', kind:'Mixed \u00b7 skeleton', name:'Sightlines',
+      thesis:'Two cameras, one lifter, one truth.',
+      why:'Round one\u2019s Triangulation with a person at the convergence point instead of an abstract dot. The cameras sit level with the lifter and the sightlines come in horizontally, dashed, which is the only arrangement that stops them reading as raised arms. Two passes put the cameras overhead and both times the figure looked like it was hanging from them. <b>The only mark in either round that shows both halves of the claim at once.</b>',
+      risk:'<b>Risk.</b> The most elements of any mark here. The camera squares must stay visible for it to mean anything, so it should not go below 32px.',
+      svg:'<line x1="17" y1="46" x2="39" y2="53" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 5"/>'+
+          '<line x1="79" y1="46" x2="57" y2="53" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 5"/>'+
+          '<rect x="7" y="41" width="10" height="10" fill="currentColor"/>'+
+          '<rect x="79" y="41" width="10" height="10" fill="currentColor"/>'+
+          '<g transform="translate(48 50) scale(0.78) translate(-48 -47)">'+ stick({bar:true, w:6}) +'</g>'
+    },
+    {
+      no:'10', kind:'Body alone \u00b7 skeleton', name:'Bottom Position',
+      thesis:'The pose the whole product is built around.',
+      why:'A loaded back squat at depth, front view, drawn the way the app draws it. No camera, no geometry. <b>The most immediately legible mark in either round</b>: anyone who has been in a gym reads it in under a second, and the knees tracking wider than the feet is what stops it reading as a generic person icon.',
+      risk:'<b>Risk.</b> Says gym clearly and says measurement not at all. The closest of the eight to a conventional fitness mark, which is either reassuring or a missed opportunity.',
+      svg: stick({bar:true})
+    },
+    {
+      no:'11', kind:'Body alone \u00b7 solid', name:'The Lifter',
+      thesis:'The same pose, at weight.',
+      why:'Mark 10 rendered as a solid body rather than a drawn skeleton. Where the skeleton reads technical and clinical, <b>this reads physical and human</b>. Same pose, same product truth, entirely different register, which is the reason to show both.',
+      risk:'<b>Risk.</b> Solid figures are the most crowded space in fitness branding. This wins on drawing quality alone and carries none of the product\u2019s actual difference.',
+      svg: solidTop() + solidLegs() +
+        '<line x1="30" y1="82" x2="44" y2="82" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>' +
+        '<line x1="52" y1="82" x2="66" y2="82" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>'
+    },
+    {
+      no:'12', kind:'Body alone \u00b7 skeleton', name:'The Chain',
+      thesis:'Hip, knee, ankle. Nothing else.',
+      why:'The smallest possible body: one limb, three joints, two segments, and the knee in orange because the knee is the joint this engine exists to watch. <b>It is the app\u2019s own rep-strip glyph promoted to a logo.</b> Nobody in this category owns three dots and two lines, and it is the only mark in either round that still reads at 12px.',
+      risk:'<b>Risk.</b> Very little design to defend, and it needs the wordmark to place the category. Read cold it could be a route or a constellation, though neither is a wrong association for a measurement product.',
+      svg:'<path d="M60 18 L30 50 L52 82" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<circle cx="60" cy="18" r="6" fill="currentColor"/>'+
+          '<circle cx="52" cy="82" r="6" fill="currentColor"/>'+
+          '<circle cx="30" cy="50" r="8" class="accent-fill"/>'
+    },
+    {
+      no:'13', kind:'Body alone \u00b7 skeleton', name:'The Rep',
+      thesis:'One repetition, held in one mark.',
+      why:'The same leg at two positions, sharing one hip and one foot: extended in ink, flexed at depth in orange. Only the knee moves, which is what makes it read as one limb rather than two. <b>A rep is not a pose, it is a change between two poses</b>, and this is the only mark in either round that contains time. It is the chronophotography idea, which is the 1880s ancestor of what the engine does.',
+      risk:'<b>Risk.</b> The two-state read is not instant, and it collapses entirely in one colour, which makes it the weakest of the eight on the monochrome test.',
+      svg:'<path d="M60 16 L57 50 L52 82" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>'+
+          '<circle cx="57" cy="50" r="5.5" fill="currentColor" opacity="0.4"/>'+
+          '<path d="M60 16 L26 56 L52 82" fill="none" class="accent-stroke" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+          '<circle cx="26" cy="56" r="7.5" class="accent-fill"/>'+
+          '<circle cx="60" cy="16" r="6" fill="currentColor"/>'+
+          '<circle cx="52" cy="82" r="6" fill="currentColor"/>'
+    }
+  ];
+
+  function svgEl(inner){ return '<svg viewBox="0 0 96 96" aria-hidden="true">'+inner+'</svg>'; }
+  function wordmark(inner, stacked){
+    return '<div class="wm'+(stacked?' stack':'')+'">'+svgEl(inner)+
+           '<div class="wtext"><span class="j">JOULE</span> <span class="c">COACH</span></div></div>';
+  }
+  function mono(inner){
+    return '<div class="mono" style="width:100%;height:100%;display:flex">'+svgEl(inner)+'</div>';
+  }
+
+  var fam = document.getElementById('family');
+  MARKS.forEach(function(m){
+    var d = document.createElement('div');
+    d.className='fcell';
+    d.innerHTML = svgEl(m.svg)+'<div class="fn">'+m.no+'</div>';
+    fam.appendChild(d);
+  });
+
+  var host = document.getElementById('marks');
+  MARKS.forEach(function(m){
+    var sec = document.createElement('section');
+    sec.className='mark';
+    sec.innerHTML =
+      '<div class="markhead">'+
+        '<div class="stage">'+svgEl(m.svg)+'</div>'+
+        '<div class="markmeta">'+
+          '<div class="no">'+m.no+'<em>'+m.kind+'</em></div>'+
+          '<h3>'+m.name+'</h3>'+
+          '<p class="thesis">'+m.thesis+'</p>'+
+          '<p class="why">'+m.why+'</p>'+
+          '<div class="risk">'+m.risk+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="cap">Lockups</div>'+
+      '<div class="strip2">'+
+        '<div class="cellbox">'+wordmark(m.svg,false)+'</div>'+
+        '<div class="cellbox lightbg">'+wordmark(m.svg,false)+'</div>'+
+      '</div>'+
+      '<div class="strip2">'+
+        '<div class="cellbox">'+wordmark(m.svg,true)+'</div>'+
+        '<div class="cellbox lightbg">'+wordmark(m.svg,true)+'</div>'+
+      '</div>'+
+      '<div class="cap">Tests that decide it</div>'+
+      '<div class="tests">'+
+        '<div class="cellbox">'+mono(m.svg)+'<span class="cap" style="padding:0">One colour</span></div>'+
+        '<div class="cellbox lightbg">'+mono(m.svg)+'<span class="cap" style="padding:0;color:#5a5e62">One colour, light</span></div>'+
+        '<div class="cellbox"><div style="width:32px;height:32px">'+svgEl(m.svg)+'</div><span class="cap" style="padding:0">32px</span></div>'+
+        '<div class="cellbox"><div style="width:16px;height:16px">'+svgEl(m.svg)+'</div><span class="cap" style="padding:0">16px favicon</span></div>'+
+      '</div>';
+    host.appendChild(sec);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.cellbox svg'), function(s){
+    if(!s.closest('.wm')){ s.style.width='100%'; s.style.height='100%'; }
+  });
+})();
+</script>

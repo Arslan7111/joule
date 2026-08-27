@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"
+     role="img" aria-label="Joule Coach: a joint angle marked with two rays and an arc"
+     style="color:#121416">
+  <title>Joule Coach - The Angle</title>
+  <!-- the two limbs of a joint -->
+  <line x1="26" y1="76" x2="26" y2="16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="26" y1="76" x2="82" y2="46" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- the measurement itself: the arc is the product's whole output -->
+  <path d="M26 52 A24 24 0 0 1 47.2 64.7" fill="none" stroke="#E85D0C" stroke-width="4.5"
+        stroke-linecap="round"/>
+  <circle cx="26" cy="76" r="6" fill="#E85D0C"/>
+</svg>

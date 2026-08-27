@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"
+     role="img" aria-label="Joule Coach: two cameras triangulating one solved point"
+     style="color:#121416">
+  <title>Joule Coach - Triangulation</title>
+  <!-- calibration baseline: known, not measured, so it is dashed -->
+  <line x1="16" y1="22" x2="80" y2="22" stroke="currentColor" stroke-width="3"
+        stroke-dasharray="5 6" opacity="0.42"/>
+  <!-- sightlines: observed, so they are solid. 65 degrees apart, inside the validated 47 to 133 band -->
+  <line x1="16" y1="22" x2="48" y2="72" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <line x1="80" y1="22" x2="48" y2="72" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  <rect x="11" y="17" width="10" height="10" fill="currentColor"/>
+  <rect x="75" y="17" width="10" height="10" fill="currentColor"/>
+  <!-- the solved joint -->
+  <circle cx="48" cy="72" r="7" fill="#E85D0C"/>
+</svg>

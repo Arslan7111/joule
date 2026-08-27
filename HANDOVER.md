@@ -1,18 +1,23 @@
 # Handover — Joule
 
-Last updated: 2026-08-24. Consolidates `HANDOVER.md` through `HANDOVER8.md`
+Last updated: 2026-08-27. Consolidates `HANDOVER.md` through `HANDOVER8.md`
 (commit `18330df`), plus the un-handed-off "Recover lunge heuristic"
-session (commit `248adea`), plus two design-prototyping sessions on this
-same date (kickoff + Stitch MCP setup, then Stitch import + an Apple-HIG
-candidate — no engine code changed either time), into a single running
-log. Read this before doing anything else in this repo. `STATUS.md` is
-the always-current engine done/left-to-do snapshot; `ROADMAP.md` is the
-phased engine execution plan (Phases A–E, plus F–L for the
-product-strategy docs); `DEVELOPMENT.md` is the full dated technical
-log. `design/PROTOTYPES.md` is the equivalent tracking index for the
-member-app front-end design work (3 candidates as of this update — see
-below). This file is the session-by-session narrative behind all of
-those — read it when you need *why*, not just *what*.
+session (commit `248adea`), plus two design-prototyping sessions on
+2026-08-24 (kickoff + Stitch MCP setup, then Stitch import + an
+Apple-HIG candidate — no engine code changed either time), plus a
+2026-08-27 session that installed five external design skills and used
+them to build a fourth member-app candidate plus a two-round logo
+exploration (13 marks total, no engine code changed), into a single
+running log. Read this before doing anything else in this repo.
+`STATUS.md` is the always-current engine done/left-to-do snapshot;
+`ROADMAP.md` is the phased engine execution plan (Phases A–E, plus F–L
+for the product-strategy docs); `DEVELOPMENT.md` is the full dated
+technical log. `design/PROTOTYPES.md` is the equivalent tracking index
+for the member-app front-end design work (4 candidates as of this
+update — see below). `design/logo/README.md` is the equivalent index
+for the logo work (13 marks across two rounds). This file is the
+session-by-session narrative behind all of those — read it when you
+need *why*, not just *what*.
 
 ## What this is
 
@@ -821,6 +826,128 @@ update this handover, and commit/push everything — done this session
 (see "Repo hygiene" below); `PRODUCT_SPEC.md` itself was deliberately
 left unedited pending the user's own call.
 
+## Session: 2026-08-27 — five design skills installed, candidate 04,
+## logo exploration (two rounds, 13 marks)
+
+Two requests in one session, both design-only — no engine code touched.
+
+**Part 1 — installed five external Claude Code skills/plugins the user
+linked from GitHub:** `pbakaus/impeccable` (plugin marketplace, `/impeccable`
+command family), `anthropics/claude-code`'s `frontend-design` skill (from
+the already-registered `claude-plugins-official` marketplace),
+`Leonxlnx/taste-skill` (already installed from a prior session —
+verified, not reinstalled), `nextlevelbuilder/ui-ux-pro-max-skill`
+(plugin, searchable style/typography/UX databases), and
+`emilkowalski/skills` (not a plugin marketplace — a plain skills-dir
+repo, so its 12 skill folders were copied directly into
+`~/.claude/skills/`; its own `apple-design` skill collided with this
+project's existing `apple-design` skill and was installed as
+`apple-design-motion` instead so neither was overwritten).
+
+**Part 2 — candidate 04, "lab report" direction, built then corrected.**
+First pass used `impeccable` (`concept-seed.mjs`, which requires a
+`PRODUCT.md` — written this session at the repo root, grounded in
+`STATUS.md`'s real capability numbers, not `PRODUCT_SPEC.md`'s stale
+ones) to roll a randomized direction assignment against 7 grounded
+candidates drawn from the audience's world (gym console, powerlifting
+refereeing, biomechanics lab report, structural drawing, surveying notes,
+PT goniometer chart, Marey chronophotography). Landed on **clinical
+gait-analysis report** — corridor bands for confidence, sagittal/frontal/
+transverse plane panels, frontal gutter stamped `3D ONLY` because knee
+valgus is invisible to one camera. Built light-committed initially
+(argued from the gym-floor use scene in the new `PRODUCT.md`), verified
+with Playwright (bundled Chromium — system Chrome wouldn't launch in this
+environment; `chromium.launch()` via `@playwright/cli`'s bundled
+`playwright-core` worked). Screenshot review caught the skeleton overlay
+missing entirely (PRODUCT_SPEC §3.2 names it the required signature
+element) and a squat-figure pose bug (hips and knees at the same height,
+no thighs) before it was fixed.
+
+**Then a real process failure and correction:** the summary after that
+first pass claimed `taste-skill` had been used; it had not — only
+`impeccable`, `frontend-design`, and `ui-ux-pro-max` were actually
+invoked. User caught this ("did you use taste skill also") and asked for
+dark theme + more polish. Re-did the work by actually reading
+`taste-skill`'s SKILL.md (11k+ words), which explicitly scopes itself
+out of "dashboards / dense product UI" (§13) — so only its universal
+rules applied, not its landing-page rules. Those universal rules caught
+5 real defects in the first build: 14 em-dashes in visible copy (§9.G,
+the skill's own most-violated rule, zero-tolerance not "sparingly"); the
+live-session screen inverting to dark inside an otherwise light page
+(§4.11 Page Theme Lock violation); a metadata line with 3 middle-dots on
+one line (§9.F caps at 1); numbered sheet-index eyebrows (01–05) that
+encoded no real sequence, since the sheets were ordered by interest, not
+flow (§9.F bans exactly this); and no loading/empty states at all (§4.5).
+Rebuilt dark-committed (light kept as a working toggle, not deleted) with
+a real elevation ladder (`#121416` page → `#1c1f22` pinned surface → two
+raised tiers, each with a 1px top-edge highlight), answer-first
+information order (verdict + cue first, then the figure, then the
+scrubbable rep strip, then the plane panels, then method — reversing the
+first pass's chart-first order), a draggable (not just clickable) rep
+strip so the "one control drives the whole document" claim was actually
+true, and a skeleton-shaped loading state dramatizing the 2–5s report
+window `PRODUCT_SPEC.md` §2.1 promises. Verified in both themes: every
+text token ≥4.5:1 contrast, CTA 8.17:1 dark / 5.30:1 light, drag-scrub
+confirmed to correctly refuse landing on the ghost (unmeasured) cell.
+File: `design/prototypes/04-lab-report/index.html` + 9 screenshots.
+`design/PROTOTYPES.md`'s candidate-04 entry documents the taste-skill
+miss and correction explicitly, including the honest note that the
+gym-floor argument for light mode wasn't wrong — dark was a user
+preference override, not a resolved design argument, and both modes are
+built and verified so that can still be compared on an actual gym floor.
+Also corrected: `PRODUCT.md` and this pattern's write-up both no longer
+overclaim which skills did what.
+
+**Part 3 — logo exploration, two rounds, user-requested, 13 marks total.**
+Round one (`design/logo/index.html`, 5 marks): grounded in the one real,
+citable engine constraint that's also visually distinctive —
+`CAMERA_PLACEMENT.md` rule 4's measured camera-convergence numbers (47°
+to 133° validated, ~180° roughly doubles joint-angle error, 7.7–11.8°
+vs 16.5–18.2° measured). Marks: Overlap (two frame intersection),
+Triangulation (two sightlines + solved joint, baseline dashed because
+calibrated/known vs. sightlines solid because observed — the app's own
+confidence convention built into the mark's construction), The Angle
+(goniometer arc), The Corridor → replaced mid-round after two redraws
+still read as an eye/surveillance mark or a scribble (kept as an honest
+note rather than shipped), replaced with The Measure (two dimension
+lines, reference vs. reached), and The Plumb J (a J whose stem is a
+reference plumb and hook is the measured deviation — its first version's
+dashed continuation read as debris at logo scale and was cut). Each mark
+documented with its own risk section and tested at 32px/16px/one-colour/
+both themes. User feedback: liked the concepts but flagged **no body or
+exercise/gym is in any of them** and asked for 7–8 more options mixing
+body + the round-one geometry, in both stick-figure and solid treatments.
+
+Round two (`design/logo/body.html`, 8 marks, numbered 06–13 continuing
+from round one): grounded in `PRODUCT_SPEC.md` §3.2's own instruction to
+use the skeleton overlay as the visual signature, so a figure is
+motivated rather than decorative. Every mark is a front-view squat at
+depth (the exercise the engine measures best, the only view with visible
+knee travel). Four body-alone (Bottom Position/stick, The Lifter/solid,
+The Chain/single reduced limb, The Rep/two time-states sharing one hip
+and foot), four fused with round-one geometry (Framed — body in a camera
+frame with feet crossing the bottom edge in orange, drawing the literal
+"whole body including feet must stay in frame" constraint; In the
+Overlap; The Measured Knee; Sightlines). Two real drawing bugs caught by
+rendering rather than assumed correct: the squat pose initially had hips/
+knees/feet at similar widths and read as a person standing with arms
+out (a front-view squat's actual signature is knees wider than both hips
+*and* feet — fixed to a 14/36/22 width ratio); and mark 09 Sightlines was
+recomposed three times (overhead cameras → read as raised arms; dropping
+the figure's own arms → sightlines *became* the arms; moving cameras to
+the sides + dashing → fixed the ambiguity but left it cluttered) and the
+final recommendation explicitly says **not to ship 09** — a case of the
+render process contradicting an initial draft-order recommendation,
+corrected in the file rather than left standing. `design/logo/README.md`
+documents both rounds, the palette/typography/usage rules, and every cut
+concept with why it was cut. Round two's marks are not yet extracted to
+standalone SVG files (round one's are, in `design/logo/marks/`) since
+several are still moving — flagged as a next step, not done silently.
+
+No dashboard/engine code touched this session. `PRODUCT.md` (new, repo
+root) and `design/PROTOTYPES.md` (updated) are the only files outside
+`design/` that changed.
+
 ## What's on disk, not committed
 
 `design/` is now fully committed (see "Repo hygiene" below) — the prior
@@ -843,14 +970,27 @@ demo video, disk-only, easily regenerable).
    list** (see the root-cause finding above) — a product-strategy-doc
    edit, deliberately left for the user's call rather than done silently
    mid-design-session. If corrected, candidate 03's 3-tier onboarding
-   copy is a ready-made replacement to adapt from.
-2. **3 candidates now exist (01 Claude, 02 Stitch, 03 Claude/Apple HIG)**
-   — get the user's visual feedback on 02 and 03 (only 01 has feedback
-   so far), then compare all three against `PRODUCT_SPEC.md` §3
-   (tone/visual identity) and §2.1 (actual screen requirements) and fill
-   in `design/PROTOTYPES.md`'s "Decision" section — don't just pick on
+   copy is a ready-made replacement to adapt from. Candidate 04 already
+   built its own corrected 3-tier list independently (same root cause,
+   same fix) — worth using as the second reference when this edit
+   finally happens.
+2. **4 candidates now exist (01 Claude, 02 Stitch, 03 Claude/Apple HIG,
+   04 Claude/lab-report)** — get the user's visual feedback on 02, 03,
+   and now 04 (only 01 has feedback so far — "didn't land visually," and
+   04 has the dark-vs-light preference noted but not a full verdict),
+   then compare all four against `PRODUCT_SPEC.md` §3 (tone/visual
+   identity) and §2.1 (actual screen requirements) and fill in
+   `design/PROTOTYPES.md`'s "Decision" section — don't just pick on
    aesthetic preference alone.
-3. Optional cleanup, not urgent: dedupe `design/prototypes/02-stitch/01`
+3. **Logo: pick a direction or ask for a third round.** 13 marks exist
+   across two rounds (`design/logo/index.html` + `design/logo/body.html`,
+   indexed in `design/logo/README.md`). Author's pick from round one was
+   02 Triangulation or 01 Overlap; from round two, 06 Framed. No user
+   decision recorded yet. If round two marks are kept, extract the
+   chosen one(s) to standalone SVG files under `design/logo/marks/` the
+   way round one's already are — not done yet, deliberately, since
+   several were still being revised.
+4. Optional cleanup, not urgent: dedupe `design/prototypes/02-stitch/01`
    vs `07` (byte-identical) if `design/` ever gets tidied.
 
 **Engine-side (unchanged, still blocked on the user):**
@@ -884,13 +1024,22 @@ demo video, disk-only, easily regenerable).
 
 ## Repo hygiene
 
-Everything from today — engine-side and `design/` alike — is committed
-and pushed to `origin/main` as of this handover, including all three
-design candidates (`design/prototypes/01-claude-core-loop.html`,
+Everything through this handover — engine-side and `design/` alike — is
+committed and pushed to `origin/main`, including all four design
+candidates (`design/prototypes/01-claude-core-loop.html`,
 `design/prototypes/02-stitch/` (8 files), `design/prototypes/
-03-apple-hig-core-loop.html`), `design/PROTOTYPES.md`, `design/
-stitch-prompt.md`, and this file. `.venv/`, model files, and all real
-datasets (`test_videos/`, `Fit3D/`,
+03-apple-hig-core-loop.html`, `design/prototypes/04-lab-report/` — HTML +
+9 screenshots), the full logo exploration (`design/logo/index.html`,
+`design/logo/body.html`, `design/logo/README.md`,
+`design/logo/marks/*.svg` — round one only), `design/PROTOTYPES.md`,
+`design/stitch-prompt.md`, `PRODUCT.md` (new, repo root — impeccable's
+product-truth artifact, corrected capability table), and this file.
+`.venv/`, model files, and all real datasets (`test_videos/`, `Fit3D/`,
 `validation_results_fit3d*/`) are gitignored and machine-local/disk-only —
 a fresh clone starts from this file's description plus needs its own
 environment setup (see "Environment" above) to actually run anything.
+Design-skill installs (`impeccable`, `frontend-design`, `ui-ux-pro-max`,
+`emilkowalski/skills`'s 12 folders, `taste-skill`) live in the user's
+global `~/.claude/` config, not in this repo — a fresh clone or a
+different machine won't have them and would need reinstalling per the
+2026-08-27 session note above to reproduce this session's design tooling.

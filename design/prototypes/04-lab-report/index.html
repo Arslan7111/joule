@@ -1,0 +1,1062 @@
+<title>Joule Coach Lab Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Petrona:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+
+<!--
+THESIS: A set of squats is a measurement, so the app is the measurement's document, a
+biomechanics lab sheet rather than a fitness dashboard. It refuses the flat near-black
+console with one neon accent that this category (and this project's candidates 01 and 02)
+ships every time, by building a real elevation ladder instead of a single flat ground.
+OWN-WORLD: Dark committed. Ground #121416 sits under PRODUCT_SPEC's pinned #1c1f22 surface,
+with two raised tiers above it; every surface carries a 1px top-edge highlight so panels read
+as stacked material, not painted rectangles. Amber #f5a623 is the only accent and marks
+coaching cues alone. Teal and brick are semantic, never decorative. Zero border-radius.
+States are printed marks, never filled chips. Archivo for all measurement, Petrona for the
+clinician's prose alone.
+STORY: The member reads the finding first, sees it drawn on their own body second, scrubs the
+evidence third, and finds the method last. What was not measured is drawn as deliberately as
+what was.
+FIRST VIEWPORT: The verdict line and the coaching cue, then the figure with the deviation
+dimensioned against a reference plumb, then a 9-cell draggable rep strip whose last cell is a
+ghost, then three plane panels whose frontal gutter is stamped 3D ONLY.
+FORM: Clinical gait-analysis report. Candidate 3 of 7 on the grounded list. Seed key 32a412bb.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the
+verdict, DESIGN.md, and every shipping raster carrying its provenance.
+-->
+
+<style>
+/* ─── tokens: dark is the committed design ──────────────────────────────── */
+:root{
+  --bg:#121416;
+  --surface:#1c1f22;        /* PRODUCT_SPEC §3.2 dark surface */
+  --surface-2:#24282b;
+  --surface-3:#2d3235;
+  --line:#31363a;
+  --line-2:#454c51;
+  --text:#f4f2ee;           /* PRODUCT_SPEC §3.2 warm white */
+  --text-2:#b2b6b9;
+  --text-3:#8b9094;
+
+  --amber:#f5a623;          /* the one accent: coaching cues only */
+  --amber-dim:#8a6420;
+  --teal:#35b5a4;           /* semantic: confirmed good */
+  --brick:#e8705f;          /* semantic: risk */
+
+  --band:rgba(53,181,164,.15);
+  --band-edge:rgba(53,181,164,.40);
+  --ghost:rgba(244,242,238,.07);
+  --hi:rgba(255,255,255,.055);   /* top-edge highlight, the depth cue */
+  --on-amber:#1c1f22;
+
+  --ease:cubic-bezier(.23,1,.32,1);
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --serif:'Petrona',Georgia,serif;
+}
+/* light remains available for the gym-floor scene, via the toggle */
+:root[data-theme="light"]{
+  --bg:#e8e5df;
+  --surface:#f4f2ee;        /* PRODUCT_SPEC §3.2 light surface */
+  --surface-2:#eceae5;
+  --surface-3:#e2dfd8;
+  --line:#cfccc5;
+  --line-2:#a29e96;
+  --text:#1c1f22;
+  --text-2:#4b4f53;
+  --text-3:#686c6f;
+  --amber:#8a5a06;
+  --amber-dim:#c08a3a;
+  --teal:#1d6f66;
+  --brick:#a8321f;
+  --band:rgba(42,157,143,.15);
+  --band-edge:rgba(42,157,143,.42);
+  --ghost:rgba(28,31,34,.07);
+  --hi:rgba(255,255,255,.6);
+  --on-amber:#f4f2ee;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:15px;line-height:1.5;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+  caret-color:var(--amber);-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--amber);color:var(--on-amber)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+*{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-thumb{background:var(--line-2)}
+*::-webkit-scrollbar-track{background:transparent}
+
+/* ─── page ──────────────────────────────────────────────────────────────── */
+.page{max-width:1200px;margin:0 auto;padding:0 24px 88px}
+
+.masthead{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;
+  padding:28px 0 13px;border-bottom:1px solid var(--line-2);
+}
+.masthead h1{margin:0;font-size:19px;font-weight:700;font-stretch:96%;letter-spacing:-.018em}
+.masthead .sub{font-size:12px;color:var(--text-3);font-stretch:82%;letter-spacing:.07em;text-transform:uppercase}
+.masthead .spacer{flex:1}
+.themetoggle{
+  font:inherit;font-size:11px;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;
+  background:var(--surface-2);border:1px solid var(--line-2);color:var(--text-2);
+  padding:6px 12px;cursor:pointer;
+  box-shadow:inset 0 1px 0 var(--hi);
+  transition:transform 140ms var(--ease),color 140ms var(--ease),border-color 140ms var(--ease);
+}
+.themetoggle:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.themetoggle:hover{color:var(--text);border-color:var(--text-3)}}
+
+.strapline{
+  padding:16px 0 24px;border-bottom:1px solid var(--line);
+  font-family:var(--serif);font-size:16.5px;line-height:1.58;color:var(--text-2);max-width:64ch;
+}
+.strapline b{color:var(--text);font-weight:600}
+
+/* ─── workbench ─────────────────────────────────────────────────────────── */
+.workbench{display:grid;grid-template-columns:184px minmax(0,446px) 1fr;align-items:start}
+@media (max-width:900px){.workbench{grid-template-columns:1fr;gap:28px}}
+
+.index{padding:28px 24px 28px 0;border-right:1px solid var(--line);position:sticky;top:0}
+@media (max-width:900px){.index{border-right:0;border-bottom:1px solid var(--line);position:static;padding:20px 0}}
+.index h2{margin:0 0 12px;font-size:11px;font-stretch:82%;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.index ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+@media (max-width:900px){.index ol{flex-direction:row;flex-wrap:wrap}}
+.index button{
+  display:block;width:100%;font:inherit;font-size:13.5px;text-align:left;
+  background:none;border:1px solid transparent;color:var(--text-2);
+  padding:9px 10px;cursor:pointer;
+  transition:color 130ms var(--ease),background-color 130ms var(--ease),transform 130ms var(--ease);
+}
+@media (max-width:900px){.index button{width:auto;border-color:var(--line)}}
+.index button:active{transform:scale(.98)}
+@media (hover:hover) and (pointer:fine){.index button:hover{color:var(--text);background:var(--surface-2)}}
+.index button[aria-current="true"]{
+  color:var(--text);font-weight:600;background:var(--surface-2);
+  border-color:var(--line);box-shadow:inset 2px 0 0 var(--amber);
+}
+
+/* ─── device ────────────────────────────────────────────────────────────── */
+.devicewrap{padding:28px 26px;display:flex;justify-content:center}
+@media (max-width:900px){.devicewrap{padding:0}}
+.device{
+  width:100%;max-width:394px;
+  background:var(--surface);border:1px solid var(--line-2);
+  box-shadow:inset 0 1px 0 var(--hi), 0 44px 84px -40px rgba(0,0,0,.86), 0 4px 12px -6px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;
+}
+:root[data-theme="light"] .device{box-shadow:inset 0 1px 0 var(--hi), 0 26px 52px -30px rgba(28,31,34,.45)}
+.statusbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 16px 8px;font-size:11px;color:var(--text-3);
+  font-stretch:82%;letter-spacing:.05em;border-bottom:1px solid var(--line);
+  background:var(--surface-2);
+}
+.viewport{height:784px;overflow-y:auto;overscroll-behavior:contain;position:relative}
+@media (max-width:480px){.viewport{height:640px}}
+.screen{display:none;padding-bottom:30px}
+.screen[data-active]{display:block}
+
+/* ─── annotations ───────────────────────────────────────────────────────── */
+.notes{padding:28px 0 28px 26px;border-left:1px solid var(--line)}
+@media (max-width:900px){.notes{border-left:0;border-top:1px solid var(--line);padding:22px 0 0}}
+.notes h2{margin:0 0 14px;font-size:11px;font-stretch:82%;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.note{display:none;padding-left:17px;text-indent:-17px;font-size:13px;line-height:1.62;color:var(--text-2);margin:0 0 14px;max-width:44ch}
+.note[data-active]{display:block}
+.note b{color:var(--text);font-weight:600}
+.note .key{display:inline-block;width:10px;text-indent:0;color:var(--amber);font-weight:700}
+.note code{font-family:var(--sans);font-size:12px;font-stretch:82%;letter-spacing:.05em;text-transform:uppercase;color:var(--text);border-bottom:1px solid var(--line-2)}
+
+/* ─── screen furniture ──────────────────────────────────────────────────── */
+.titleblock{
+  border-bottom:1px solid var(--line);padding:15px 16px 13px;
+  background:var(--surface-2);box-shadow:inset 0 1px 0 var(--hi);
+}
+.titleblock .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.titleblock h3{margin:0;font-size:22px;font-weight:700;font-stretch:98%;letter-spacing:-.024em;line-height:1.08}
+.titleblock .meta{margin-top:6px;font-size:11.5px;color:var(--text-3);font-stretch:82%;letter-spacing:.07em;text-transform:uppercase}
+
+.stamp{
+  display:inline-flex;align-items:center;gap:6px;flex:none;
+  font-size:10.5px;font-stretch:82%;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+  border:1px solid currentColor;padding:3px 7px 2px;
+}
+.stamp.fused{color:var(--teal)}
+.stamp.single{color:var(--amber);border-style:dashed}
+
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:17px 16px 8px}
+.sechead h4{margin:0;font-size:11px;font-stretch:82%;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.sechead .aux{font-size:11.5px;color:var(--text-3);font-stretch:84%;letter-spacing:.04em}
+
+/* ─── the verdict: answer first ─────────────────────────────────────────── */
+.verdict{padding:18px 16px 0}
+.vcount{
+  display:flex;align-items:baseline;gap:9px;
+  font-size:12px;font-stretch:82%;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);
+}
+.vcount b{font-size:15px;color:var(--text);font-weight:700;letter-spacing:-.01em}
+.cue{margin-top:11px;border-top:2px solid var(--amber);padding-top:13px}
+.cue p{margin:0;font-size:20px;line-height:1.26;font-weight:600;letter-spacing:-.024em;text-wrap:balance}
+.cue .where{margin-top:8px;font-size:11.5px;color:var(--text-3);font-stretch:84%;letter-spacing:.05em;text-transform:uppercase}
+
+/* ─── figure: the product's signature ───────────────────────────────────── */
+.figure{
+  margin-top:16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:var(--surface-2);box-shadow:inset 0 1px 0 var(--hi);
+  padding:10px 16px 8px;display:flex;justify-content:center;
+}
+.figure svg{display:block;width:100%;max-width:288px;height:auto}
+.fig-bone{fill:none;stroke:var(--text);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.fig-bone.off{stroke:var(--amber)}
+.fig-joint{fill:var(--surface-2);stroke:var(--text);stroke-width:2}
+.fig-joint.off{stroke:var(--amber)}
+.fig-head{fill:none;stroke:var(--text);stroke-width:3}
+.fig-plumb{fill:none;stroke:var(--teal);stroke-width:1.5;stroke-dasharray:4 4}
+.fig-tick{stroke:var(--amber);stroke-width:2}
+.fig-cap{stroke:var(--amber);stroke-width:1.5}
+.fig-floor{stroke:var(--line-2);stroke-width:1;vector-effect:non-scaling-stroke}
+.fig-num{
+  font-family:var(--sans);font-size:12.5px;font-weight:700;fill:var(--amber);
+  paint-order:stroke;stroke:var(--surface-2);stroke-width:4;stroke-linejoin:round;
+}
+.fig-key{font-family:var(--sans);font-size:9px;font-stretch:82%;letter-spacing:.09em;fill:var(--text-3);text-transform:uppercase}
+.figlegend{
+  display:flex;flex-wrap:wrap;gap:4px 16px;padding:9px 16px 0;
+  font-size:10.5px;color:var(--text-3);font-stretch:82%;letter-spacing:.05em;text-transform:uppercase;
+}
+.figlegend i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+.figlegend i::before{content:"";width:15px;height:0;border-top:2px solid var(--amber);flex:none}
+.figlegend i.ref::before{border-top:2px dashed var(--teal)}
+.figlegend .side{color:var(--text-3)}
+
+/* ─── rep strip: one control drives the document ────────────────────────── */
+.strip{padding:14px 16px 0}
+.cells{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;touch-action:none;cursor:ew-resize}
+.cell{
+  border:1px solid var(--line-2);background:var(--surface-2);
+  box-shadow:inset 0 1px 0 var(--hi);
+  padding:6px 0 5px;cursor:pointer;font:inherit;color:var(--text);
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:transform 120ms var(--ease),border-color 120ms var(--ease),background-color 120ms var(--ease);
+}
+.cell:active{transform:scale(.96)}
+@media (hover:hover) and (pointer:fine){.cell:not(:disabled):hover{border-color:var(--text-3)}}
+.cell .num{font-size:10px;font-stretch:82%;letter-spacing:.04em;color:var(--text-3);line-height:1}
+.cell .dev{font-size:12.5px;font-weight:600;line-height:1;letter-spacing:-.02em;color:var(--text)}
+.cell .dev.bad{color:var(--amber)}
+.cell[data-state="breach"]{border-color:var(--amber-dim)}
+.cell[data-state="partial"]{border-style:dashed}
+.cell[data-state="ghost"]{border-style:dotted;background:var(--ghost);cursor:not-allowed;box-shadow:none}
+.cell[data-state="ghost"] .dev{color:var(--text-3);font-weight:400;display:flex;align-items:center;height:12.5px}
+.nomark{display:block;width:11px;height:1px;background:var(--line-2)}
+.cell[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);box-shadow:none}
+.cell[aria-pressed="true"] .num{color:rgba(28,31,34,.62)}
+.cell[aria-pressed="true"] .dev,.cell[aria-pressed="true"] .dev.bad{color:var(--on-amber)}
+.striplegend{
+  display:flex;flex-wrap:wrap;gap:4px 13px;padding:7px 0 0;
+  font-size:10.5px;color:var(--text-3);font-stretch:82%;letter-spacing:.05em;text-transform:uppercase;
+}
+.striplegend .unit{color:var(--text-2);font-weight:600}
+.striplegend i{font-style:normal;display:inline-flex;align-items:center;gap:5px}
+.striplegend i::before{content:"";width:9px;height:9px;border:1px solid var(--line-2);flex:none}
+.striplegend i.b::before{border-color:var(--amber-dim)}
+.striplegend i.p::before{border-style:dashed}
+.striplegend i.g::before{border-style:dotted;background:var(--ghost)}
+
+/* ─── plane panels ──────────────────────────────────────────────────────── */
+.panel{display:grid;grid-template-columns:26px 1fr;border-top:1px solid var(--line)}
+.panel:first-of-type{border-top:1px solid var(--line-2)}
+.gutter{border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:6px 0;background:var(--surface-2)}
+.gutter span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9.5px;font-stretch:80%;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--text-3);white-space:nowrap}
+.panel.is3d .gutter{background:var(--band)}
+.panel.is3d .gutter span{color:var(--teal)}
+.panelbody{padding:9px 14px 7px;min-width:0}
+.panelhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}
+.panelhead h5{margin:0;font-size:13px;font-weight:600;letter-spacing:-.012em}
+.panelhead .val{font-size:13.5px;font-weight:700;letter-spacing:-.015em}
+.panelhead .val.breach{color:var(--amber)}
+.panelhead .val.ok{color:var(--teal)}
+.panelhead .unit{font-size:10.5px;color:var(--text-3);font-weight:400;font-stretch:84%;letter-spacing:.05em}
+.plot{display:block;width:100%;height:auto;overflow:visible}
+.plot .axis{stroke:var(--line-2);stroke-width:1;vector-effect:non-scaling-stroke}
+.plot .grid{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:1 3}
+.plot .bandfill{fill:var(--band)}
+.plot .bandline{fill:none;stroke:var(--band-edge);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:3 3}
+.plot .trace{fill:none;stroke:var(--text);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.plot .trace.breach{stroke:var(--amber);stroke-width:2.6}
+.plot .tlabel{font-family:var(--sans);font-size:8.5px;fill:var(--text-3);font-stretch:82%;letter-spacing:.06em}
+.plot .cursor{stroke:var(--text-3);stroke-width:1;vector-effect:non-scaling-stroke}
+.plot .dot{fill:var(--text)}
+.plot .dot.breach{fill:var(--amber)}
+
+/* the one authored moment: traces draw themselves in, once */
+.drawing .trace{transition:none}
+.drawn .trace{transition:stroke-dashoffset 640ms var(--ease)}
+@media (prefers-reduced-motion:reduce){
+  .drawing .trace,.drawn .trace{transition:none;stroke-dashoffset:0!important}
+  *{scroll-behavior:auto!important}
+}
+
+/* ─── prose, action, apparatus ──────────────────────────────────────────── */
+.interp{margin:16px 16px 0;font-family:var(--serif);font-size:15.5px;line-height:1.62;color:var(--text-2);max-width:60ch}
+.interp b{color:var(--text);font-weight:600}
+.action{
+  display:flex;width:calc(100% - 32px);margin:17px 16px 0;
+  align-items:center;justify-content:space-between;gap:10px;
+  font:inherit;font-size:14px;font-weight:600;letter-spacing:-.012em;
+  background:var(--amber);color:var(--on-amber);border:1px solid var(--amber);
+  padding:14px 15px;cursor:pointer;min-height:44px;
+  transition:transform 140ms var(--ease),filter 140ms var(--ease);
+}
+.action:active{transform:scale(.985)}
+@media (hover:hover) and (pointer:fine){.action:hover{filter:brightness(1.08)}}
+.action .arrow{font-size:13px;opacity:.7}
+.action.ghost{background:var(--surface-2);color:var(--text);border-color:var(--line-2);box-shadow:inset 0 1px 0 var(--hi)}
+@media (hover:hover) and (pointer:fine){.action.ghost:hover{filter:none;border-color:var(--text-3)}}
+
+.apparatus{margin:22px 16px 0;border-top:1px solid var(--line);padding-top:12px}
+.apparatus h4{margin:0 0 9px;font-size:10px;font-stretch:82%;letter-spacing:.11em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.apparatus p{margin:0 0 8px;padding-left:16px;text-indent:-16px;font-size:12.5px;line-height:1.56;color:var(--text-2)}
+.apparatus p .k{display:inline-block;width:12px;text-indent:0;color:var(--text-3);font-weight:700}
+.apparatus p b{color:var(--text);font-weight:600}
+
+/* ─── loading state: the 2 to 5 second window is a real product claim ───── */
+.loading{position:absolute;inset:0;background:var(--surface);z-index:5;padding:15px 16px;display:none}
+.loading[data-on]{display:block}
+.loading .lt{font-size:12px;font-stretch:82%;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:16px}
+.loading .lt b{color:var(--amber);font-weight:700}
+.sk{background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden;margin-bottom:9px}
+.sk::after{
+  content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,var(--hi),transparent);
+  animation:sweep 1.15s var(--ease) infinite;
+}
+@media (prefers-reduced-motion:reduce){.sk::after{animation:none}}
+@keyframes sweep{to{transform:translateX(100%)}}
+
+/* ─── check-in ──────────────────────────────────────────────────────────── */
+.bound{padding:34px 16px 0;text-align:center}
+.bound h3{margin:16px 0 6px;font-size:26px;font-weight:700;letter-spacing:-.03em;font-stretch:98%}
+.bound .who{font-size:14px;color:var(--text-2);margin:0}
+.boundgrid{margin-top:26px;border-top:1px solid var(--line-2)}
+.brow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.brow dt{margin:0;font-size:11px;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.brow dd{margin:0;font-size:14px;font-weight:600;letter-spacing:-.012em;text-align:right}
+.brow dd small{display:block;font-weight:400;font-size:11.5px;color:var(--text-3);letter-spacing:0}
+.cams{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:14px 16px 0}
+.cam{border:1px solid var(--line-2);background:var(--surface-2);box-shadow:inset 0 1px 0 var(--hi);padding:9px 6px;text-align:center}
+.cam .id{font-size:10px;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.cam .st{font-size:12.5px;font-weight:600;margin-top:4px;color:var(--teal)}
+.cam.down{border-style:dotted;background:var(--ghost);box-shadow:none}
+.cam.down .st{color:var(--text-3);font-weight:400}
+
+/* ─── movement picker ───────────────────────────────────────────────────── */
+.tier{border-top:1px solid var(--line)}
+.tier:first-of-type{border-top:1px solid var(--line-2)}
+.tierhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:13px 16px 5px}
+.tierhead h4{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.01em}
+.tierhead .n{font-size:10px;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.tier p.why{margin:0;padding:0 16px 10px;font-size:12px;line-height:1.5;color:var(--text-3);max-width:46ch}
+.mv{
+  display:flex;width:100%;align-items:center;gap:11px;font:inherit;text-align:left;
+  background:none;border:0;border-top:1px solid var(--line);padding:12px 16px;cursor:pointer;
+  color:var(--text);min-height:46px;
+  transition:transform 120ms var(--ease),background-color 120ms var(--ease);
+}
+.mv:active{transform:scale(.99)}
+@media (hover:hover) and (pointer:fine){.mv:not(:disabled):hover{background:var(--surface-2)}}
+.mv .glyph{flex:none;width:16px;height:16px;display:block}
+.mv .nm{flex:1;font-size:14.5px;font-weight:600;letter-spacing:-.014em}
+.mv .nm span{position:relative;display:inline-block}
+.mv .fig{font-size:11.5px;color:var(--text-3);font-stretch:84%;letter-spacing:.04em;text-align:right}
+.mv:disabled{cursor:not-allowed}
+.mv:disabled .nm{color:var(--text-3)}
+.mv:disabled .nm span::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:1px;background:var(--line-2)}
+
+/* ─── live session ──────────────────────────────────────────────────────── */
+.live{display:flex;flex-direction:column;min-height:754px}
+.lbar{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:13px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);
+  box-shadow:inset 0 1px 0 var(--hi);
+  font-size:11px;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3);
+}
+.rec{display:inline-flex;align-items:center;gap:8px;color:var(--text)}
+.rec i{width:7px;height:7px;background:var(--brick);display:block;flex:none;animation:pulse 1.9s var(--ease) infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.rec i{animation:none}}
+.count{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 16px}
+.count .n{font-size:158px;line-height:.8;font-weight:700;font-stretch:114%;letter-spacing:-.055em}
+.count .of{margin-top:16px;font-size:13px;font-stretch:84%;letter-spacing:.13em;text-transform:uppercase;color:var(--text-3)}
+.count .ex{margin-top:5px;font-size:17px;font-weight:600;letter-spacing:-.018em}
+.frame{border-top:2px solid var(--amber);background:rgba(245,166,35,.09);padding:14px 16px;display:flex;align-items:center;gap:11px}
+.frame .txt{flex:1}
+.frame .t1{font-size:14.5px;font-weight:600;letter-spacing:-.014em;color:var(--amber)}
+.frame .t2{font-size:12px;color:var(--text-3);margin-top:3px;line-height:1.45}
+.stepback{
+  font:inherit;font-size:11px;font-weight:700;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;
+  background:none;border:1px solid var(--amber);color:var(--amber);padding:9px 12px;cursor:pointer;
+  min-height:38px;flex:none;transition:transform 130ms var(--ease);
+}
+.stepback:active{transform:scale(.96)}
+
+/* ─── week ──────────────────────────────────────────────────────────────── */
+.bignum{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.bignum div{padding:14px 16px;border-right:1px solid var(--line)}
+.bignum div:last-child{border-right:0}
+.bignum dt{margin:0 0 4px;font-size:10px;font-stretch:82%;letter-spacing:.09em;text-transform:uppercase;color:var(--text-3)}
+.bignum dd{margin:0;font-size:31px;font-weight:700;letter-spacing:-.038em;line-height:1;font-stretch:104%}
+.bignum dd small{font-size:12px;font-weight:400;color:var(--text-3);letter-spacing:0}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line-2);border-bottom:1px solid var(--line)}
+.wd{border-right:1px solid var(--line);padding:10px 0 11px;text-align:center}
+.wd:last-child{border-right:0}
+.wd .d{font-size:10px;font-stretch:82%;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
+.wd .bars{display:flex;flex-direction:column;gap:2px;align-items:center;margin-top:8px;min-height:58px;justify-content:flex-end}
+.wd .b{width:62%;height:11px;background:var(--text)}
+.wd .b.plan{background:none;border:1px solid var(--line-2)}
+.wd .b.gh{background:var(--ghost);border:1px dotted var(--line-2)}
+.wd .st{margin-top:8px;font-size:9.5px;font-stretch:78%;letter-spacing:.03em;color:var(--text-3);line-height:1.25;padding:0 2px}
+.wd.done .st{color:var(--teal);font-weight:600}
+
+.foot{
+  margin-top:56px;padding-top:18px;border-top:1px solid var(--line-2);
+  display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;
+  font-size:11.5px;color:var(--text-3);font-stretch:84%;letter-spacing:.05em;
+}
+.foot b{color:var(--text-2);font-weight:600}
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <h1>Joule Coach</h1>
+    <span class="sub">Member app · candidate 04</span>
+    <span class="spacer"></span>
+    <button class="themetoggle" id="themebtn" type="button">Light</button>
+  </header>
+
+  <p class="strapline">
+    A set is a measurement, so the app is the measurement's document. Every panel states which
+    planes were resolved and how certain each read is. <b>What was not measured is drawn just as
+    deliberately as what was.</b>
+  </p>
+
+  <div class="workbench">
+    <nav class="index" aria-label="Screens">
+      <h2>Sheets</h2>
+      <ol id="idx">
+        <li><button type="button" data-go="report">Post-set report</button></li>
+        <li><button type="button" data-go="select">Movement picker</button></li>
+        <li><button type="button" data-go="live">Live session</button></li>
+        <li><button type="button" data-go="checkin">Station check-in</button></li>
+        <li><button type="button" data-go="week">Week and adherence</button></li>
+      </ol>
+    </nav>
+
+    <div class="devicewrap">
+      <div class="device">
+        <div class="statusbar"><span>9:41</span><span>Rack 3, bound</span></div>
+        <div class="viewport" id="viewport">
+
+          <div class="loading" id="loading" aria-hidden="true">
+            <div class="lt">Reading the set <b id="ltick">0.0s</b></div>
+            <div class="sk" style="height:52px"></div>
+            <div class="sk" style="height:150px"></div>
+            <div class="sk" style="height:38px"></div>
+            <div class="sk" style="height:96px"></div>
+            <div class="sk" style="height:96px"></div>
+          </div>
+
+          <!-- ── REPORT ──────────────────────────────────────────────── -->
+          <section class="screen" id="s-report" data-active>
+            <div class="titleblock">
+              <div class="row">
+                <div>
+                  <h3>Back squat</h3>
+                  <div class="meta">Set 3 of 4 · 80 kg</div>
+                </div>
+                <span class="stamp fused">3D fused</span>
+              </div>
+            </div>
+
+            <div class="verdict">
+              <div class="vcount"><b>8 of 9</b> attempts measured</div>
+              <div class="cue">
+                <p id="cuetext">Your left knee drifts inside your foot at the bottom of reps 5 and 6.</p>
+                <div class="where" id="cuewhere">Frontal plane · 9.1° inward at the deepest point, corridor is 5°</div>
+              </div>
+            </div>
+
+            <div class="sechead">
+              <h4>Deepest point</h4>
+              <span class="aux" id="figlabel">Rep 6, front view</span>
+            </div>
+            <div class="figure">
+              <svg id="fig" viewBox="42 30 156 172" role="img" aria-labelledby="figdesc">
+                <desc id="figdesc"></desc>
+              </svg>
+            </div>
+            <div class="figlegend">
+              <i class="ref">Reference alignment</i>
+              <i>Measured deviation</i>
+              <span class="side">Left leg shown</span>
+            </div>
+
+            <div class="sechead">
+              <h4>Every rep in the set</h4>
+              <span class="aux">Drag to scrub</span>
+            </div>
+            <div class="strip">
+              <div class="cells" id="cells" role="group" aria-label="Reps in this set. Drag or use arrow keys."></div>
+              <div class="striplegend"><span class="unit">Knee deviation, deg</span></div>
+              <div class="striplegend">
+                <i>In corridor</i><i class="b">Breach</i><i class="p">Short of depth</i><i class="g">Not measured</i>
+              </div>
+            </div>
+
+            <div class="sechead">
+              <h4>Joint angle by plane</h4>
+              <span class="aux" id="scrublabel">Rep 6, through the stroke</span>
+            </div>
+            <div id="panels"></div>
+
+            <p class="interp">
+              Depth and tempo held all eight reps. The drift appears only under fatigue, in the
+              last third of the set, and only on the left. <b>That is a pattern worth watching,
+              not a reason to stop squatting.</b> Cue yourself to push the knee out toward your
+              little toe as you come out of the hole.
+            </p>
+
+            <button class="action" type="button">
+              <span>Watch the 40-second knee-tracking fix</span>
+              <span class="arrow">&rarr;</span>
+            </button>
+
+            <div class="apparatus">
+              <h4>Method and coverage</h4>
+              <p><span class="k">a</span> Angles triangulated from <b>two calibrated cameras at 118°</b>.
+                 Convergence sits inside the validated 47 to 133° range. A two-camera station near
+                 180° would roughly double the error.</p>
+              <p><span class="k">b</span> Squat carries a <b>wider error band than standing movements</b>
+                 because of deeper self-occlusion. Treat 9.1° as clearly outside the corridor, not as
+                 a figure accurate to one decimal.</p>
+              <p><span class="k">c</span> <b>Attempt 9 was not scored.</b> Your feet left the calibrated
+                 volume. It is excluded from this set's averages rather than counted as a bad rep.</p>
+              <p><span class="k">d</span> This is a training-load observation, not a medical assessment.</p>
+            </div>
+          </section>
+
+          <!-- ── SELECT ──────────────────────────────────────────────── -->
+          <section class="screen" id="s-select">
+            <div class="titleblock">
+              <div class="row">
+                <div>
+                  <h3>What are you lifting?</h3>
+                  <div class="meta">Rack 3 · 2 cameras live</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tier">
+              <div class="tierhead"><h4>Tracked</h4><span class="n">Full report</span></div>
+              <p class="why">Trained on labelled footage and validated against motion-capture ground truth.</p>
+              <button class="mv" type="button">
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="var(--teal)"/><path d="M4.6 8.2l2.4 2.5 4.5-4.9" fill="none" stroke="var(--surface)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="nm"><span>Back squat</span></span><span class="fig">wider band</span>
+              </button>
+              <button class="mv" type="button">
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="var(--teal)"/><path d="M4.6 8.2l2.4 2.5 4.5-4.9" fill="none" stroke="var(--surface)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="nm"><span>Push-up</span></span><span class="fig">88% recall</span>
+              </button>
+            </div>
+
+            <div class="tier">
+              <div class="tierhead"><h4>Early support</h4><span class="n">Counts, cautious form</span></div>
+              <p class="why">Recognised by rule, not by the trained model. You get reps and a hedged report, so check it against how the lift felt.</p>
+              <button class="mv" type="button">
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="2.6 2.2"/><circle cx="8" cy="8" r="2.4" fill="var(--amber)"/></svg>
+                <span class="nm"><span>Bicep curl</span></span><span class="fig">41% recall</span>
+              </button>
+              <button class="mv" type="button">
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="2.6 2.2"/><circle cx="8" cy="8" r="2.4" fill="var(--amber)"/></svg>
+                <span class="nm"><span>Reverse lunge</span></span><span class="fig">6 of 8 clips</span>
+              </button>
+              <button class="mv" type="button">
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="2.6 2.2"/><circle cx="8" cy="8" r="2.4" fill="var(--amber)"/></svg>
+                <span class="nm"><span>Bench press</span></span><span class="fig">side cam only</span>
+              </button>
+            </div>
+
+            <div class="tier">
+              <div class="tierhead"><h4>Not yet</h4><span class="n">Would be guessing</span></div>
+              <p class="why">Listed, not hidden. We would rather show you the edge of the map than hand you a confident wrong reading.</p>
+              <button class="mv" type="button" disabled>
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--line-2)" stroke-width="1.5"/><path d="M2.8 13.2L13.2 2.8" stroke="var(--line-2)" stroke-width="1.5"/></svg>
+                <span class="nm"><span>Deadlift</span></span><span class="fig">no clean signal</span>
+              </button>
+              <button class="mv" type="button" disabled>
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--line-2)" stroke-width="1.5"/><path d="M2.8 13.2L13.2 2.8" stroke="var(--line-2)" stroke-width="1.5"/></svg>
+                <span class="nm"><span>Barbell row</span></span><span class="fig">unrecognised</span>
+              </button>
+              <button class="mv" type="button" disabled>
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--line-2)" stroke-width="1.5"/><path d="M2.8 13.2L13.2 2.8" stroke="var(--line-2)" stroke-width="1.5"/></svg>
+                <span class="nm"><span>Overhead press</span></span><span class="fig">unrecognised</span>
+              </button>
+              <button class="mv" type="button" disabled>
+                <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" fill="none" stroke="var(--line-2)" stroke-width="1.5"/><path d="M2.8 13.2L13.2 2.8" stroke="var(--line-2)" stroke-width="1.5"/></svg>
+                <span class="nm"><span>Sit-up</span></span><span class="fig">counts zero</span>
+              </button>
+            </div>
+
+            <div class="apparatus">
+              <h4>Why the list is short</h4>
+              <p><span class="k">a</span> Deadlift shares a hip-to-knee signature with the sit-up.
+                 No threshold separates them without misreading real sit-ups, so we decline both
+                 rather than guess.</p>
+              <p><span class="k">b</span> The list grows from real gym footage, not from a release
+                 date. It stays short until the footage says otherwise.</p>
+            </div>
+          </section>
+
+          <!-- ── LIVE ────────────────────────────────────────────────── -->
+          <section class="screen" id="s-live">
+            <div class="live">
+              <div class="lbar">
+                <span class="rec"><i></i> Recording</span>
+                <span>Set 3 of 4 · 80 kg</span>
+              </div>
+              <div class="count">
+                <div class="n">5</div>
+                <div class="of">of 8 planned</div>
+                <div class="ex">Back squat</div>
+              </div>
+              <div class="frame">
+                <div class="txt">
+                  <div class="t1">Step forward, heels out of frame</div>
+                  <div class="t2">Reps still count. Form scoring pauses until you are fully in.</div>
+                </div>
+                <button class="stepback" type="button">Guide</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ── CHECK-IN ────────────────────────────────────────────── -->
+          <section class="screen" id="s-checkin">
+            <div class="bound">
+              <svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true" style="display:block;margin:0 auto">
+                <rect x="1" y="1" width="56" height="56" fill="none" stroke="var(--line-2)" stroke-width="1"/>
+                <rect x="9" y="9" width="40" height="40" fill="none" stroke="var(--teal)" stroke-width="1.5"/>
+                <path d="M18 29.5l7.5 7.5L41 21" fill="none" stroke="var(--teal)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h3>Bound to Rack 3</h3>
+              <p class="who">Bilal H. · bound in 2.1 seconds</p>
+            </div>
+
+            <dl class="boundgrid">
+              <div class="brow"><dt>Station</dt><dd>Squat rack 3<small>North wall</small></dd></div>
+              <div class="brow"><dt>Method</dt><dd><span class="stamp fused">3D fused</span></dd></div>
+              <div class="brow"><dt>Today's plan</dt><dd>Back squat 4&times;8<small>80 kg</small></dd></div>
+            </dl>
+
+            <div class="sechead"><h4>Station coverage</h4><span class="aux">2 of 3 live</span></div>
+            <div class="cams">
+              <div class="cam"><div class="id">Cam A</div><div class="st">Live</div></div>
+              <div class="cam"><div class="id">Cam B</div><div class="st">Live</div></div>
+              <div class="cam down"><div class="id">Cam C</div><div class="st">Down</div></div>
+            </div>
+
+            <div class="apparatus">
+              <h4>What this means for today</h4>
+              <p><span class="k">a</span> Two cameras at 118° still resolve full 3D, including knee
+                 tracking. <b>You lose nothing today.</b></p>
+              <p><span class="k">b</span> Cam C is flagged to floor staff. If a second camera drops,
+                 reports downgrade to single-view and say so on every panel.</p>
+              <p><span class="k">c</span> Keep your <b>whole body, feet included</b>, inside the floor
+                 markings. Outside them we stop scoring rather than guess.</p>
+            </div>
+
+            <button class="action ghost" type="button" style="margin-top:18px">
+              <span>Not you? Get a staff re-bind</span><span class="arrow">&rarr;</span>
+            </button>
+          </section>
+
+          <!-- ── WEEK ────────────────────────────────────────────────── -->
+          <section class="screen" id="s-week">
+            <div class="titleblock">
+              <div class="row">
+                <div><h3>This week</h3><div class="meta">Mon 24 to Sun 30</div></div>
+              </div>
+            </div>
+
+            <dl class="bignum">
+              <div><dt>Sessions detected</dt><dd>4<small> of 5 planned</small></dd></div>
+              <div><dt>Volume load</dt><dd>12,450<small> kg</small></dd></div>
+            </dl>
+
+            <div class="sechead"><h4>Planned against detected</h4><span class="aux">Not self-reported</span></div>
+            <div class="wk" id="wk"></div>
+
+            <div class="apparatus">
+              <h4>One gap, explained</h4>
+              <p><span class="k">a</span> <b>Thursday is not a missed session.</b> Rack 3 was offline
+                 for scheduled camera maintenance from 18:00. If you trained, we could not see it.</p>
+              <p><span class="k">b</span> Thursday is excluded from this week's averages entirely. It
+                 does not count against you, and it does not count for you.</p>
+              <p><span class="k">c</span> Volume load covers detected sets only.</p>
+            </div>
+
+            <p class="interp" style="margin-top:18px">
+              Four sessions, and every squat set this week held depth. <b>The left-knee drift is the
+              one thing trending.</b> It showed on Tuesday's last set and again today, both times in
+              the final third.
+            </p>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <aside class="notes" aria-label="Design annotations">
+      <h2>Annotations</h2>
+
+      <div class="note" data-for="report"><span class="key">a</span><b>The finding comes first.</b> Verdict, then the fix, then the proof drawn on your own body, then the evidence you can scrub, then the method. Earlier candidates opened with charts and made you hunt for the answer.</div>
+      <div class="note" data-for="report"><span class="key">b</span><b>The corridor is the confidence.</b> The shaded band is the reference movement's tolerance. A trace inside it is a good rep; a trace leaving it is the deviation, located exactly. No invented "form score: 94.7%".</div>
+      <div class="note" data-for="report"><span class="key">c</span><b>The frontal panel is the product's argument.</b> Its gutter is stamped <code>3D only</code> because knee valgus is invisible to any single camera. A phone propped against a water bottle cannot draw this panel at all.</div>
+      <div class="note" data-for="report"><span class="key">d</span><b>Drag the rep strip.</b> One control redraws the figure, all three planes and every readout at once, so the whole document answers to a single input. Arrow keys work too.</div>
+      <div class="note" data-for="report"><span class="key">e</span><b>Cell 9 is a ghost.</b> Drawn, dotted, occupying its slot. The set had nine attempts and eight were measurable. Omitting the ninth would quietly overstate coverage.</div>
+
+      <div class="note" data-for="select"><span class="key">a</span><b>Three tiers, not two.</b> Curl and lunge are real but rule-based, so they get their own tier instead of being flattened into "supported" or hidden entirely.</div>
+      <div class="note" data-for="select"><span class="key">b</span><b>Deadlift, row and overhead press are struck through.</b> Earlier candidates listed all three as trackable, inherited from a stale spec line rather than from the engine.</div>
+      <div class="note" data-for="select"><span class="key">c</span>Shape carries the state, never colour alone: filled check, dashed circle, ruled strike.</div>
+
+      <div class="note" data-for="live"><span class="key">a</span><b>Rep count and frame cue only.</b> No heart rate, no bar velocity, no live form overlay. Mid-rep scoring is not validated, so the screen does not imply it.</div>
+      <div class="note" data-for="live"><span class="key">b</span>The warning separates consequences: reps keep counting, scoring pauses. A vague alarm would make members stop mid-lift.</div>
+      <div class="note" data-for="live"><span class="key">c</span>The rep count is the largest type in the product, set at 158px. It is read across a room, mid-set, with a loaded bar on your back.</div>
+
+      <div class="note" data-for="checkin"><span class="key">a</span><b>Coverage is disclosed at bind time</b>, before the first rep, rather than discovered in a degraded report afterwards.</div>
+      <div class="note" data-for="checkin"><span class="key">b</span>The dead camera is a dotted ghost cell, the same grammar as the unscored rep.</div>
+      <div class="note" data-for="checkin"><span class="key">c</span>Staff re-bind sits one tap away. A silent misattribution is the failure this screen exists to prevent.</div>
+
+      <div class="note" data-for="week"><span class="key">a</span><b>Three bar states, not two:</b> detected (solid), planned but not detected (outline), unobservable (ghost). A camera outage must never render as member failure.</div>
+      <div class="note" data-for="week"><span class="key">b</span>Thursday is excluded from averages in both directions. It neither punishes nor flatters.</div>
+      <div class="note" data-for="week"><span class="key">c</span>No streaks, no badges, no guilt. Adherence credibility depends on being scrupulously fair.</div>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    <span><b>Direction</b> Clinical gait-analysis report</span>
+    <span><b>Type</b> Archivo and Petrona</span>
+    <span><b>Ground</b> #121416 under #1c1f22</span>
+    <span><b>Data</b> Synthetic, shaped to STATUS.md figures</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var btn = document.getElementById('themebtn');
+  btn.addEventListener('click', function(){
+    var light = document.documentElement.getAttribute('data-theme') === 'light';
+    if(light){ document.documentElement.removeAttribute('data-theme'); btn.textContent = 'Light'; }
+    else { document.documentElement.setAttribute('data-theme','light'); btn.textContent = 'Dark'; }
+  });
+
+  var REPS = [
+    {n:1, depth:71, valgus:2.1, rot:1.4, state:'ok'},
+    {n:2, depth:70, valgus:2.4, rot:1.1, state:'ok'},
+    {n:3, depth:72, valgus:2.9, rot:1.8, state:'ok'},
+    {n:4, depth:71, valgus:3.4, rot:2.0, state:'ok'},
+    {n:5, depth:73, valgus:8.4, rot:3.1, state:'breach'},
+    {n:6, depth:74, valgus:9.1, rot:3.6, state:'breach'},
+    {n:7, depth:96, valgus:5.2, rot:2.7, state:'partial'},
+    {n:8, depth:75, valgus:6.0, rot:3.0, state:'breach'},
+    {n:9, depth:null, valgus:null, rot:null, state:'ghost'}
+  ];
+
+  var PLANES = [
+    { name:'Sagittal', gutter:'2D + 3D', is3d:false, unit:'knee flexion, deg', min:50, max:180,
+      curve:function(r,p){ return 172 - (172 - r.depth) * Math.pow(Math.sin(Math.PI*p), 0.82); },
+      band:function(p){ var d=Math.pow(Math.sin(Math.PI*p),0.82); return [172-(172-62)*d, 172-(172-84)*d]; },
+      read:function(r){ return r.depth; }, fmt:function(v){ return v.toFixed(0)+'°'; },
+      good:function(r){ return r.depth<=84; } },
+    { name:'Frontal', gutter:'3D only', is3d:true, unit:'knee deviation, deg inward', min:-2, max:12,
+      curve:function(r,p){ return r.valgus * Math.pow(Math.sin(Math.PI*p), 2); },
+      band:function(p){ var d=Math.pow(Math.sin(Math.PI*p),2); return [0, 5*d]; },
+      read:function(r){ return r.valgus; }, fmt:function(v){ return v.toFixed(1)+'°'; },
+      good:function(r){ return r.valgus<=5; } },
+    { name:'Transverse', gutter:'3D only', is3d:true, unit:'hip rotation, deg', min:-6, max:6,
+      curve:function(r,p){ return r.rot * Math.sin(Math.PI*p) * Math.cos(p*Math.PI*0.6); },
+      band:function(p){ var d=Math.sin(Math.PI*p); return [-3*d, 3*d]; },
+      read:function(r){ return r.rot; }, fmt:function(v){ return v.toFixed(1)+'°'; },
+      good:function(r){ return Math.abs(r.rot)<=3; } }
+  ];
+
+  var W=300,H=104,L=32,R=294,T=8,B=86,STEPS=48;
+  function sx(p){ return L + p*(R-L); }
+  function sy(v,pl){ return T + (1 - (v-pl.min)/(pl.max-pl.min)) * (B-T); }
+  function pathFrom(pts){ var d='',i; for(i=0;i<pts.length;i++){ d += (i?'L':'M')+pts[i][0].toFixed(2)+' '+pts[i][1].toFixed(2); } return d; }
+
+  function buildPanel(pl){
+    var wrap = document.createElement('div');
+    wrap.className = 'panel' + (pl.is3d ? ' is3d' : '');
+    wrap.innerHTML =
+      '<div class="gutter"><span>'+pl.gutter+'</span></div>'+
+      '<div class="panelbody">'+
+        '<div class="panelhead"><h5>'+pl.name+' <span class="unit">'+pl.unit+'</span></h5><span class="val" data-val></span></div>'+
+        '<svg class="plot" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img">'+
+          '<path class="bandfill" data-bandfill/>'+
+          '<path class="bandline" data-bandhi/><path class="bandline" data-bandlo/>'+
+          '<line class="axis" x1="'+L+'" y1="'+B+'" x2="'+R+'" y2="'+B+'"/>'+
+          '<line class="axis" x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+B+'"/>'+
+          '<line class="grid" x1="'+L+'" y1="'+((T+B)/2)+'" x2="'+R+'" y2="'+((T+B)/2)+'"/>'+
+          '<path class="trace" data-trace/>'+
+          '<line class="cursor" data-cursor y1="'+T+'" y2="'+B+'"/>'+
+          '<circle class="dot" data-dot r="3"/>'+
+          '<text class="tlabel" x="'+L+'" y="'+(B+11)+'">TOP</text>'+
+          '<text class="tlabel" x="'+((L+R)/2)+'" y="'+(B+11)+'" text-anchor="middle">BOTTOM</text>'+
+          '<text class="tlabel" x="'+R+'" y="'+(B+11)+'" text-anchor="end">TOP</text>'+
+          '<text class="tlabel" data-hi x="'+(L-4)+'" y="'+(T+4)+'" text-anchor="end"></text>'+
+          '<text class="tlabel" data-lo x="'+(L-4)+'" y="'+B+'" text-anchor="end"></text>'+
+        '</svg>'+
+      '</div>';
+    var svg = wrap.querySelector('svg'), hi=[], lo=[], i, p, b;
+    for(i=0;i<=STEPS;i++){ p=i/STEPS; b=pl.band(p); lo.push([sx(p),sy(b[0],pl)]); hi.push([sx(p),sy(b[1],pl)]); }
+    svg.querySelector('[data-bandhi]').setAttribute('d', pathFrom(hi));
+    svg.querySelector('[data-bandlo]').setAttribute('d', pathFrom(lo));
+    svg.querySelector('[data-bandfill]').setAttribute('d', pathFrom(hi.concat(lo.slice().reverse()))+'Z');
+    svg.querySelector('[data-hi]').textContent = pl.max;
+    svg.querySelector('[data-lo]').textContent = pl.min;
+    pl._el = wrap; pl._svg = svg;
+    return wrap;
+  }
+  var panelHost = document.getElementById('panels');
+  PLANES.forEach(function(pl){ panelHost.appendChild(buildPanel(pl)); });
+
+  /* ── figure ──────────────────────────────────────────────────────────── */
+  var fig = document.getElementById('fig');
+  var P = {
+    head:[120,46], neck:[120,62], shL:[100,80], shR:[140,80],
+    elL:[86,106], elR:[154,106], wrL:[78,71], wrR:[162,71],
+    hipL:[104,118], hipR:[136,118], kneeR:[154,140],
+    ankL:[92,186], ankR:[148,186], kneeLref:[86,140],
+    barL:[70,70], barR:[170,70]
+  };
+  function ln(a,b,cls){ return '<line class="'+cls+'" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>'; }
+  function jt(p,cls){ return '<circle class="'+cls+'" cx="'+p[0]+'" cy="'+p[1]+'" r="2.9"/>'; }
+
+  function drawFigure(r){
+    var v=r.valgus, bad=v>5, refX=P.kneeLref[0];
+    var kneeL=[refX + v*1.6, P.kneeLref[1]];
+    var midHip=[(P.hipL[0]+P.hipR[0])/2, P.hipL[1]];
+    var off = bad ? ' off' : '';
+    var s = '<line class="fig-plumb" x1="'+refX+'" y1="122" x2="'+refX+'" y2="192"/>';
+    s += ln(P.barL,P.barR,'fig-bone');
+    s += '<line class="fig-bone" x1="'+P.barL[0]+'" y1="61" x2="'+P.barL[0]+'" y2="79"/>';
+    s += '<line class="fig-bone" x1="'+P.barR[0]+'" y1="61" x2="'+P.barR[0]+'" y2="79"/>';
+    s += ln(P.neck,midHip,'fig-bone') + ln(P.shL,P.shR,'fig-bone') + ln(P.hipL,P.hipR,'fig-bone');
+    s += ln(P.shL,P.elL,'fig-bone') + ln(P.elL,P.wrL,'fig-bone');
+    s += ln(P.shR,P.elR,'fig-bone') + ln(P.elR,P.wrR,'fig-bone');
+    s += ln(P.hipR,P.kneeR,'fig-bone') + ln(P.kneeR,P.ankR,'fig-bone');
+    s += ln(P.hipL,kneeL,'fig-bone'+off) + ln(kneeL,P.ankL,'fig-bone'+off);
+    s += '<circle class="fig-head" cx="'+P.head[0]+'" cy="'+P.head[1]+'" r="13"/>';
+    [P.shL,P.shR,P.elL,P.elR,P.hipL,P.hipR,P.kneeR].forEach(function(p){ s += jt(p,'fig-joint'); });
+    s += jt(kneeL,'fig-joint'+off);
+    if(kneeL[0]-refX > 2){
+      var y = kneeL[1];
+      s += '<line class="fig-tick" x1="'+refX+'" y1="'+y+'" x2="'+kneeL[0].toFixed(1)+'" y2="'+y+'"/>';
+      s += '<line class="fig-cap" x1="'+refX+'" y1="'+(y-5)+'" x2="'+refX+'" y2="'+(y+5)+'"/>';
+      s += '<line class="fig-cap" x1="'+kneeL[0].toFixed(1)+'" y1="'+(y-5)+'" x2="'+kneeL[0].toFixed(1)+'" y2="'+(y+5)+'"/>';
+      s += '<text class="fig-num" x="'+((refX+kneeL[0])/2 - 11).toFixed(1)+'" y="'+(y-12)+'" text-anchor="middle">'+v.toFixed(1)+'°</text>';
+    }
+    s += ln([P.ankL[0]-8,186],[P.ankL[0]+8,186],'fig-bone'+off);
+    s += ln([P.ankR[0]-8,186],[P.ankR[0]+8,186],'fig-bone');
+    s += '<line class="fig-floor" x1="46" y1="193" x2="194" y2="193"/>';
+    fig.innerHTML = '<desc id="figdesc">Front view at the deepest point of rep '+r.n+'. Left knee sits '+
+      v.toFixed(1)+' degrees inside the line it should track along.</desc>' + s;
+  }
+
+  /* ── rep strip ───────────────────────────────────────────────────────── */
+  var cellHost = document.getElementById('cells');
+  REPS.forEach(function(r){
+    var b = document.createElement('button');
+    b.type='button'; b.className='cell';
+    b.setAttribute('data-state', r.state);
+    b.setAttribute('aria-pressed','false');
+    if(r.state==='ghost'){
+      b.disabled = true;
+      b.setAttribute('aria-label','Attempt 9, not measured, feet left frame');
+      b.title = 'Not measured. Your feet left the calibrated volume.';
+      /* a drawn mark, not a dash character: em and en dashes are banned in visible copy */
+      b.innerHTML = '<span class="num">9</span><span class="dev gh"><i class="nomark"></i></span>';
+    } else {
+      b.setAttribute('aria-label','Rep '+r.n+', '+r.valgus.toFixed(1)+' degrees');
+      b.innerHTML = '<span class="num">'+r.n+'</span><span class="dev'+(r.valgus>5?' bad':'')+'">'+r.valgus.toFixed(1)+'</span>';
+    }
+    b.addEventListener('click', function(){ if(!b.disabled) select(r.n,false); });
+    cellHost.appendChild(b);
+  });
+
+  /* drag to scrub: the whole document answers to one continuous input */
+  var dragging = false;
+  function scrubAt(clientX){
+    var rect = cellHost.getBoundingClientRect();
+    var t = (clientX - rect.left) / rect.width;
+    var i = Math.floor(t * REPS.length);
+    i = Math.max(0, Math.min(REPS.length-1, i));
+    while(i >= 0 && REPS[i].state === 'ghost') i--;
+    if(i >= 0) select(REPS[i].n, false);
+  }
+  cellHost.addEventListener('pointerdown', function(e){
+    dragging = true;
+    try{ cellHost.setPointerCapture(e.pointerId); }catch(_){}
+    scrubAt(e.clientX);
+  });
+  cellHost.addEventListener('pointermove', function(e){ if(dragging) scrubAt(e.clientX); });
+  cellHost.addEventListener('pointerup',   function(){ dragging = false; });
+  cellHost.addEventListener('pointercancel',function(){ dragging = false; });
+
+  cellHost.addEventListener('keydown', function(e){
+    if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    var step = e.key === 'ArrowRight' ? 1 : -1, n = current + step;
+    while(REPS[n-1] && REPS[n-1].state === 'ghost') n += step;
+    if(REPS[n-1]){ select(n,false); cellHost.children[n-1].focus(); }
+  });
+
+  /* ── render ──────────────────────────────────────────────────────────── */
+  var current = 6;
+  var figLabel = document.getElementById('figlabel');
+  var scrubLabel = document.getElementById('scrublabel');
+  var cueText = document.getElementById('cuetext');
+  var cueWhere = document.getElementById('cuewhere');
+
+  function select(n, animate){
+    var r = REPS[n-1];
+    if(!r || r.state === 'ghost') return;
+    if(n === current && !animate) { /* still redraw, scrub may land repeatedly */ }
+    current = n;
+
+    Array.prototype.forEach.call(cellHost.children, function(c,i){
+      c.setAttribute('aria-pressed', String(i === n-1));
+    });
+
+    PLANES.forEach(function(pl, idx){
+      var pts=[], i, p;
+      for(i=0;i<=STEPS;i++){ p=i/STEPS; pts.push([sx(p), sy(pl.curve(r,p), pl)]); }
+      var path = pl._svg.querySelector('[data-trace]');
+      var ok = pl.good(r);
+      path.setAttribute('d', pathFrom(pts));
+      path.classList.toggle('breach', !ok);
+
+      var mid = pts[Math.round(STEPS/2)];
+      var dot = pl._svg.querySelector('[data-dot]');
+      dot.setAttribute('cx', mid[0]); dot.setAttribute('cy', mid[1]);
+      dot.classList.toggle('breach', !ok);
+      var cur = pl._svg.querySelector('[data-cursor]');
+      cur.setAttribute('x1', mid[0]); cur.setAttribute('x2', mid[0]);
+
+      var val = pl._el.querySelector('[data-val]');
+      val.textContent = pl.fmt(pl.read(r));
+      val.className = 'val ' + (ok ? 'ok' : 'breach');
+
+      /* animate on arrival only; scrubbing is used constantly and must be instant */
+      if(animate && !reduce){
+        var len = path.getTotalLength();
+        path.style.strokeDasharray = len;
+        pl._svg.classList.remove('drawn'); pl._svg.classList.add('drawing');
+        path.style.strokeDashoffset = len;
+        void path.getBoundingClientRect();
+        setTimeout(function(){
+          pl._svg.classList.remove('drawing'); pl._svg.classList.add('drawn');
+          path.style.strokeDashoffset = 0;
+        }, idx*70);
+      } else {
+        path.style.strokeDasharray = 'none';
+        path.style.strokeDashoffset = 0;
+        pl._svg.classList.remove('drawing'); pl._svg.classList.add('drawn');
+      }
+    });
+
+    drawFigure(r);
+    figLabel.textContent = 'Rep ' + n + ', front view';
+    scrubLabel.textContent = 'Rep ' + n + ', through the stroke';
+
+    if(r.state === 'breach'){
+      cueText.textContent = 'Your left knee drifts inside your foot at the bottom of rep ' + n + '.';
+      cueWhere.textContent = 'Frontal plane · ' + r.valgus.toFixed(1) + '° inward at the deepest point, corridor is 5°';
+    } else if(r.state === 'partial'){
+      cueText.textContent = 'Rep ' + n + ' stopped short of depth.';
+      cueWhere.textContent = 'Sagittal plane · ' + r.depth.toFixed(0) + '° knee flexion, corridor bottoms out at 84°';
+    } else {
+      cueText.textContent = 'Rep ' + n + ' sits inside the corridor on all three planes.';
+      cueWhere.textContent = 'Depth ' + r.depth.toFixed(0) + '° · knee ' + r.valgus.toFixed(1) + '°, rotation ' + r.rot.toFixed(1) + '°';
+    }
+  }
+
+  /* ── week ────────────────────────────────────────────────────────────── */
+  var DAYS = [
+    {d:'Mon', done:2, plan:2, st:'2 of 2'},
+    {d:'Tue', done:3, plan:3, st:'3 of 3'},
+    {d:'Wed', done:0, plan:0, st:'Rest'},
+    {d:'Thu', done:0, plan:3, st:'Camera off', ghost:true},
+    {d:'Fri', done:2, plan:3, st:'2 of 3'},
+    {d:'Sat', done:0, plan:0, st:'Rest'},
+    {d:'Sun', done:4, plan:4, st:'4 of 4'}
+  ];
+  var wk = document.getElementById('wk');
+  DAYS.forEach(function(x){
+    var cell = document.createElement('div');
+    cell.className = 'wd' + (x.ghost ? '' : (x.done && x.done >= x.plan && x.plan > 0 ? ' done' : ''));
+    var bars = '', i;
+    if(x.ghost){ for(i=0;i<x.plan;i++) bars += '<div class="b gh"></div>'; }
+    else {
+      for(i=0;i<x.done;i++) bars += '<div class="b"></div>';
+      for(i=x.done;i<x.plan;i++) bars += '<div class="b plan"></div>';
+    }
+    cell.innerHTML = '<div class="d">'+x.d+'</div><div class="bars">'+bars+'</div><div class="st">'+x.st+'</div>';
+    wk.appendChild(cell);
+  });
+
+  /* ── routing ─────────────────────────────────────────────────────────── */
+  var idx = document.getElementById('idx');
+  var viewport = document.getElementById('viewport');
+  function show(name){
+    Array.prototype.forEach.call(document.querySelectorAll('.screen'), function(s){
+      if(s.id === 's-'+name) s.setAttribute('data-active',''); else s.removeAttribute('data-active');
+    });
+    Array.prototype.forEach.call(idx.querySelectorAll('button'), function(b){
+      b.setAttribute('aria-current', String(b.dataset.go === name));
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.note'), function(n){
+      if(n.dataset.for === name) n.setAttribute('data-active',''); else n.removeAttribute('data-active');
+    });
+    viewport.scrollTop = 0;
+    if(name === 'report') select(current, true);
+  }
+  idx.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-go]');
+    if(b) show(b.dataset.go);
+  });
+
+  /* first paint: dramatize the 2 to 5 second read the spec actually promises */
+  var loading = document.getElementById('loading');
+  var ltick = document.getElementById('ltick');
+  select(current, false);
+  show('report');
+  if(!reduce){
+    loading.setAttribute('data-on','');
+    var t0 = Date.now();
+    var iv = setInterval(function(){ ltick.textContent = ((Date.now()-t0)/1000).toFixed(1) + 's'; }, 80);
+    setTimeout(function(){
+      clearInterval(iv);
+      loading.removeAttribute('data-on');
+      select(current, true);
+    }, 1150);
+  }
+})();
+</script>

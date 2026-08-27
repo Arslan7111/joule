@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"
+     role="img" aria-label="Joule Coach: a letter J whose stem is a reference plumb"
+     style="color:#121416">
+  <title>Joule Coach - The Plumb J</title>
+  <!-- the reference: where the line should have gone -->
+  <line x1="62" y1="17" x2="62" y2="53" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+  <!-- the measured path departing from it -->
+  <path d="M62 53 Q62 77 45 77 Q33 77 33 63" fill="none" stroke="#E85D0C" stroke-width="6"
+        stroke-linecap="round"/>
+</svg>

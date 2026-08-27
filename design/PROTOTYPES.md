@@ -11,6 +11,9 @@ Source content for all candidates: `PRODUCT_SPEC.md` (personas, MVP
 feature list, tone/anti-patterns, screen descriptions) and the engine
 docs it's grounded in (`STATUS.md`, `CAMERA_PLACEMENT.md`).
 
+Logo exploration is a separate track, indexed in `design/logo/README.md`
+(13 marks across two rounds as of 2026-08-27) rather than in this file.
+
 ## How to add a candidate
 
 1. Save the file (HTML export, image export, whatever the tool produces)
@@ -30,6 +33,7 @@ docs it's grounded in (`STATUS.md`, `CAMERA_PLACEMENT.md`).
 | 01 | Claude (this session, 2026-08-24) | Check-in, live session, post-set report | `prototypes/01-claude-core-loop.html` |
 | 02 | Google Stitch (user, 2026-08-24) | Onboarding, kiosk check-in, weekly plan builder, live session, post-set report, video library, adherence/progress (7 unique) | `prototypes/02-stitch/01-08-*.html` |
 | 03 | Claude, Apple HIG skill (this session, 2026-08-24) | Onboarding (corrected capability list), kiosk check-in, live session, post-set report | `prototypes/03-apple-hig-core-loop.html` |
+| 04 | Claude, 5 design skills (2026-08-27) | Post-set report, movement picker, live session, station check-in, week/adherence (5) | `prototypes/04-lab-report/index.html` |
 
 ### 01 — Claude, core loop
 
@@ -182,6 +186,120 @@ specific guideline or spec line:
 No user feedback recorded yet.
 Published artifact:
 https://claude.ai/code/artifact/bf0442c4-2957-4bb8-9181-72f54805a67f
+
+### 04 — Claude, five design skills, "lab report"
+
+Built 2026-08-27. Five screens, standalone HTML, no build step.
+Screenshots alongside the file (`desk-*.png`, `mobile-*.png`).
+**Dark-committed**, with a working light mode behind the toggle.
+
+Skills, and honestly which did what. First pass used `impeccable`
+(pbakaus) for the concept seed and craft floor, `frontend-design`
+(Anthropic) for the departure from the category default,
+`ui-ux-pro-max` (nextlevelbuilder) for the typography database, and Emil
+Kowalski's `emil-design-eng` for the motion rules. **`taste-skill`
+(Leonxlnx) was not used in the first pass** despite being claimed;
+applied properly in a second pass, which forced the dark rebuild below.
+
+`taste-skill` §13 declares itself out of scope for "dashboards / dense
+product UI", which this report screen is, so only its universal rules
+were applied. Those rules caught five real defects in the first pass:
+
+- **§9.G em-dash ban** (the skill calls it its most-violated tell):
+  14 em-dashes in visible copy. All removed, including the one in the
+  ghost cell, now a drawn 1px mark rather than a dash character.
+- **§4.11 Page Theme Lock**: the live-session screen inverted to dark
+  inside an otherwise light page. Resolved by going dark throughout.
+- **§9.F middle-dot rationing** (max 1 per line): `SET 3 OF 4 · 80 KG ·
+  09:41 · RACK 3` carried three. Now one per line everywhere.
+- **§9.F no section-number eyebrows**: the sheet index was numbered
+  01 to 05, but ordered by interest rather than by the actual flow, so
+  the numbers encoded nothing true. Numbers dropped.
+- **§4.5 interactive state cycles**: no loading or empty states existed.
+  Added a skeleton read-state whose shapes match the final layout, with
+  a live counter, dramatizing the 2 to 5 second window §2.1 promises.
+
+Second-pass changes beyond the skill audit:
+
+- **Answer-first information design.** The report now opens with the
+  verdict and the coaching cue, then the figure as proof, then the
+  scrubbable rep strip, then the plane panels, then the method. The
+  first pass opened with charts and made the reader hunt for the finding.
+- **A real elevation ladder** rather than one flat ground: `#121416`
+  page, `#1c1f22` (the spec's pinned dark surface) for the device,
+  two raised tiers above it, and a 1px top-edge highlight on every
+  raised surface so panels read as stacked material.
+- **The rep strip is now draggable**, not click-only, which is what the
+  "one control drives the whole document" claim actually required.
+  Verified: dragging across it moves the figure, all three plane traces
+  and every readout continuously, and correctly refuses to land on the
+  ghost cell.
+
+**Direction: a clinical gait-analysis report**, not a fitness dashboard.
+Chosen via impeccable's `concept-seed` (seed `32a412bb`), which assigns a
+randomised index into your own ranked list specifically to break the
+model's ranking rut — it landed on candidate 3 of 7. The seven grounded
+candidates were drawn from the audience's world: gym equipment console
+(the brief's own literal picture), powerlifting meet refereeing,
+**biomechanics lab report**, structural engineering drawing, surveying
+field notes, PT goniometer chart, Marey chronophotography.
+
+Why the assignment holds up rather than merely being obeyed:
+- The **shaded normative corridor** is already the scientific convention
+  for exactly this product's hardest design problem — `PRODUCT_SPEC.md`
+  §3.1's "every screen that shows a score must carry a visible confidence
+  signal." A trace inside the corridor is a good rep; a trace leaving it
+  is the deviation, located exactly. No invented "form score: 94.7%".
+- **Sagittal / frontal / transverse panels** make the layout itself argue
+  the unique mechanism. The frontal panel's gutter is stamped `3D ONLY`
+  because knee valgus is physically invisible to a single camera — the
+  one thing a phone-based competitor cannot reproduce.
+- **Appearance: dark committed, light available.** The first pass shipped
+  light-committed, arguing from the use scene in `PRODUCT.md` (a brightly
+  lit gym floor, read at arm's length). The user overrode that: dark is
+  the preference, so dark is now the designed-for mode and light is a
+  fully-built alternative behind the toggle. Worth noting the argument
+  for light still stands on the gym floor, so this is a preference call
+  rather than a settled one, and both modes are verified at AA.
+
+Deliberate departures:
+- **`PRODUCT_SPEC.md` §3.2's pinned palette is honoured exactly**
+  (`#f4f2ee` / `#1c1f22` / amber `#f5a623` / teal `#2a9d8f` / brick
+  `#c0392b`), but amber and teal are used as *marks only* — they fail
+  4.5:1 as text on paper, so darkened variants (`#8a5a06`, `#1d6f66`)
+  carry the same signal in type. Same semantics, contrast held.
+- **Zero border-radius anywhere in the UI**, every line a 1px rule, and
+  states rendered as printed marks rather than filled chips.
+- **Type: Archivo** (variable width + weight, tabular figures) for all
+  measurement, **Petrona** for the clinician's-interpretation prose only.
+  Deliberately avoids IBM Plex / JetBrains Mono / Big Shoulders / SF+NY
+  already spent on candidates 01–03, and the Space Grotesk / Space Mono
+  defaults.
+- **The skeleton is restored to first-class status** per §3.2's
+  "visual identity signature" requirement — a front-view figure at the
+  deepest point, with a teal plumb showing where the knee should track
+  and an amber dimension line measuring the actual gap. It implements
+  §3.3's "worst rep annotated with the deviation, next to the reference
+  signature for comparison" literally. The same quantity appears at three
+  scales: figure, frontal panel, rep-strip cell.
+- **Honest absence is drawn, not omitted.** Attempt 9 (feet left the
+  calibrated volume) occupies a dotted ghost cell in the rep strip;
+  Thursday's camera outage is a dotted ghost bar excluded from averages
+  in both directions; the dead camera at check-in uses the same grammar.
+- **Not-yet-supported movements are ruled through**, not greyed out.
+- Motion is one authored moment: the three plane traces draw themselves
+  in on arrival, staggered 70ms. Scrubbing the rep strip is instant —
+  per Emil Kowalski's frequency rule, a control used tens of times per
+  session should not animate. `prefers-reduced-motion` respected.
+
+**Capability list is the corrected one** (`STATUS.md`, not the stale
+§3.3/§6): squat and push-up tracked; curl, lunge and bench press as
+"early support" with their real recall figures; deadlift, row, overhead
+press and sit-up struck through with reasons. Also see `PRODUCT.md` at
+the repo root, written this session as impeccable's product-truth
+artifact — it carries the capability table and marks §3.3/§6 as stale.
+
+No user feedback recorded yet.
 
 ## Decision
 
