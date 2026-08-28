@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"
+     role="img" aria-label="Joule Coach: a limb standing at the intersection of two camera frames"
+     style="color:#121416">
+  <title>Joule Coach - In the Overlap</title>
+  <!-- the calibrated volume: only where two views agree -->
+  <rect x="34" y="30" width="28" height="36" fill="currentColor" fill-opacity="0.12"/>
+  <!-- the measured limb, standing in that volume -->
+  <g transform="translate(48 48) scale(0.52) translate(-45 -50)">
+    <path d="M60 18 L30 50 L52 82" fill="none" stroke="currentColor" stroke-width="10"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="60" cy="18" r="6" fill="currentColor"/>
+    <circle cx="52" cy="82" r="6" fill="currentColor"/>
+    <circle cx="30" cy="50" r="8" fill="#E85D0C"/>
+  </g>
+  <rect x="12" y="16" width="50" height="50" fill="none" stroke="currentColor" stroke-width="4"/>
+  <rect x="34" y="30" width="50" height="50" fill="none" stroke="currentColor" stroke-width="4"/>
+</svg>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Joule calibration checkerboard — 9x6 inner corners, 25mm squares</title>
+<style>
+  @page { size: A4 landscape; margin: 8mm; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(10, 25mm);
+    grid-template-rows: repeat(7, 25mm);
+    border: 1mm solid #000;
+  }
+  .board .b { background: #000; }
+  .board .w { background: #fff; }
+  .meta {
+    margin-top: 6mm; font-size: 9pt; color: #333; text-align: center; max-width: 250mm;
+  }
+  .meta b { color: #000; }
+  @media print {
+    .meta { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="board" id="board"></div>
+  <div class="meta">
+    <p><b>Print at 100% / "Actual size" — do NOT use "Fit to page."</b>
+    Landscape, A4. This grid is 10&times;7 squares (9&times;6 inner corners),
+    25mm per square by design &mdash; matches <code>tools/calibrate.py</code>'s
+    default <code>PATTERN=(9,6)</code> and <code>--square-mm 25</code>.</p>
+    <p><b>After printing, measure one square with a ruler before using it.</b>
+    Printer scaling drifts. If it measures something other than 25mm, use the
+    measured value in <code>--square-mm</code> instead of 25 when you run
+    <code>calibrate.py</code> &mdash; a wrong square size scales every
+    triangulated distance by the same wrong factor.</p>
+    <p>Mount the printed sheet on something rigid (cardboard, a clipboard, a
+    laptop lid) so it stays flat. A checkerboard that bows or wrinkles hurts
+    corner detection.</p>
+  </div>
+<script>
+  var board = document.getElementById('board');
+  var ROWS = 7, COLS = 10;
+  for (var r = 0; r < ROWS; r++) {
+    for (var c = 0; c < COLS; c++) {
+      var cell = document.createElement('div');
+      cell.className = ((r + c) % 2 === 0) ? 'b' : 'w';
+      board.appendChild(cell);
+    }
+  }
+</script>
+</body>
+</html>

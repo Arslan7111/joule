@@ -34,6 +34,7 @@ Logo exploration is a separate track, indexed in `design/logo/README.md`
 | 02 | Google Stitch (user, 2026-08-24) | Onboarding, kiosk check-in, weekly plan builder, live session, post-set report, video library, adherence/progress (7 unique) | `prototypes/02-stitch/01-08-*.html` |
 | 03 | Claude, Apple HIG skill (this session, 2026-08-24) | Onboarding (corrected capability list), kiosk check-in, live session, post-set report | `prototypes/03-apple-hig-core-loop.html` |
 | 04 | Claude, 5 design skills (2026-08-27) | Post-set report, movement picker, live session, station check-in, week/adherence (5) | `prototypes/04-lab-report/index.html` |
+| 05 | Claude, fusion of 04 + 02 Stitch, on user direction (2026-08-28) | All of 04's 5, plus onboarding, weekly plan builder, video library from Stitch (8) | `prototypes/05-fused/index.html` |
 
 ### 01 — Claude, core loop
 
@@ -301,8 +302,122 @@ artifact — it carries the capability table and marks §3.3/§6 as stale.
 
 No user feedback recorded yet.
 
+### 05 — fusion of 04 and Stitch, on explicit user direction
+
+Built 2026-08-28. User decision after reviewing 01–04: **liked 04 best,
+also liked 02 Stitch**, and asked for a fifth candidate on 04's
+structure, carrying whatever 02 had that 04 didn't, in Stitch's own
+colours and type, with the chosen logo added. Not a new independent
+direction — a fusion of two already-reviewed candidates on direct
+instruction. `design/prototypes/05-fused/index.html`, 8 screens,
+screenshots alongside.
+
+**What came from where, exactly:**
+- **Structure, honesty grammar, all 5 of 04's original screens**
+  unchanged: answer-first report, three-tier capability list, ghost
+  marks for unmeasured/unobserved, draggable rep strip, the skeleton
+  figure with reference plumb, ~44px touch targets, real light/dark.
+- **Tokens are Stitch's own declared values**, read out of
+  `prototypes/02-stitch/01-onboarding-capability-disclosure.html`'s
+  embedded Tailwind config and cross-checked against actual class usage
+  in `04-post-set-report-hero.html`, not approximated: `#131313`
+  background, `#1c1b1b`/`#201f1f`/`#2a2a2a` surface tiers, `#f75f05`
+  orange (Stitch's real `primary-container`, the literal color behind
+  its own CTA buttons and skeleton-deviation stroke), `#4ae183` green
+  (`secondary`, Stitch's own good-rep colour), Hanken Grotesk + JetBrains
+  Mono, and Stitch's 2px/4px radius scale. Light mode is not a Stitch
+  export (Stitch shipped dark-only) — derived in the same warm-neutral
+  family so 04's own working toggle survives here, using Stitch's own
+  `inverse-primary`/`on-primary-fixed-variant` tokens for the light
+  accent rather than inventing new ones.
+- **Three screens added that only existed in 02, not 04**: onboarding
+  (capability disclosure + one-time calibration framing), weekly plan
+  builder, exercise video library. All three rebuilt in 04's honesty
+  grammar rather than ported as-is — onboarding and the movement picker
+  now render from one shared `MOVEMENTS` data table in the script, so
+  the exact bug Stitch's own export shipped (onboarding says Deadlift is
+  active, the plan builder correctly says it isn't) is structurally
+  impossible here. The video library is scoped to only the
+  tracked/early-support movements (5 clips), each thumbnail carrying a
+  small drawn skeleton glyph rather than a stock photo, satisfying
+  `PRODUCT_SPEC.md` §3.3's literal "reference clip with skeleton
+  overlay" library requirement that neither 04 nor Stitch's own export
+  had actually implemented.
+- **New chrome not in either parent**: a persistent app bar (logo +
+  wordmark + camera-coverage glyph) on every screen except live session
+  (both 04 and Stitch's own export independently go chrome-free during a
+  set — noted as a real point of convergence, not copied), and a
+  bottom tab bar (Report/Plan/Library/Progress) shown only on the 4 tab
+  screens, hidden on the 4 flow screens (onboarding, check-in, picker,
+  live), matching the real navigation model Stitch's own export used
+  (nav only on library/plan-builder, not on check-in/live).
+- **Logo**: mark 07, "In the Overlap" (chosen from `design/logo/`,
+  `body.html`, see the logo README), in the app bar throughout and in
+  the outer masthead. Extracted to `design/logo/marks/
+  07-in-the-overlap.svg` as the canonical asset.
+
+**Bugs the render process caught, fixed before calling it done:**
+- The app-bar camera glyph rendered as a blank square — a class-name
+  collision (`.cam` reused for both the tiny app-bar icon and the
+  check-in screen's station-camera boxes) let the wrong CSS rule win on
+  a flex-item intrinsic-sizing edge case. Renamed to `.appcam`, unique.
+- Six literal em-dash characters landed in visible copy despite the
+  em-dash ban already established for candidate 04 — a real regression,
+  not a new decision. Found by grepping the rendered file the same way
+  as before, rewritten as separate sentences or commas. (Six more remain
+  in source-code comments only, outside the rule's actual scope, since
+  those are never rendered to a viewer.)
+- Contrast: the inactive bottom-tab label measured 3.50:1 in light mode
+  against Stitch's own muted-grey token, below AA for text that size.
+  Moved to the next token up (`--text-2`); now 6.32:1 dark / 7.74:1
+  light. The plan-builder's day-add button measured 22px, short of a
+  real tap target; widened to 30px (still short of 44px inside a 7-column
+  week grid at phone width — flagged as a known limit, not silently
+  accepted as fine).
+
+No user feedback recorded yet on 05 itself.
+
 ## Decision
 
-Not made yet. Revisit once 2+ candidates exist — compare against
-`PRODUCT_SPEC.md` §3 (tone/visual identity direction) and the actual
-screen requirements in §2.1, not just aesthetic preference.
+**Structure and grammar: settled on 04's approach**, per user preference
+stated when requesting 05 ("I liked the 4-lab report best"). **Surface
+finish: candidate 05's fusion (Stitch tokens/type/radius on 04's
+structure) is the current front-runner**, per the same request, but no
+final sign-off on 05 itself has been given yet — it hasn't been shown to
+the user. 01 is ruled out ("didn't land visually"). 02 and 03 remain
+useful as sources (02 directly, as of 05) but are not standalone
+contenders anymore in the user's own framing.
+
+## Real-footage demo (2026-08-28)
+
+`design/prototypes/demo/` — the candidate-05 post-set report screen
+(its exact tokens, type and CSS, copied from `05-fused/index.html`)
+driven by **real pipeline output** on three squat videos, with a
+left-hand switcher between them. Not a new candidate; a demo of the
+selected direction against live engine numbers.
+
+- `index.html` — standalone, no build step. `?still` renders without
+  the loading shim (screenshot mode); `#clean`/`#asym`/`#fatigue`
+  deep-links a video.
+- `data.js` — generated by `tools/build_demo.py` from the result JSON.
+  Rep counts, per-rep depth, form scores, coaching cues and risk
+  signals are the engine's own; the only transforms are per-rep depth =
+  min knee angle in the rep window, and series down-sampled to ~3 Hz.
+- `shot-{clean,asym,fatigue}.png` — rendered screenshots.
+
+Footage (all back squat, so the sagittal panel / corridor / skeleton
+stay meaningful across all three):
+
+| # | Video | Dataset | Reps (engine / label) | Story |
+|---|---|---|---|---|
+| clean | `stu9_64.mp4` | RepCount Part-A | 14 / 14 | every rep in the corridor, legs together, low risk |
+| asym | `stu6_63.mp4` | RepCount Part-A | 17 / 17 | one leg loaded harder on every rep (chronic-asymmetry signal) |
+| fatigue | Fit3D s03 | Fit3D | 8 / 8 | trunk lean + ROM fall away on the first and last reps |
+
+Single-camera footage, so the frontal (knee valgus) and transverse
+(hip rotation) panels are drawn but left unfilled with the design's own
+ghost grammar ("needs the 2-camera station") rather than estimated from
+one view. Engine JSON for the two RepCount clips is under
+`results/demo3/` (gitignored); the Fit3D run is the pre-existing
+`results/demo_squat_s03/`. Re-run via `pipeline.py --exercises squat
+--no-reid` then `tools/build_demo.py`.

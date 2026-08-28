@@ -1,5 +1,10 @@
 # Joule Coach: Logo Directions
 
+**Decided (2026-08-28): mark 07, In the Overlap.** Extracted to
+`marks/07-in-the-overlap.svg` and in use in prototype 05. The write-up
+below is kept as-is, including the honest risk notes on 07, because they
+are still the right things to watch as it gets used at more sizes.
+
 Five candidate marks, with the reasoning behind each. Open `index.html`
 for the visual presentation: every mark is shown large, in lockup with
 the wordmark, on light and dark, in one colour, and at 32px and 16px.

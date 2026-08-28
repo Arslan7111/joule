@@ -1,23 +1,29 @@
 # Handover — Joule
 
-Last updated: 2026-08-27. Consolidates `HANDOVER.md` through `HANDOVER8.md`
+Last updated: 2026-08-28. Consolidates `HANDOVER.md` through `HANDOVER8.md`
 (commit `18330df`), plus the un-handed-off "Recover lunge heuristic"
 session (commit `248adea`), plus two design-prototyping sessions on
 2026-08-24 (kickoff + Stitch MCP setup, then Stitch import + an
 Apple-HIG candidate — no engine code changed either time), plus a
 2026-08-27 session that installed five external design skills and used
 them to build a fourth member-app candidate plus a two-round logo
-exploration (13 marks total, no engine code changed), into a single
-running log. Read this before doing anything else in this repo.
-`STATUS.md` is the always-current engine done/left-to-do snapshot;
-`ROADMAP.md` is the phased engine execution plan (Phases A–E, plus F–L
-for the product-strategy docs); `DEVELOPMENT.md` is the full dated
-technical log. `design/PROTOTYPES.md` is the equivalent tracking index
-for the member-app front-end design work (4 candidates as of this
-update — see below). `design/logo/README.md` is the equivalent index
-for the logo work (13 marks across two rounds). This file is the
-session-by-session narrative behind all of those — read it when you
-need *why*, not just *what*.
+exploration (13 marks total), plus a 2026-08-28 session that picked a
+logo mark, built a fifth candidate fusing 04 with Stitch on direct user
+instruction, and wrote a concrete real-footage capture plan for a
+2026-08-29 shoot (Phase D, the project's longest-standing blocker),
+into a single running log. Read this before doing anything else in this
+repo. **If today is on or after 2026-08-29, check
+`CAPTURE_SESSION_PLAN.md` and this file's newest session section first —
+real gym footage may now exist, which changes Phase D from blocked to
+active.** `STATUS.md` is the always-current engine done/left-to-do
+snapshot; `ROADMAP.md` is the phased engine execution plan (Phases A–E,
+plus F–L for the product-strategy docs); `DEVELOPMENT.md` is the full
+dated technical log. `design/PROTOTYPES.md` is the equivalent tracking
+index for the member-app front-end design work (5 candidates as of this
+update). `design/logo/README.md` is the equivalent index for the logo
+work (13 marks, one now chosen). This file is the session-by-session
+narrative behind all of those — read it when you need *why*, not just
+*what*.
 
 ## What this is
 
@@ -948,6 +954,142 @@ No dashboard/engine code touched this session. `PRODUCT.md` (new, repo
 root) and `design/PROTOTYPES.md` (updated) are the only files outside
 `design/` that changed.
 
+## Session: 2026-08-28 — logo chosen, candidate 05 (fusion), Phase D
+## capture plan for tomorrow's shoot
+
+Three things, the first two design-only, the third the actual highest-
+value item in the whole project right now.
+
+**Logo decided: mark 07, "In the Overlap."** User reviewed both logo
+rounds and picked it directly (no further iteration requested). Extracted
+to `design/logo/marks/07-in-the-overlap.svg` as the canonical asset,
+`design/logo/README.md` updated with a decided-status line at the top.
+
+**Candidate 05, a fusion, not a new independent direction.** User
+feedback after seeing all four prior candidates: liked 04 (the lab-report
+direction) best, also liked 02 (Stitch), and asked explicitly for a fifth
+candidate on 04's structure, carrying whatever 02 had that 04 didn't, in
+Stitch's own colours/type, with the chosen logo added. Built
+`design/prototypes/05-fused/index.html` (8 screens): all 5 of 04's
+screens unchanged in structure/honesty-grammar, plus 3 screens only 02
+had (onboarding, weekly plan builder, video library — rebuilt in 04's
+grammar rather than ported as-is), on tokens read directly out of
+Stitch's own exported HTML rather than approximated (`#f75f05` is
+Stitch's real `primary-container`, the literal color behind its own CTA
+buttons; `#4ae183` is its real `secondary` green; Hanken Grotesk +
+JetBrains Mono; Stitch's 2px/4px radius scale), plus a persistent app bar
+carrying the logo and a bottom tab bar — new chrome neither parent had,
+needed because there are now 8 screens instead of 5. Full write-up
+including two real bugs the render process caught (a CSS class-name
+collision that made the app-bar camera glyph render blank; six em-dashes
+that regressed back into visible copy despite the ban already established
+for candidate 04) is in `design/PROTOTYPES.md`'s candidate-05 entry — not
+repeated here. **No user feedback on 05 itself yet** — it hasn't been
+shown to them; this session built and verified it (contrast, tap targets,
+no console errors, both themes, full interaction pass) but the decision
+loop isn't closed.
+
+Neither of the above was committed or pushed this session — the user's
+"call it a day, push it" instruction from 2026-08-27 was a one-time ask
+tied to that session, not a standing instruction, and git safety practice
+here is to only commit/push on explicit request. `git status` at the end
+of this session shows 4 new/changed paths sitting uncommitted:
+`design/PROTOTYPES.md`, `design/logo/README.md`,
+`design/logo/marks/07-in-the-overlap.svg`, `design/prototypes/05-fused/`.
+
+**Phase D capture plan, for a real shoot happening 2026-08-29.** User is
+recording real gym footage tomorrow with one friend, 3 iPhones (15/17),
+possibly a 4th, no professional camera — asked for a concrete plan:
+which exercises, which angles, how many people per frame. This is
+`ROADMAP.md` Phase D, the single longest-standing "blocked on you" item
+in the project (present in every prior handover's "What's next" list
+since Phase D was defined). Wrote `CAPTURE_SESSION_PLAN.md` at the repo
+root, a dated, concrete instance of the existing `CAMERA_PLACEMENT.md`/
+`CAPTURE_PROTOCOL.md` protocols applied to this specific equipment and
+headcount, not a replacement for either — cites both inline throughout
+rather than restating their reasoning.
+
+Key decisions in that plan, each traceable to an existing finding rather
+than invented on the spot:
+- **One fused 3D station (squat, 3 cameras, calibrated, clap-synced) is
+  the minimum success target for the day** — the exact thing `STATUS.md`
+  has named as blocked since the project began ("a two-phone clap-synced
+  squat set with a checkerboard calibration pass"). Explicitly scoped
+  down from "fuse everything": a second fused station means a second
+  calibration pass, which two people don't have time for alongside
+  everything else in one day.
+- **Every other exercise gets single-view 2D coverage**, prioritized
+  against `STATUS.md`'s real (not `PRODUCT_SPEC.md`'s stale) capability
+  table: hinge/deadlift and row first (completely unrecognized today,
+  and only real labeled data moves that, not a code fix), then overhead
+  press/lateral raise (a confirmed Fit3D domain-shift mislabeling bug
+  that correctly-labeled real footage directly targets), then bench press
+  (side-view camera angle is not optional here — `CAMERA_PLACEMENT.md`
+  rule 2's confirmed finding, restated as a hard requirement rather than
+  a suggestion), then lunge/curl/push-up/sit-up in descending priority.
+- **One person per clip for all standard coverage**, exactly one
+  deliberate two-person clip as the Re-ID occlusion stress test —
+  distinguishes "clean training data" from "stress test," which are
+  different goals stress-testing different systems.
+- **A 4th phone, if available, does not become a second fused station**
+  — goes on the squat rig instead (3 cameras beats 2 per
+  `CAMERA_PLACEMENT.md` rule 4's own stated identity-consistency
+  argument) or floats free for single-view coverage.
+- Checked a real technical claim before writing it down rather than
+  assuming: `tools/calibrate.py` only calibrates a camera **pair**
+  (`K1,K2,R,t`), and while `src/fusion.py`'s `load_rig()` accepts that
+  2-camera format directly, a 3-camera rig needs the combined
+  `Ks/Rs/ts` array format, which nothing currently builds automatically.
+  The plan states the real workaround (two pairwise `calibrate.py` runs
+  against a shared reference camera, then a manual merge) rather than a
+  one-line command that would have quietly failed on 3 cameras — and
+  flags the merge step as worth scripting properly later, not tomorrow's
+  problem.
+
+Also built `tools/checkerboard_9x6_25mm.html` — a printable calibration
+checkerboard sized to match `calibrate.py`'s own defaults exactly
+(9×6 inner corners, 25mm squares, A4 landscape, print-at-100% instructions
+plus a "measure it and correct `--square-mm` if the printer scaled it"
+warning), since a physical checkerboard is a hard prerequisite for
+tomorrow that didn't exist in the repo yet. Verified with Playwright that
+it actually renders as a true alternating checkerboard (70 cells, 35/35
+split) before treating it as done, not just visually eyeballed.
+
+**Follow-up same session: a printable PDF version of the plan**, on
+request — the `.md` isn't something to carry into a gym. Built
+`design/capture-guide/guide.html` (a print-designed field guide: cover
+page with the chosen logo, a one-page cheat sheet, table of contents,
+ten numbered sections, three SVG diagrams for camera geometry — good
+60–90° spacing, the 180°-to-avoid case, feet-in-frame framing — plus a
+new troubleshooting Q&A section not in the `.md` version, covering
+realistic failure modes like a bumped camera, a missed clap, or a
+crowded gym floor) and rendered it to `CAPTURE_SESSION_PLAN.pdf` at the
+repo root via headless Chromium's own print-to-PDF (`page.pdf()`
+through `@playwright/cli`'s bundled `playwright-core`, the same
+approach used for every design-prototype screenshot this session).
+Content is sourced from `CAPTURE_SESSION_PLAN.md`, not re-derived —
+same technical claims, same priority ordering, same hedged language
+around the unbuilt 3-camera rig-merge step. One real implementation
+snag worth recording: an initial version tried to bleed the cover page
+to the physical edge using a separate CSS `@page cover { margin:0 }`
+rule while Playwright's own `margin` option zeroed out the other
+sides — two independent margin systems that don't reliably compose in
+Chromium's print engine. Simplified to one system (Playwright owns a
+uniform margin for the whole document; the cover page fakes its own
+bleed with a plain CSS negative-margin trick within that single
+system) rather than debug the two-system interaction. Verified before
+calling it done: no `page.pdf()` or console errors, zero elements with
+CSS overflow anywhere in the source, and a visual read of the actual
+rendered output (cover, cheat sheet, priority table, all three
+diagrams, the file-labeling section, the troubleshooting section) — the
+same screenshot-then-look discipline used throughout this session's
+design work, not just a successful build log treated as proof.
+
+None of this session's new files (`CAPTURE_SESSION_PLAN.md`,
+`CAPTURE_SESSION_PLAN.pdf`, `tools/checkerboard_9x6_25mm.html`,
+`design/capture-guide/guide.html`) are committed either — same
+reasoning as the design work above.
+
 ## What's on disk, not committed
 
 `design/` is now fully committed (see "Repo hygiene" below) — the prior
@@ -965,6 +1107,16 @@ demo video, disk-only, easily regenerable).
 
 ## What's next
 
+**Immediate, above everything else:** the 2026-08-29 gym shoot per
+`CAPTURE_SESSION_PLAN.md`. This unblocks Phase D, which every other
+engine-side item below is either blocked on or downstream of. If footage
+exists by the time this is read, start there — run it through the
+pipeline (`ROADMAP.md` D1/D2), check whether the checkerboard calibration
+actually produced a usable rig (the 3-camera merge step described in this
+session's log above does not exist as a script yet and will need writing
+or doing by hand), and write up the stress-dimension findings the exit
+criteria in `CAPTURE_PROTOCOL.md` and `ROADMAP.md` Phase D call for.
+
 **Immediate, this design thread:**
 1. **Decide whether to correct `PRODUCT_SPEC.md` §3.3's stale exercise
    list** (see the root-cause finding above) — a product-strategy-doc
@@ -974,30 +1126,27 @@ demo video, disk-only, easily regenerable).
    built its own corrected 3-tier list independently (same root cause,
    same fix) — worth using as the second reference when this edit
    finally happens.
-2. **4 candidates now exist (01 Claude, 02 Stitch, 03 Claude/Apple HIG,
-   04 Claude/lab-report)** — get the user's visual feedback on 02, 03,
-   and now 04 (only 01 has feedback so far — "didn't land visually," and
-   04 has the dark-vs-light preference noted but not a full verdict),
-   then compare all four against `PRODUCT_SPEC.md` §3 (tone/visual
-   identity) and §2.1 (actual screen requirements) and fill in
-   `design/PROTOTYPES.md`'s "Decision" section — don't just pick on
-   aesthetic preference alone.
-3. **Logo: pick a direction or ask for a third round.** 13 marks exist
-   across two rounds (`design/logo/index.html` + `design/logo/body.html`,
-   indexed in `design/logo/README.md`). Author's pick from round one was
-   02 Triangulation or 01 Overlap; from round two, 06 Framed. No user
-   decision recorded yet. If round two marks are kept, extract the
-   chosen one(s) to standalone SVG files under `design/logo/marks/` the
-   way round one's already are — not done yet, deliberately, since
-   several were still being revised.
+2. **5 candidates now exist; get the user's verdict on 05 specifically.**
+   05 (`design/prototypes/05-fused/`) was built to the user's own explicit
+   spec (04's structure + Stitch's tokens/screens + the chosen logo) but
+   has not actually been shown to them yet as of this handover — show it,
+   get real feedback, and only then fill in `design/PROTOTYPES.md`'s
+   "Decision" section. 01 is ruled out ("didn't land visually"); 02 and 03
+   are sources now (02 directly, via 05) rather than standalone
+   contenders in the user's own framing.
+3. **Logo is decided** (mark 07, "In the Overlap," extracted to
+   `design/logo/marks/07-in-the-overlap.svg`) — nothing pending here
+   unless the user wants to revisit it.
 4. Optional cleanup, not urgent: dedupe `design/prototypes/02-stitch/01`
    vs `07` (byte-identical) if `design/` ever gets tidied.
 
-**Engine-side (unchanged, still blocked on the user):**
-1. **Phase D (real gym footage)** is the actual next milestone — still
-   blocked on camera/gym access, unchanged across every session in this
-   log. Everything in Phase C exists to de-risk this first real capture,
-   not replace it.
+**Engine-side:**
+1. **Phase D (real gym footage)** — a shoot is planned for 2026-08-29 per
+   `CAPTURE_SESSION_PLAN.md` (see this handover's newest session above).
+   Blocked-on-camera-access since the project began; if the shoot
+   happened, this is very likely the first item to act on, not the
+   footage-prep phases below it. Everything in Phase C exists to de-risk
+   this first real capture, not replace it.
 2. **M3GYM access** is the one remaining blocked Phase C item — needs the
    user to submit [the form](https://forms.gle/stJZgHaji7KNa5t7A)
    (academic email/affiliation/purpose required), then days for approval.

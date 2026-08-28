@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Joule Capture Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141414; --ink-2:#4a4a4a; --ink-3:#767676;
+    --paper:#ffffff; --line:#d8d5d0; --line-2:#b8b4ac;
+    --panel:#f5f3ef;
+    --orange:#c74e02; --orange-bg:#fbeee4;
+    --green:#1a7a44; --green-bg:#e9f5ee;
+    --sans:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SFMono-Regular',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);color:var(--ink);font-size:10.5pt;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  @page{ size:A4; }
+
+  h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.01em}
+  p{margin:0 0 8px}
+  b,strong{font-weight:700;color:var(--ink)}
+  code{font-family:var(--mono);font-size:9pt;background:var(--panel);padding:1px 4px;border-radius:2px}
+  a{color:var(--orange)}
+
+  .section{page-break-before:always}
+  .section:first-of-type{page-break-before:auto}
+  .nobreak{break-inside:avoid;page-break-inside:avoid}
+
+  /* ── cover ─────────────────────────────────────────────────────────── */
+  .cover{
+    background:var(--ink);color:#fff;min-height:256mm;
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:16mm;position:relative;margin:-16mm -16mm 0;width:calc(100% + 32mm);
+  }
+  .cover .mark{width:15mm;height:15mm;color:#fff}
+  .cover .kicker{margin-top:10mm;font-size:10pt;letter-spacing:.14em;text-transform:uppercase;color:#c9c4bc;font-weight:600}
+  .cover h1{font-size:40pt;line-height:1.04;letter-spacing:-.02em;margin-top:6mm;max-width:150mm}
+  .cover .sub{margin-top:6mm;font-size:12.5pt;color:#d8d3ca;max-width:130mm;line-height:1.5}
+  .cover .min{
+    margin-top:14mm;border:1px solid #4a4a4a;padding:8mm;background:#1d1d1d;max-width:150mm;
+  }
+  .cover .min .lbl{font-size:8.5pt;letter-spacing:.12em;text-transform:uppercase;color:#e8873f;font-weight:700}
+  .cover .min p{margin-top:3mm;font-size:12pt;color:#f2efe9;line-height:1.5}
+  .cover .foot{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:#9a958c}
+
+  /* ── cheat sheet ───────────────────────────────────────────────────── */
+  .cheat h2{font-size:16pt;border-bottom:2px solid var(--ink);padding-bottom:3mm;margin-bottom:6mm}
+  .cheatgrid{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+  .cheatcard{border:1px solid var(--line);padding:5mm;break-inside:avoid}
+  .cheatcard h3{font-size:9.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--orange);margin-bottom:3mm}
+  .cheatcard ul{margin:0;padding-left:4.5mm;font-size:9.5pt;line-height:1.55}
+  .cheatcard li{margin-bottom:2mm}
+  .cheatcard.wide{grid-column:1/-1}
+  .num{font-family:var(--mono);font-weight:600}
+
+  /* ── generic content ──────────────────────────────────────────────── */
+  .kicker-sm{font-size:8.5pt;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:2mm}
+  h2.title{font-size:19pt;margin-bottom:2mm}
+  .subtitle{color:var(--ink-2);font-size:11pt;margin-bottom:8mm;max-width:150mm}
+
+  .callout{border-left:3px solid var(--orange);background:var(--orange-bg);padding:4mm 6mm;margin:5mm 0;break-inside:avoid}
+  .callout .lbl{font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:1.5mm}
+  .callout p{margin:0;font-size:10pt}
+  .callout.good{border-left-color:var(--green);background:var(--green-bg)}
+  .callout.good .lbl{color:var(--green)}
+
+  .clist{list-style:none;margin:0 0 6mm;padding:0}
+  .clist li{
+    position:relative;padding:2mm 0 2mm 8mm;font-size:10.5pt;line-height:1.55;
+    border-bottom:1px solid var(--line);break-inside:avoid;
+  }
+  .clist li:last-child{border-bottom:0}
+  .clist li::before{
+    content:"";position:absolute;left:0;top:3.2mm;width:4mm;height:4mm;
+    border:1.3px solid var(--ink-3);
+  }
+
+  table{width:100%;border-collapse:collapse;margin:4mm 0 8mm;font-size:9.5pt}
+  th{
+    text-align:left;font-size:8pt;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);border-bottom:1.3px solid var(--ink);padding:2mm 3mm;font-weight:700;
+  }
+  td{border-bottom:1px solid var(--line);padding:2.6mm 3mm;vertical-align:top;line-height:1.45}
+  tr.hi td{background:var(--orange-bg)}
+  .tag{
+    display:inline-block;font-size:7.5pt;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:.8mm 2mm;border:1px solid currentColor;color:var(--orange);white-space:nowrap;
+  }
+  .tag.med{color:var(--ink-2)}
+
+  .phase{margin-bottom:9mm;break-inside:avoid}
+  .phase .ph{display:flex;align-items:baseline;gap:4mm;border-bottom:1.5px solid var(--ink);padding-bottom:2mm;margin-bottom:4mm}
+  .phase .ph .n{font-family:var(--mono);font-size:9pt;font-weight:600;color:var(--orange)}
+  .phase .ph h3{font-size:13pt}
+  .phase .ph .t{margin-left:auto;font-size:9pt;color:var(--ink-3);font-family:var(--mono)}
+  .phase ol{margin:0;padding-left:5.5mm;font-size:10.3pt;line-height:1.6}
+  .phase ol li{margin-bottom:2.5mm}
+
+  .diagram{border:1px solid var(--line);padding:6mm;margin:5mm 0 7mm;text-align:center;background:#fff;break-inside:avoid}
+  .diagram svg{width:100%;max-width:150mm;height:auto}
+  .diagram .cap{margin-top:3mm;font-size:9pt;color:var(--ink-2);text-align:left;line-height:1.5}
+  .diagram .cap b{color:var(--ink)}
+
+  .filetree{
+    font-family:var(--mono);font-size:9pt;background:var(--panel);border:1px solid var(--line);
+    padding:5mm 6mm;line-height:1.7;white-space:pre;
+  }
+
+  .qa{margin-bottom:6mm;break-inside:avoid}
+  .qa .q{font-weight:700;font-size:10.5pt;margin-bottom:1.5mm}
+  .qa .q::before{content:"Q ";color:var(--orange)}
+  .qa .a{font-size:10.3pt;line-height:1.55;color:var(--ink-2);padding-left:4.5mm;border-left:2px solid var(--line)}
+  .qa .a b{color:var(--ink)}
+
+  .toc ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+  .toc li{
+    display:flex;align-items:baseline;gap:3mm;font-size:11pt;padding:3mm 0;
+    border-bottom:1px dotted var(--line-2);counter-increment:toc;
+  }
+  .toc li::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);color:var(--orange);font-weight:600;font-size:9.5pt}
+  .toc .fill{flex:1;border-bottom:1px dotted var(--line-2);margin-bottom:1.5mm}
+  .toc .pg{font-family:var(--mono);color:var(--ink-3);font-size:9.5pt}
+
+  .steps{margin:4mm 0 6mm;padding-left:5.5mm;font-size:10.3pt;line-height:1.6}
+  .steps li{margin-bottom:2.5mm}
+  .steps b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ COVER ══════════════════ -->
+<section class="cover">
+  <div>
+    <svg class="mark" viewBox="0 0 96 96" aria-hidden="true">
+      <rect x="34" y="30" width="28" height="36" fill="currentColor" fill-opacity="0.18"/>
+      <g transform="translate(48 48) scale(0.52) translate(-45 -50)">
+        <path d="M60 18 L30 50 L52 82" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="60" cy="18" r="6" fill="currentColor"/>
+        <circle cx="52" cy="82" r="6" fill="currentColor"/>
+        <circle cx="30" cy="50" r="8" fill="#e8873f"/>
+      </g>
+      <rect x="12" y="16" width="50" height="50" fill="none" stroke="currentColor" stroke-width="4"/>
+      <rect x="34" y="30" width="50" height="50" fill="none" stroke="currentColor" stroke-width="4"/>
+    </svg>
+    <div class="kicker">Joule &middot; Phase D &middot; real footage</div>
+    <h1>Capture Guide</h1>
+    <p class="sub">A complete, on-the-ground guide for the 2026&#8209;08&#8209;29 shoot: two
+    people, three iPhones (15/17), a possible fourth, no professional camera.
+    Everything you need for the day is in this document &mdash; camera placement,
+    exercise order, exact running order, labeling, and what to do if something
+    goes wrong.</p>
+    <div class="min">
+      <div class="lbl">Minimum success for the day</div>
+      <p>One properly calibrated, clap-synced, three-camera squat set. That
+      single clip closes the exact gap this project has listed as
+      &ldquo;blocked on you&rdquo; since it began. Everything else in this
+      guide is real bonus value on top of that floor.</p>
+    </div>
+  </div>
+  <div class="foot">
+    <span>Joule Coach &middot; internal working document</span>
+    <span>Sources: CAMERA_PLACEMENT.md &middot; CAPTURE_PROTOCOL.md &middot; STATUS.md &middot; ROADMAP.md</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ CHEAT SHEET ═══════════ -->
+<section class="section cheat">
+  <h2>Cheat Sheet</h2>
+  <p class="subtitle">The one page to glance at mid-shoot. Everything here is explained in full further in this guide &mdash; this page just gets you unstuck fast.</p>
+  <div class="cheatgrid">
+    <div class="cheatcard">
+      <h3>Hard rules, never break</h3>
+      <ul>
+        <li><b>Feet in frame</b> on every camera, every rep, whole set.</li>
+        <li><b>No mirrors</b> in any frame, ever.</li>
+        <li><b>Never touch a mounted camera</b> once calibration starts.</li>
+        <li><b>Landscape orientation</b> on every phone, every clip.</li>
+        <li><b>Clap once</b>, sharp, in view of all cameras, at the start of every new recording.</li>
+      </ul>
+    </div>
+    <div class="cheatcard">
+      <h3>Camera spacing (squat rig)</h3>
+      <ul>
+        <li>Target <b>60&ndash;90&deg;</b> apart, 3 cameras.</li>
+        <li>Avoid any two cameras near <b>180&deg;</b> (facing each other).</li>
+        <li>Elevate as high as practical &mdash; higher beats exactly-2m.</li>
+        <li>4th phone available? Add it to this rig, don&rsquo;t start a second one.</li>
+      </ul>
+    </div>
+    <div class="cheatcard">
+      <h3>People per frame</h3>
+      <ul>
+        <li><b>One</b> for every normal coverage clip.</li>
+        <li><b>Exactly one</b> deliberate two-person clip &mdash; the crossing/occlusion stress test.</li>
+      </ul>
+    </div>
+    <div class="cheatcard">
+      <h3>Angle by exercise</h3>
+      <ul>
+        <li><b>Bench / overhead press:</b> true side view. Not optional.</li>
+        <li><b>Hinge / row:</b> side view, strongly recommended.</li>
+        <li><b>Squat, curl, lunge, push&#8209;up:</b> front or 3/4 is fine.</li>
+      </ul>
+    </div>
+    <div class="cheatcard wide">
+      <h3>Today's running order</h3>
+      <ul>
+        <li><span class="num">0</span> &nbsp;Set up + frame-check the squat rig &nbsp;<span class="num">~20&ndash;30 min</span></li>
+        <li><span class="num">1</span> &nbsp;Checkerboard calibration pass, all 3 cameras &nbsp;<span class="num">~10 min</span></li>
+        <li><span class="num">2</span> &nbsp;Fused squat sets, both lifters, cameras fixed &nbsp;<span class="num">~20&ndash;30 min</span></li>
+        <li><span class="num">3</span> &nbsp;Single-view coverage, other exercises, priority order &nbsp;<span class="num">rest of session</span></li>
+        <li><span class="num">4</span> &nbsp;Stress-test clips (crossing, mirror, occlusion, walking) &nbsp;<span class="num">~10&ndash;15 min</span></li>
+        <li><span class="num">5</span> &nbsp;Copy everything off both phones, back up twice, before leaving</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ TOC ════════════════════ -->
+<section class="section toc">
+  <h2 class="title">Contents</h2>
+  <p class="subtitle">Eleven sections. Read 1&ndash;6 tonight; keep 7&ndash;11 with you tomorrow.</p>
+  <ol>
+    <li>Tonight, before you leave<span class="fill"></span></li>
+    <li>How the checkerboard actually works<span class="fill"></span></li>
+    <li>Why this exercise order<span class="fill"></span></li>
+    <li>Camera placement, with diagrams<span class="fill"></span></li>
+    <li>How many people per frame<span class="fill"></span></li>
+    <li>Phone settings<span class="fill"></span></li>
+    <li>Running order, phase by phase<span class="fill"></span></li>
+    <li>Labeling and file organization<span class="fill"></span></li>
+    <li>Stress-test clips<span class="fill"></span></li>
+    <li>If something goes wrong<span class="fill"></span></li>
+    <li>After the shoot<span class="fill"></span></li>
+  </ol>
+</section>
+
+<!-- ══════════════════════════════════════════ 1. TONIGHT ═════════════ -->
+<section class="section">
+  <div class="kicker-sm">01 &middot; Prep</div>
+  <h2 class="title">Tonight, Before You Leave</h2>
+  <p class="subtitle">None of tomorrow works without these. Do them tonight, not at the gym.</p>
+
+  <ul class="clist">
+    <li><b>Print the checkerboard.</b> Open <code>tools/checkerboard_9x6_25mm.html</code>
+    and print it &mdash; <b>Section 2 walks through exactly how</b>, and why
+    the print settings matter, step by step.</li>
+    <li><b>Mount the printed sheet on something rigid</b> &mdash; cardboard,
+    a clipboard, a laptop lid. A board that bows or wrinkles hurts corner
+    detection more than you'd expect.</li>
+    <li><b>Charge every phone to 100%.</b> Add up the calibration pass plus a
+    full session of exercise clips and you're looking at roughly 45&ndash;75
+    minutes of actual screen-on recording time.</li>
+    <li><b>Clear storage.</b> 1080p at 30fps runs roughly 130&ndash;200MB per
+    minute of footage. Budget several free GB per phone.</li>
+    <li><b>Bring a way to mount 3 phones rigidly.</b> Tripods, phone clamps,
+    or anything genuinely stable &mdash; a shelf, a stack of plates, gaffer
+    tape to a fixed rack upright. This is not a nice-to-have for the fused
+    station: once calibration starts, a camera that gets bumped silently
+    invalidates everything after it, and the pipeline has no way to detect
+    that it happened. A handheld phone cannot be one of the fused cameras.</li>
+  </ul>
+
+  <div class="callout">
+    <div class="lbl">If you can only do one thing tonight</div>
+    <p>Print and mount the checkerboard. Everything else on this list is
+    recoverable improvisation at the gym &mdash; a missing calibration board
+    is not.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 2. CHECKERBOARD ═══════ -->
+<section class="section">
+  <div class="kicker-sm">02 &middot; Calibration</div>
+  <h2 class="title">How the Checkerboard Actually Works</h2>
+  <p class="subtitle">What it's for, what to physically do with it, and how to print it &mdash; in full, not just as a checklist item.</p>
+
+  <p>Your phones each see the world flat &mdash; a 2D image with no built-in
+  sense of real distance. To combine two or three of them into one accurate
+  3D measurement, the software needs to work out two things it doesn't know
+  yet: <b>each camera's own lens quirks</b> (its exact field of view, and how
+  much it subtly bends straight lines near the frame's edges &mdash; every
+  lens does this a little differently), and <b>exactly where the cameras
+  sit relative to each other</b> as real geometry, not just an estimated
+  angle.</p>
+
+  <p>A checkerboard solves both because it's the one object in the room with
+  <b>known, exact geometry</b> &mdash; every square is precisely the same
+  size. Shown to the cameras from many different distances and angles, the
+  software can work backward from how that known pattern got distorted and
+  positioned in each frame to solve for both unknowns at once. A single
+  photo of the board can't do this &mdash; there isn't enough variation in
+  one view to solve for it. <b>That's the entire reason you move it around
+  instead of holding it still.</b></p>
+
+  <div class="diagram nobreak">
+    <svg viewBox="0 0 560 320" role="img" aria-label="Diagram showing the checkerboard moved through several different positions and tilts while three cameras watch">
+      <rect x="60" y="60" width="440" height="200" fill="none" stroke="#d8d5d0" stroke-width="1" stroke-dasharray="3 3"/>
+      <path d="M120 200 Q 210 100 300 150 Q 360 90 420 130 Q 300 220 200 230 Q 150 210 120 200"
+            fill="none" stroke="#b8b4ac" stroke-width="1.2" stroke-dasharray="2 4"/>
+
+      <g transform="translate(200,230) rotate(-12)">
+        <rect x="-24" y="-16" width="48" height="32" fill="#fff" stroke="#141414" stroke-width="1.5"/>
+        <rect x="-24" y="-16" width="16" height="16" fill="#141414"/><rect x="8" y="-16" width="16" height="16" fill="#141414"/>
+        <rect x="-8" y="0" width="16" height="16" fill="#141414"/>
+      </g>
+      <text x="200" y="270" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#c74e02">1</text>
+
+      <g transform="translate(120,200) rotate(20)">
+        <rect x="-24" y="-16" width="48" height="32" fill="#fff" stroke="#141414" stroke-width="1.5"/>
+        <rect x="-24" y="-16" width="16" height="16" fill="#141414"/><rect x="8" y="-16" width="16" height="16" fill="#141414"/>
+        <rect x="-8" y="0" width="16" height="16" fill="#141414"/>
+      </g>
+      <text x="90" y="185" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#c74e02">2</text>
+
+      <g transform="translate(300,150) rotate(-25)">
+        <rect x="-24" y="-16" width="48" height="32" fill="#fff" stroke="#141414" stroke-width="1.5"/>
+        <rect x="-24" y="-16" width="16" height="16" fill="#141414"/><rect x="8" y="-16" width="16" height="16" fill="#141414"/>
+        <rect x="-8" y="0" width="16" height="16" fill="#141414"/>
+      </g>
+      <text x="300" y="115" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#c74e02">3</text>
+
+      <g transform="translate(420,130) rotate(14)">
+        <rect x="-24" y="-16" width="48" height="32" fill="#fff" stroke="#141414" stroke-width="1.5"/>
+        <rect x="-24" y="-16" width="16" height="16" fill="#141414"/><rect x="8" y="-16" width="16" height="16" fill="#141414"/>
+        <rect x="-8" y="0" width="16" height="16" fill="#141414"/>
+      </g>
+      <text x="450" y="115" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#c74e02">4</text>
+
+      <circle cx="280" cy="20" r="12" fill="#1a7a44"/><text x="280" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#fff">A</text>
+      <circle cx="30" cy="290" r="12" fill="#1a7a44"/><text x="30" y="295" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#fff">B</text>
+      <circle cx="530" cy="290" r="12" fill="#1a7a44"/><text x="530" y="295" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#fff">C</text>
+    </svg>
+    <div class="cap"><b>What "moving it around" looks like from above.</b> The board visits
+    several different spots inside the space all three cameras share (the
+    dashed area), tilted differently each time &mdash; not held flat and
+    static, and not just slid sideways without rotating it too. Four to six
+    such positions over about a minute, held steady enough at each one to
+    stay sharp, is what the calibration math actually needs.</div>
+  </div>
+
+  <p class="kicker-sm" style="margin-top:2mm">What to physically do</p>
+  <ol class="steps">
+    <li>Cameras are already mounted and recording (Phase 1 in the running order, Section 7).</li>
+    <li>Stand roughly where the lifter will stand, holding the board flat, facing generally toward the cameras.</li>
+    <li>Over about 45&ndash;60 seconds, move it through several different positions <b>and</b> tilt it at a few of them &mdash; closer, farther, left, right, then angled up, down, or sideways. Angle variety matters as much as position variety.</li>
+    <li><b>Move slowly.</b> A blurred board can't be detected in a frame at all &mdash; a few clean, sharp positions beat many blurred ones.</li>
+    <li>It doesn't need to look tidy on camera. The only goal is genuine variety, visible clearly, across the volume where lifting will actually happen.</li>
+  </ol>
+
+  <div class="callout good">
+    <div class="lbl">How you'll know it worked</div>
+    <p><code>calibrate.py</code> tells you directly when it runs &mdash; it
+    prints how many frames it detected the board in per camera, and needs
+    <b>at least 10 frames where two cameras saw it at the same moment</b>.
+    If it stops with something like "only 4 frames seen by both cameras,"
+    that's not mysterious: the pass was too fast, too short, or spent too
+    long somewhere only one camera could see it. The fix is just to record
+    it again, a little slower, staying in the space every camera shares.</p>
+  </div>
+
+  <p class="kicker-sm" style="margin-top:6mm">Printing it correctly</p>
+  <p>The physical square size is a direct input to the calibration math
+  (<code>--square-mm 25</code>) &mdash; it's the ruler every real-world
+  distance gets measured against. If a printer silently rescales the page,
+  the software is handed a wrong ruler, and everything measured from that
+  calibration comes out scaled wrong with it.</p>
+  <ol class="steps">
+    <li>Open <code>tools/checkerboard_9x6_25mm.html</code> in a browser, press <b>Ctrl+P</b> (Cmd+P on Mac).</li>
+    <li><b>Orientation: Landscape.</b> The board is wider than it is tall.</li>
+    <li><b>Paper size: A4.</b></li>
+    <li>Find the scale/fit dropdown in the print dialog and set it to <b>"100%," "Actual size," or "None."</b> Never leave it on "Fit to page" or "Shrink to fit" &mdash; that's the default in most print dialogs, and it's exactly the setting that breaks this.</li>
+    <li>Print, then <b>measure one printed square with a ruler</b>, edge to edge. If it doesn't read 25mm, that's fine &mdash; write down whatever it actually measured. That real number, not 25, is the one that goes into <code>--square-mm</code> tomorrow.</li>
+    <li>Mount it on something stiff &mdash; cardboard, a clipboard &mdash; so it can't bow.</li>
+  </ol>
+</section>
+
+<!-- ══════════════════════════════════════════ 2. WHY THIS ORDER ══════ -->
+<section class="section">
+  <div class="kicker-sm">03 &middot; Priority</div>
+  <h2 class="title">Why This Exercise Order</h2>
+  <p class="subtitle">Ranked against what the engine actually gets wrong today, not a generic exercise list.</p>
+
+  <table>
+    <tr><th style="width:19%">Movement</th><th style="width:37%">Real state today</th><th style="width:12%">Priority</th><th>Why real footage tomorrow matters</th></tr>
+    <tr class="hi"><td><b>Hinge / deadlift</b></td><td>Not recognized at all. A heuristic was tried and explicitly rejected &mdash; it shares a signature with sit-ups.</td><td><span class="tag">Highest</span></td><td>Only real labeled data moves this. Not a code fix waiting to happen &mdash; a data gap.</td></tr>
+    <tr class="hi"><td><b>Row</b></td><td>Unrecognized, roughly 8% recall.</td><td><span class="tag">Highest</span></td><td>Same reason as hinge.</td></tr>
+    <tr><td><b>Overhead press / lateral raise</b></td><td>A trained model exists but was mapped to the wrong physical movement during training (a confirmed domain-shift bug).</td><td><span class="tag">High</span></td><td>A correctly-labeled real clip directly targets this specific, already-diagnosed bug.</td></tr>
+    <tr><td><b>Bench press</b></td><td>Classification works fine; rep <i>counting</i> is confirmed weak filmed head-on.</td><td><span class="tag">High</span></td><td>The one exercise with an already-confirmed camera-angle fix &mdash; side view, not a suggestion.</td></tr>
+    <tr><td><b>Reverse lunge</b></td><td>Early support via a hip-ROM heuristic, 6 of 8 correct on validation data.</td><td><span class="tag med">Medium</span></td><td>More real data solidifies a heuristic that already half-works.</td></tr>
+    <tr><td><b>Bicep curl</b></td><td>Early support, 41% recall.</td><td><span class="tag med">Medium</span></td><td>Same &mdash; more data helps an already-working fallback.</td></tr>
+    <tr><td><b>Squat</b></td><td>Fully tracked, wider error band, validated only on clean studio data so far.</td><td><span class="tag">Flagship</span></td><td>The real gym floor &mdash; equipment clutter, real lighting &mdash; is the untested case. Gets full 3D fusion treatment.</td></tr>
+    <tr><td><b>Push-up</b></td><td>Tracked, 88% recall on public benchmark data.</td><td><span class="tag med">Medium</span></td><td>The other exercise studio validation found genuinely hard. Worth a real-floor check.</td></tr>
+    <tr><td><b>Sit-up</b></td><td>Classifier recognizes it; the rep counter deliberately counts zero &mdash; not built yet.</td><td><span class="tag med">Low</span></td><td>A code gap today, not a data gap. One token clip is still useful for whenever the counter exists.</td></tr>
+  </table>
+
+  <p><b>Squat is the one exercise that gets the full three-camera fusion
+  treatment.</b> Every other exercise above gets single-view 2D coverage.
+  A second fully fused station means a second checkerboard pass and a
+  second fixed rig &mdash; not realistic for two people alongside everything
+  else in one day. That is a deliberate scope cut, made in advance, not
+  something to feel behind on if you don't get to it.</p>
+
+  <div class="callout">
+    <div class="lbl">If a fourth phone shows up</div>
+    <p>Put it on the squat rig, not a second fused station. Three cameras
+    genuinely beats two for the identity-consistency math this pipeline
+    relies on &mdash; a spare fourth phone is worth more there than anywhere
+    else. If you'd rather free it up, it becomes the single-view camera for
+    Section 6's Phase 3, so the mounted rig never has to come down early.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 3. CAMERA PLACEMENT ═══ -->
+<section class="section">
+  <div class="kicker-sm">04 &middot; Placement</div>
+  <h2 class="title">Camera Placement</h2>
+  <p class="subtitle">Three diagrams. These are the geometry rules that actually change what the footage is worth &mdash; not generic filming advice.</p>
+
+  <div class="diagram nobreak">
+    <svg viewBox="0 0 560 320" role="img" aria-label="Top-down diagram of three cameras spaced around a squat rack">
+      <rect x="242" y="120" width="76" height="80" fill="none" stroke="#141414" stroke-width="2.5"/>
+      <text x="280" y="165" text-anchor="middle" font-family="Hanken Grotesk" font-size="13" font-weight="700" fill="#141414">RACK</text>
+
+      <!-- good: 3 cameras roughly 70-90 deg apart -->
+      <g>
+        <line x1="280" y1="160" x2="280" y2="30" stroke="#c74e02" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <line x1="280" y1="160" x2="120" y2="255" stroke="#c74e02" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <line x1="280" y1="160" x2="440" y2="255" stroke="#c74e02" stroke-width="1.6" stroke-dasharray="4 4"/>
+        <circle cx="280" cy="30" r="13" fill="#1a7a44"/>
+        <text x="280" y="35" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#fff">A</text>
+        <circle cx="120" cy="255" r="13" fill="#1a7a44"/>
+        <text x="120" y="260" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#fff">B</text>
+        <circle cx="440" cy="255" r="13" fill="#1a7a44"/>
+        <text x="440" y="260" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#fff">C</text>
+        <path d="M 280 55 A 130 130 0 0 1 145 232" fill="none" stroke="#767676" stroke-width="1"/>
+        <text x="175" y="120" font-family="Hanken Grotesk" font-size="10.5" fill="#4a4a4a">~75&deg;</text>
+      </g>
+
+      <text x="280" y="295" text-anchor="middle" font-family="Hanken Grotesk" font-size="12" font-weight="700" fill="#1a7a44">GOOD &mdash; 60&ndash;90&deg; apart, none opposite</text>
+    </svg>
+    <div class="cap"><b>Do this.</b> Three cameras (A, B, C) spread around the rack at roughly
+    60&ndash;90&deg; from each other. This is the spacing that kept both the
+    tightest and the least-favorable studio rigs this project has tested
+    inside a usable accuracy range. Exact degrees don't matter &mdash; getting
+    into that rough range does.</div>
+  </div>
+
+  <div class="diagram nobreak">
+    <svg viewBox="0 0 560 200" role="img" aria-label="Diagram showing two cameras placed opposite each other, marked as a mistake to avoid">
+      <rect x="242" y="60" width="76" height="80" fill="none" stroke="#141414" stroke-width="2.5"/>
+      <text x="280" y="105" text-anchor="middle" font-family="Hanken Grotesk" font-size="13" font-weight="700" fill="#141414">RACK</text>
+      <line x1="280" y1="100" x2="280" y2="15" stroke="#c74e02" stroke-width="1.6" stroke-dasharray="4 4"/>
+      <line x1="280" y1="100" x2="280" y2="185" stroke="#c74e02" stroke-width="1.6" stroke-dasharray="4 4"/>
+      <circle cx="280" cy="15" r="13" fill="#a11d0e"/>
+      <text x="280" y="20" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#fff">A</text>
+      <circle cx="280" cy="185" r="13" fill="#a11d0e"/>
+      <text x="280" y="190" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#fff">B</text>
+      <line x1="150" y1="50" x2="410" y2="150" stroke="#a11d0e" stroke-width="2.5"/>
+      <line x1="410" y1="50" x2="150" y2="150" stroke="#a11d0e" stroke-width="2.5"/>
+      <text x="450" y="105" font-family="Hanken Grotesk" font-size="24" font-weight="700" fill="#a11d0e">180&deg;</text>
+    </svg>
+    <div class="cap"><b>Avoid this.</b> Two cameras facing each other directly across the rack.
+    Measured directly on a real multi-camera rig: this exact geometry roughly
+    doubled the joint-angle error compared to a good spacing, on both squat
+    and push-up. If you're down to only two cameras for any reason, this is
+    the one layout to actively steer away from.</div>
+  </div>
+
+  <div class="diagram nobreak">
+    <svg viewBox="0 0 560 200" role="img" aria-label="Diagram showing correct feet-in-frame framing versus a cropped mistake">
+      <g>
+        <rect x="30" y="20" width="220" height="160" fill="none" stroke="#1a7a44" stroke-width="2.5"/>
+        <circle cx="140" cy="70" r="14" fill="none" stroke="#141414" stroke-width="3"/>
+        <line x1="140" y1="84" x2="140" y2="115" stroke="#141414" stroke-width="4"/>
+        <path d="M140 115 L115 145 L122 168" fill="none" stroke="#141414" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M140 115 L165 145 L158 168" fill="none" stroke="#141414" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="112" y1="168" x2="128" y2="168" stroke="#1a7a44" stroke-width="5" stroke-linecap="round"/>
+        <line x1="152" y1="168" x2="168" y2="168" stroke="#1a7a44" stroke-width="5" stroke-linecap="round"/>
+        <text x="140" y="195" text-anchor="middle" font-family="Hanken Grotesk" font-size="11" font-weight="700" fill="#1a7a44">FEET VISIBLE &mdash; GOOD</text>
+      </g>
+      <g transform="translate(300,0)">
+        <rect x="30" y="20" width="220" height="130" fill="none" stroke="#a11d0e" stroke-width="2.5"/>
+        <circle cx="140" cy="55" r="14" fill="none" stroke="#141414" stroke-width="3"/>
+        <line x1="140" y1="69" x2="140" y2="100" stroke="#141414" stroke-width="4"/>
+        <path d="M140 100 L115 130 L122 153" fill="none" stroke="#141414" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M140 100 L165 130 L158 153" fill="none" stroke="#141414" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="30" y1="150" x2="250" y2="150" stroke="#a11d0e" stroke-width="3" stroke-dasharray="5 4"/>
+        <text x="140" y="180" text-anchor="middle" font-family="Hanken Grotesk" font-size="11" font-weight="700" fill="#a11d0e">FEET CROPPED &mdash; BAD</text>
+      </g>
+    </svg>
+    <div class="cap"><b>Frame wide and high enough that a full squat never pushes a foot out of
+    shot</b> at the bottom of the rep, on every camera. This degrades
+    <i>silently</i> &mdash; no error, no warning, just quietly worse tracking
+    from that point on. Check it live on-screen before you start recording
+    real sets, not by reviewing footage afterward.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 4. PEOPLE PER FRAME ═════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">05 &middot; Headcount</div>
+  <h2 class="title">How Many People Per Frame</h2>
+
+  <div class="callout good">
+    <div class="lbl">One, for everything except one clip</div>
+    <p>Clean single-person footage is what the exercise classifier and the
+    rep counter actually train on. A second person in frame during a normal
+    coverage clip is a confound for that goal, not a bonus &mdash; it makes
+    the clip less useful, not more.</p>
+  </div>
+
+  <p>The one exception is deliberate: exactly <b>one</b> clip with both of
+  you in frame together, crossing or briefly occluding each other's paths.
+  That's a specific stress test for the identity-tracking logic &mdash; a
+  completely different system than the exercise classifier, and one that
+  clean single-person clips can never exercise at all. Shoot it once,
+  label it clearly (see Section 7), and move on. More than one such clip
+  adds very little; it's already tested the thing it's meant to test after
+  the first take.</p>
+</section>
+
+<!-- ══════════════════════════ 5. PHONE SETTINGS ═══════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">06 &middot; Settings</div>
+  <h2 class="title">Phone Settings</h2>
+  <p class="subtitle">Set once per phone before you start, tonight if you can.</p>
+
+  <ul class="clist">
+    <li><b>Landscape orientation.</b> Every placement rule in this guide
+    assumes it, and nothing in the pipeline has been tested against
+    portrait footage.</li>
+    <li><b>Standard Video mode</b> &mdash; not Cinematic, not Portrait/Spatial.
+    Cinematic's synthetic depth blur is a confound with no upside here.</li>
+    <li><b>1080p, default frame rate.</b> No need to reach for 4K or a high
+    frame rate &mdash; larger files complicate transfer for no clear
+    accuracy benefit at gym-floor distances.</li>
+    <li><b>Lock exposure/focus if your phone offers it</b> (often called
+    "Lock Camera" or AE/AF lock). Stops the camera hunting exposure
+    mid-set, which otherwise shows up as brightness flicker across a clip.</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════ 6. RUNNING ORDER ════════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">07 &middot; Tomorrow</div>
+  <h2 class="title">Running Order</h2>
+  <p class="subtitle">Six phases, in order. Timings are a guide, not a script &mdash; the phase order matters much more than hitting a clock.</p>
+
+  <div class="phase nobreak">
+    <div class="ph"><span class="n">PHASE 0</span><h3>Set up the squat rig</h3><span class="t">~20&ndash;30 min</span></div>
+    <ol>
+      <li>Mount 3 phones around the squat rack, roughly 60&ndash;90&deg; apart (Section 3). If the space won't allow that spacing exactly, the one thing to actively avoid is any two of the three sitting close to directly opposite each other.</li>
+      <li>Elevate them as much as is practical &mdash; higher is the right direction to push toward, even if you can't hit any specific number.</li>
+      <li>Frame check on all 3 phones before recording anything real: stand at the rack, squat once, confirm feet stay in every phone's frame at the bottom of the rep.</li>
+      <li>Check for mirrors anywhere in any of the 3 frames. If the rack is near a mirror wall, reangle rather than partially framing it out.</li>
+    </ol>
+  </div>
+
+  <div class="phase nobreak">
+    <div class="ph"><span class="n">PHASE 1</span><h3>Calibration pass</h3><span class="t">~10 min</span></div>
+    <ol>
+      <li>Start all 3 phones recording as close to simultaneously as you can &mdash; a loud "3, 2, 1, go" is enough.</li>
+      <li>One person holds the printed checkerboard in the space where lifting will happen and moves it around for 45&ndash;60 seconds: near, far, left, right, tilted. The goal is variety of position, not holding it still &mdash; Section 2 explains why and shows exactly what this should look like. All 3 cameras need to see it fully for a good chunk of that time.</li>
+      <li>Stop recording. From this point, do not move, bump, or re-aim any of the 3 phones for the rest of this fused block.</li>
+      <li>Copy the three clips off the phones immediately. Name them clearly: <code>calib_camA.mov</code>, <code>calib_camB.mov</code>, <code>calib_camC.mov</code>.</li>
+    </ol>
+  </div>
+
+  <div class="phase nobreak">
+    <div class="ph"><span class="n">PHASE 2</span><h3>Fused squat sets</h3><span class="t">~20&ndash;30 min</span></div>
+    <ol>
+      <li>For each lifter: a clean, correct-form set <i>first</i>, before any fatigue. This doubles as the reference footage a real trainer-comparison feature needs &mdash; the only version of that feature tested so far compared a clip against itself, so a genuinely separate clean set is real new value.</li>
+      <li>Then a normal working set at real working weight.</li>
+      <li>If either of you has a set that's genuinely slow and heavy (5+ seconds a rep), that's a free stress-test tick &mdash; no separate clip needed, just note which take it was.</li>
+      <li>Start/stop recording once per lifter, not per rep. <b>Clap once, sharply, in view of all 3 cameras, at the very start of every new recording</b> &mdash; a clap from an earlier take does not cover a new one.</li>
+      <li>Copy and label immediately: <code>squat_&lt;name&gt;_clean.mov</code> / <code>squat_&lt;name&gt;_working.mov</code>, times 3 cameras each.</li>
+    </ol>
+  </div>
+
+  <div class="phase nobreak">
+    <div class="ph"><span class="n">PHASE 3</span><h3>Single-view coverage</h3><span class="t">Remaining time</span></div>
+    <ol>
+      <li>Reposition one phone at a time (the mounted ones can come down now, or use a spare 4th) and work down the priority table in Section 2.</li>
+      <li>Frame check for feet on every new setup, same as Phase 0.</li>
+      <li>Bench press and overhead press/lateral raise need a real side-on view for the pressing arm &mdash; bench's is a confirmed requirement, overhead's is the same logic applied as a precaution.</li>
+      <li>Hinge/deadlift and row: side view is the strong recommendation, for the same foreshortening reason, though this specific case hasn't been measured yet the way bench has.</li>
+      <li>One clean clip per exercise is enough. A second take is a bonus, not a requirement.</li>
+      <li>Label each clip with the exercise name as you shoot it.</li>
+    </ol>
+  </div>
+
+  <div class="phase nobreak">
+    <div class="ph"><span class="n">PHASE 4</span><h3>Stress-test clips</h3><span class="t">~10&ndash;15 min</span></div>
+    <ol>
+      <li>Both of you crossing/occluding paths &mdash; the one deliberate two-person clip.</li>
+      <li>A mirror somewhere in frame, once, deliberately, clearly labeled so it's never mistaken for a real station setup.</li>
+      <li>One deliberate occlusion &mdash; step fully behind a machine or pillar mid-set, then continue.</li>
+      <li>One walking or treadmill clip &mdash; a cheap regression check.</li>
+    </ol>
+  </div>
+
+  <div class="phase nobreak">
+    <div class="ph"><span class="n">PHASE 5</span><h3>Wrap-up</h3><span class="t">Before leaving</span></div>
+    <ol>
+      <li>Copy every clip off both phones before you leave the gym &mdash; see Section 7 for the folder layout.</li>
+      <li>Back up in two places before deleting anything off either phone &mdash; laptop plus cloud, or two independent copies at minimum.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 7. LABELING ═════════════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">08 &middot; Organization</div>
+  <h2 class="title">Labeling &amp; File Organization</h2>
+  <p class="subtitle">Label as you shoot, not afterward &mdash; memory of which take was which fades fast.</p>
+
+  <div class="filetree">captures/2026-08-29/
+  calibration/    calib_camA.mov, calib_camB.mov, calib_camC.mov
+  squat/          squat_&lt;name&gt;_clean_camA.mov, squat_&lt;name&gt;_working_camA.mov, ...
+  hinge/          hinge_&lt;name&gt;_camA.mov
+  row/  ohp/  lateral_raise/  bench/  lunge/  curl/  pushup/  situp/
+  stress/         occlusion.mov, mirror.mov, crossing.mov, walking.mov</div>
+
+  <p style="margin-top:6mm">Kept separate from this project's own <code>training_data/&lt;class&gt;/</code>
+  folder on purpose &mdash; that folder is pipeline <i>output</i> (JSON files
+  the pipeline writes after processing a clip), not a place for raw video.
+  The layout above is just a raw-footage holding area; it gets fed through
+  the pipeline afterward, not stored in <code>training_data/</code> directly.</p>
+
+  <div class="callout">
+    <div class="lbl">One convention, followed everywhere above</div>
+    <p>Exercise name first, lifter name second, camera letter last. It reads
+    in the order you'll actually search for a clip later: "I want the squat
+    footage" before "I want Camera B's footage."</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 8. STRESS TESTS ═════════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">09 &middot; Stress tests</div>
+  <h2 class="title">Stress-Test Clips, In Full</h2>
+  <p class="subtitle">Four short, deliberate clips, each testing something specific this project has already found or built &mdash; not generic filming advice. One of each is enough.</p>
+
+  <ul class="clist">
+    <li><b>Two people crossing or occluding paths.</b> Tests the
+    identity-tracking logic under real clothing, real lighting, real
+    movement &mdash; every existing test of this used either a public test
+    clip or a synthetic engineered case, never this project's own camera
+    and gym.</li>
+    <li><b>A mirror somewhere in frame, once, deliberately.</b> The
+    mirror-handling logic has a written, reasoned analysis behind it but
+    has never actually seen a real mirror clip. Include one, on purpose,
+    exactly once, clearly labeled so it's never confused with a real
+    station setup left running.</li>
+    <li><b>One slow, heavy set</b> (5+ seconds per rep &mdash; a heavy
+    barbell lift, not a fast bodyweight movement). Already covered if
+    either of your Phase 2 working sets is genuinely heavy and slow &mdash;
+    no separate clip needed, just note which take it was.</li>
+    <li><b>One deliberate occlusion</b> &mdash; step fully behind a machine
+    or pillar mid-set for a few seconds, then continue. Tests real tracking
+    loss and recovery, not a simulated blackout.</li>
+    <li><b>One walking or treadmill clip.</b> A cheap regression check for
+    logic that already filters out walking from being miscounted as squat
+    reps &mdash; confirming it still holds after everything else that's
+    changed since it was last tested.</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════ 9. TROUBLESHOOTING ══════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">10 &middot; If something goes wrong</div>
+  <h2 class="title">Troubleshooting</h2>
+  <p class="subtitle">Realistic things that could go sideways tomorrow, and what to actually do about each one.</p>
+
+  <div class="qa">
+    <div class="q">The checkerboard doesn't scan flat, or a corner is bent</div>
+    <div class="a">Detection tolerates a small amount of imperfection, but a
+    visibly warped board is worth fixing on the spot &mdash; press it flatter
+    against whatever you mounted it on, or re-tape a curling edge, before
+    starting the calibration pass. Cheaper to fix for 30 seconds now than to
+    discover a failed calibration afterward with no way to reshoot.</div>
+  </div>
+  <div class="qa">
+    <div class="q">A phone is running low on storage mid-session</div>
+    <div class="a">Copy off what you have immediately (Phase 5's folder
+    layout, done early rather than only at the end), delete anything you've
+    already backed up in two places, and keep going. Never delete unbacked
+    footage to make room &mdash; if it's a choice between stopping early and
+    losing an already-shot clip, stop early.</div>
+  </div>
+  <div class="qa">
+    <div class="q">You forgot to clap at the start of a take</div>
+    <div class="a">That take can't be fused in 3D without a manual sync
+    step later (lining up frames by eye against a shared visual event,
+    which is slower and less reliable than a clap). If it's a squat take,
+    just redo it with a clap &mdash; cheap insurance given how much the fused
+    squat clip matters. If it's a single-view clip, it doesn't matter at
+    all; single-view footage doesn't need cross-camera sync.</div>
+  </div>
+  <div class="qa">
+    <div class="q">Someone bumps a mounted camera after calibration started</div>
+    <div class="a">Treat that calibration pass as void. Recording exercise
+    clips on a camera whose exact position calibration assumed is no
+    longer accurate will quietly produce wrong 3D angles with no error or
+    warning &mdash; worse than useless, actively misleading. Reset the rig,
+    re-shoot the checkerboard pass, and only then continue. If time is
+    genuinely too short to redo it, downgrade that camera's footage to
+    single-view 2D coverage rather than fusing it.</div>
+  </div>
+  <div class="qa">
+    <div class="q">The gym is busy and you can't get a clean single-person shot</div>
+    <div class="a">Wait for a gap rather than filming through a crowd &mdash;
+    a clip with strangers wandering through frame is a worse version of the
+    deliberate two-person stress test, without being useful as one (it's
+    not labeled or intentional, so it can't be used that way either).
+    Quieter hours, or shooting the less space-hungry exercises first while
+    you wait for the rack to clear, are both fine adjustments.</div>
+  </div>
+  <div class="qa">
+    <div class="q">There's no mirror anywhere in the gym</div>
+    <div class="a">Fine &mdash; skip that one stress-test item rather than
+    forcing it. It's one checkbox out of the whole session, explicitly
+    optional if the environment doesn't offer it. Don't go out of your way
+    to find one; the point is testing a real mirror you'd naturally
+    encounter, not manufacturing an artificial test case.</div>
+  </div>
+  <div class="qa">
+    <div class="q">You're running out of time and can't finish everything</div>
+    <div class="a">Protect Phases 0&ndash;2 above everything else &mdash;
+    the calibrated, clap-synced squat set is the actual minimum success
+    for the day, stated on the cover of this guide. Section 2's priority
+    table tells you which single-view exercises to cut first if Phase 3
+    has to shrink: hinge/deadlift and row are the highest-value ones to
+    protect; sit-up is the safest one to drop entirely.</div>
+  </div>
+  <div class="qa">
+    <div class="q">Lighting is uneven between the three camera positions</div>
+    <div class="a">Not a hard rule the way feet-in-frame is, but worth a
+    glance: if one camera position is visibly darker or a different color
+    temperature than the others (near a window versus under fluorescent
+    light, for instance), the identity-matching logic can read the same
+    person differently lit as a weaker match than it should. Reposition if
+    an easy fix is available; otherwise note it and move on &mdash; it's a
+    soft factor, not a blocker.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ 10. AFTER ═══════════════════════════════ -->
+<section class="section">
+  <div class="kicker-sm">11 &middot; Not tomorrow's job</div>
+  <h2 class="title">After the Shoot</h2>
+  <p class="subtitle">Written down so it doesn't need to be re-derived later &mdash; nothing here needs to happen tomorrow.</p>
+
+  <ul class="clist">
+    <li><b>Run the full pipeline against the squat fusion clip first.</b>
+    Does the identity-tracking logic hold up with real clothing and real
+    occlusion? Does the fusion step correctly reject a mismatched-person
+    case if one gets staged?</li>
+    <li><b>Build a real trainer reference signature</b> from the clean-form
+    clips captured in Phase 2 &mdash; the feature exists and has been tested,
+    just never against footage genuinely separate from what it's compared
+    against.</li>
+    <li><b>Feed anything the classifier gets wrong, or any low-confidence
+    pose read, back into the training data</b> for the next classifier
+    pass &mdash; this is what makes tomorrow double as training data, not
+    just a validation exercise.</li>
+    <li><b>Write up one finding per stress dimension</b> &mdash; identity,
+    occlusion, tempo, mirrors, 3D fusion &mdash; pass or fail plus what
+    specifically broke if it didn't pass. "It ran without crashing" is not
+    a finding on its own.</li>
+    <li><b>Build the missing 3-camera rig merge step</b> if the squat
+    footage used all 3 phones &mdash; two pairwise calibration runs need to
+    be combined into one rig file by hand right now; worth turning into a
+    real script once, rather than redoing the merge manually every future
+    session.</li>
+  </ul>
+</section>
+
+</body>
+</html>
