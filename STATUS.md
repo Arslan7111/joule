@@ -159,6 +159,14 @@ single-view 2D fallback.
    (co-)primary** for squat/pull_up — measured, not projected, accuracy
    gain on the full 53-clip RepCount benchmark (see above). No engineering
    blocker, just needs a call on changing a cited headline number.
+8. **Consider a ViTPose+ Large reprocessing pass for the post-set report.**
+   Measured (2026-09-08) on Fit3D squat/pushup: pooled mean joint-angle
+   error 14.57°→5.93° swapping only the pose backbone, at ~17× the
+   per-frame cost (~305ms vs ~18ms). Too slow for live 30fps, but the
+   product's own report window is already 2–5s post-set — plausibly wide
+   enough for a heavier backbone on just-finished clips. Also appears to
+   resolve the unexplained s10 `left_hip` bias from the original Fit3D
+   batch as a MediaPipe-specific weakness. See `HANDOVER.md`.
 
 ### Lower priority
 - Hip-driven rep counter (sit-ups, and would improve hinge movements).

@@ -1394,7 +1394,7 @@ weights at `models/bar_detector.pt` (6.2MB, gitignored like every other
 model weight in this repo) for whoever revisits this. Full write-up:
 `validation_results_backround/BAR_DETECTOR_FINDINGS.md`.
 
-### Workstream D — ViTPose+ Large backbone benchmark: tooling built, [run status]
+### Workstream D — ViTPose+ Large backbone benchmark: RUN, and it's a real accuracy win
 
 Motivation: does swapping MediaPipe for Park's stronger ViTPose+ Large
 close any of the Fit3D 10.1° mean / squat-pushup-tail error, and at what
@@ -1416,12 +1416,52 @@ and raise `ValueError` without an explicit `dataset_index=torch.tensor([0])`
 (0 = COCO) on every forward call — undocumented in the model card's own
 copy-paste example. Verified keypoint label order (`Nose, L_Eye, ...,
 R_Ankle`) matches this project's COCO-17 order exactly, so no remap is
-needed. **Single-frame timing already answers half the question**:
-ViTPose+ Large is ~1200ms/inference on this CPU vs. MediaPipe's ~20–30ms —
-roughly **50–60× slower**, before any accuracy number is even in hand.
-[Full accuracy run status: queued behind workstream B to avoid CPU
-contention corrupting the timing numbers — see whether this ran and
-update with real per-joint error figures if so.]
+needed. An initial single-frame timing check suggested ~1200ms/inference
+(**this number was wrong** — inflated by one-off warm-up cost on a single
+isolated call; see the real measurement below).
+
+**Full run** (`s03`+`s10` × `squat`+`pushup`, all 4 cams, stride 15,
+`--out validation_results_backbone`): **ViTPose+ Large is a real, large
+accuracy win** — pooled mean joint-angle error **14.57° (MediaPipe) →
+5.93° (ViTPose+)**, better than 2× across all 4 clips, none cherry-picked:
+
+| subject/exercise | MediaPipe mean | ViTPose+ mean | MediaPipe ms/call | ViTPose+ ms/call |
+|---|---|---|---|---|
+| s03 squat | 10.69° | 5.16° | 17.6 | 306.6 |
+| s03 pushup | 10.26° | 6.26° | 18.0 | 312.3 |
+| s10 squat | 14.35° | 5.37° | 18.9 | 330.9 |
+| s10 pushup | **23.0°** | 6.93° | 18.6 | 317.3 |
+
+**The real inference cost is ~305–330ms/frame, i.e. ~17× slower than
+MediaPipe (~18ms) — not the 50–60× the single-frame smoke test
+suggested.** 17× is still far too slow for live 30fps single-camera
+processing on this CPU, but a materially more interesting trade than 50–60×
+would have been, especially since `PRODUCT_SPEC.md`'s own MVP promise is
+already a **2–5 second post-set report**, not live per-frame scoring — a
+heavier backbone reprocessing just-finished clips fits that window far
+more plausibly than it fits the live "stay in frame" cue path.
+
+**s10 pushup is the most interesting single result.** It was MediaPipe's
+worst case by far here (23.0° mean, `right_hip` 36.0°, `left_hip` 29.3°) —
+and this is very likely the same unresolved anomaly from the original
+full-scale Fit3D batch (2026-08-11, "Track A follow-up": *"a consistent
+`left_hip` bias... exact cause not pinned down further — would need
+frame-level video inspection"*). Swapping **only** the pose backbone
+(triangulation, calibration, everything else identical) drops s10 pushup
+to 6.93° mean, hip errors down to ~8° — in line with every other clip.
+That's real evidence the 3-week-old open question was a **MediaPipe-specific
+pose-tracking weakness on this subject** (build, clothing, or pose ambiguity
+that trips up MediaPipe's model specifically), not a triangulation defect,
+a calibration quirk, or a ground-truth artifact — closing an open item from
+three weeks ago as a side effect of an unrelated experiment.
+
+**Recommendation, not yet actioned**: don't swap the live pipeline's
+backbone wholesale (17× cost is real and Jetson H3 numbers don't exist
+yet), but seriously consider ViTPose+ (or another stronger backbone) for a
+**non-live, post-set reprocessing pass** specifically — re-run just-finished
+clips through it during the existing 2–5s report window for a more accurate
+report, while the live "stay in frame" cue keeps using MediaPipe. Full data:
+`validation_results_backbone/results.json`.
 
 ### Environment notes from this session (Windows machine)
 
