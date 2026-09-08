@@ -119,11 +119,20 @@ single-view 2D fallback.
   BAR_DETECTOR_FINDINGS.md`.
 - Also added (2026-09-08), shipped and safe: a **second, non-authoritative
   rep-count cross-check** (`rep_count_crosscheck` in the output JSON) from
-  hip-vertical-displacement, independent of the joint-angle counter —
-  flags disagreement (e.g. caught a badly-wrong pull-up count on RepCount
-  `stu7_35`) without ever overriding `rep_counts`. A silhouette-based
-  spinal-flexion/"back-rounding" safety metric was also investigated
-  (3 geometries tried) and abandoned — no stable signal, see `HANDOVER.md`.
+  hip-vertical-displacement, independent of the joint-angle counter.
+  **Validated on the full 53-clip squat/pull_up/push_up RepCount set and
+  it beats the existing primary counter on every class**: normalized MAE
+  0.582→0.316 and OBO 40.0%→58.0% pooled (pull_up 36.8%→57.9% OBO, squat
+  50.0%→68.8%). **Recommended next step, not yet actioned**: consider
+  promoting it to (co-)primary for squat/pull_up specifically, or at
+  minimum surfacing `rep_count_crosscheck` disagreement to a human — this
+  is a real, measured accuracy gain on the project's own benchmark, left
+  as a decision rather than silently flipped, since `rep_counts` is what
+  every existing tool and the historical "MAE 0.742" headline figure
+  reads. Full numbers: `HANDOVER.md`'s 2026-09-07/08 session.
+  A silhouette-based spinal-flexion/"back-rounding" safety metric was also
+  investigated (3 geometries tried) and abandoned — no stable signal, see
+  `HANDOVER.md`.
 
 ## What's left
 
@@ -146,6 +155,10 @@ single-view 2D fallback.
 5. RTSP timestamp sync — needed before live streams replace pre-synced
    recordings.
 6. Jetson port and throughput tuning.
+7. **Decide whether to promote the displacement rep-count cross-check to
+   (co-)primary** for squat/pull_up — measured, not projected, accuracy
+   gain on the full 53-clip RepCount benchmark (see above). No engineering
+   blocker, just needs a call on changing a cited headline number.
 
 ### Lower priority
 - Hip-driven rep counter (sit-ups, and would improve hinge movements).

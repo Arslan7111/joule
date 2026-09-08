@@ -1292,12 +1292,44 @@ GT 16) both counters agreed exactly (16/16). On `stu7_35` (pull_up, GT 22)
 the primary elbow-angle counter was badly wrong (3) — the cross-check
 disagreed (5), correctly flagging the primary result as untrustworthy
 rather than silently shipping a bad number. `stu9_64` (squat) and
-`stu8_42` (push_up) both matched. Full validation batch —
-`tools/benchmark_repcount.py test_videos/repcount --classes squat pull_up
-push_up --keep-results` (~53 licensed clips) — [running / see next update
-if this section wasn't refreshed after it finished; check
-`test_videos/repcount/bench_results/*.json`'s `rep_count_crosscheck` field
-and cross-reference `test_annotations.json` for the full tabulation].
+`stu8_42` (push_up) both matched.
+
+**Full validation batch, 53 licensed clips**
+(`tools/benchmark_repcount.py test_videos/repcount --classes squat
+pull_up push_up --keep-results`) — **the displacement cross-check is not
+just a disagreement flag, it's a materially more accurate counter than
+the existing joint-angle primary on this benchmark, on every class
+tested**, scored with the project's own normalized-MAE/OBO metric
+(`tools/benchmark_repcount.py`'s definition — same one behind every other
+RepCount headline figure in this repo):
+
+| class | n | nMAE primary | nMAE cross-check | OBO primary | OBO cross-check |
+|---|---|---|---|---|---|
+| pull_up | 19 | 0.532 | **0.251** | 36.8% | **57.9%** |
+| push_up | 15 | 0.489 | **0.455** | 33.3% | **46.7%** |
+| squat | 16 | 0.731 | **0.262** | 50.0% | **68.8%** |
+| **ALL** | 50 | 0.582 | **0.316** | 40.0% | **58.0%** |
+
+(50, not 53 — 3 tracks had no usable primary/cross-check pair, e.g. no
+person detected.) Per‑video, cross‑check landed closer to ground truth in
+21/50 clips, the primary counter in 11/50, tied in 18/50 — pull-up and
+squat both improve substantially, push-up more modestly. The squat
+improvement is the most striking and least expected result of the whole
+session — several squat clips where the primary counter was catastrophically
+wrong (e.g. `stu5_62`: GT 32, primary 3, cross-check 32 exactly; `stu4_63`:
+GT 14, primary 3, cross-check 12) suggest the joint-angle signal has a
+real failure mode on some real camera angles/occlusions that a whole-body
+displacement signal is naturally robust to. Full per-video numbers:
+`validation_results_backround/crosscheck_tabulation.json`.
+
+**Left as a recommendation, not a silent default change**: `rep_counts`
+(the field every other tool/benchmark in this repo reads, and the one
+behind the historical "RepCount MAE 0.742" headline figure cited in
+`STATUS.md`/`PRODUCT.md`) was deliberately **not** switched to the
+displacement counter — that's a real change to a cited headline number and
+deserves a conscious decision, not an autonomous one. `rep_count_crosscheck`
+remains available in every output JSON for whoever makes that call. See
+`STATUS.md` for the explicit next-step framing.
 
 ### Workstream C — barbell detector: trained, honestly validated, NOT integrated
 
@@ -1416,6 +1448,17 @@ update with real per-joint error figures if so.]
   an unrelated concurrent job too — used this to stop the first
   (25-epoch/640px) barbell-training attempt cleanly while the
   workstream-B batch kept running untouched.
+- **Repeated a documented near-miss, caught in time**: workstream B's
+  `tools/benchmark_repcount.py --classes squat pull_up push_up` run
+  silently overwrote the committed, historical 152-video
+  `test_videos/repcount/bench_results/report.json` with its own 53-video
+  subset — the exact failure mode the 2026-08-11 session already
+  documented ("check `git status` before re-running anything with `--out`
+  pointed at a directory that might contain previously force-committed
+  files"). Caught via `git status`/`git diff --stat` before committing,
+  restored with `git checkout --`. Second time this specific lesson has
+  had to be learned live — worth treating as a standing rule before any
+  `benchmark_repcount.py`/`validate_fit3d.py` run, not just a one-off note.
 
 ### Repo hygiene
 
