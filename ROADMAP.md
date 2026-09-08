@@ -757,6 +757,14 @@ tempo, mirrors, 3D fusion) — pass/fail plus what broke, not just "it ran."
   (current 280-video subset already improved every gym-core class; likely
   modest further gains).
 - Any UI/dashboard polish not blocking validation.
+- (2026-09-08) Barbell/equipment-context detection for `hinge`/`row` —
+  trained once, real-footage check failed (0/3 correct on genuine
+  bar-visible clips), not integrated. Retraining properly (full dataset,
+  full resolution) is a candidate follow-up. See `HANDOVER.md`'s
+  2026-09-07/08 session and `STATUS.md`.
+- (2026-09-08) Silhouette-based back-rounding/spinal-flexion safety
+  metric — three geometries tried, none stable; needs real torso/limb
+  isolation or real gym footage to revisit. See `HANDOVER.md` same session.
 
 ## Sequencing summary
 

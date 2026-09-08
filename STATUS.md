@@ -108,6 +108,22 @@ single-view 2D fallback.
   separates them without misclassifying real sit-ups. `hinge`/`row`
   remain unrecognized; still need labeled training data, not a heuristic.
   See [ROADMAP.md](ROADMAP.md) Phase C3.
+- Follow-up (2026-09-08): a **barbell detector** was trained (YOLOv8n on a
+  public CC BY 4.0 dataset) specifically to give `hinge`/`row` an
+  equipment-context signal that sidesteps the sit-up feature-overlap
+  above — strong numbers on its own held-out set (mAP50 0.85) but **0 of 3
+  real bar-visible clips (Fit3D + RepCount) detected correctly** when
+  actually checked, so it was **not** wired into the classifier. Kept
+  disabled (`BAR_DETECT_ENABLED = False`); full finding in `HANDOVER.md`'s
+  2026-09-07/08 session and `validation_results_backround/
+  BAR_DETECTOR_FINDINGS.md`.
+- Also added (2026-09-08), shipped and safe: a **second, non-authoritative
+  rep-count cross-check** (`rep_count_crosscheck` in the output JSON) from
+  hip-vertical-displacement, independent of the joint-angle counter —
+  flags disagreement (e.g. caught a badly-wrong pull-up count on RepCount
+  `stu7_35`) without ever overriding `rep_counts`. A silhouette-based
+  spinal-flexion/"back-rounding" safety metric was also investigated
+  (3 geometries tried) and abandoned — no stable signal, see `HANDOVER.md`.
 
 ## What's left
 
@@ -135,3 +151,10 @@ single-view 2D fallback.
 - Hip-driven rep counter (sit-ups, and would improve hinge movements).
 - Scale classifier training to the full 758-video RepCount train split
   (likely modest gains over the current 280-video subset).
+- Retrain the barbell detector properly (full dataset, full resolution,
+  off-topic images filtered) if `hinge`/`row` equipment-context detection
+  is revisited — see the 2026-09-08 finding above for exactly what a first
+  attempt got wrong.
+- Silhouette-based back-rounding safety metric — three approaches tried
+  and abandoned 2026-09-08; needs real torso/limb isolation or real gym
+  footage to have another shot.

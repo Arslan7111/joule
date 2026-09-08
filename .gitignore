@@ -16,9 +16,13 @@ results/
 results_validation/
 validation_results_fit3d/
 validation_results_fit3d_camsweep*/
+validation_results_backround/
+validation_results_backbone/
 *.mp4
 
 # Calibration outputs (site-specific)
 calibration/
 results_fusion/
 training_data/
+datasets/
+runs/

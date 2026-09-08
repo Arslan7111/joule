@@ -1,6 +1,6 @@
 # Handover — Joule
 
-Last updated: 2026-08-28. Consolidates `HANDOVER.md` through `HANDOVER8.md`
+Last updated: 2026-09-08. Consolidates `HANDOVER.md` through `HANDOVER8.md`
 (commit `18330df`), plus the un-handed-off "Recover lunge heuristic"
 session (commit `248adea`), plus two design-prototyping sessions on
 2026-08-24 (kickoff + Stitch MCP setup, then Stitch import + an
@@ -11,11 +11,13 @@ exploration (13 marks total), plus a 2026-08-28 session that picked a
 logo mark, built a fifth candidate fusing 04 with Stitch on direct user
 instruction, and wrote a concrete real-footage capture plan for a
 2026-08-29 shoot (Phase D, the project's longest-standing blocker),
-into a single running log. Read this before doing anything else in this
-repo. **If today is on or after 2026-08-29, check
-`CAPTURE_SESSION_PLAN.md` and this file's newest session section first —
-real gym footage may now exist, which changes Phase D from blocked to
-active.** `STATUS.md` is the always-current engine done/left-to-do
+plus a 2026-09-07/08 session (below) that found the 2026-08-29 shoot
+never happened (postponed for logistics, not run) and instead spent the
+session on footage-independent engine work inspired by two external
+LinkedIn projects, into a single running log. Read this before doing
+anything else in this repo. **Phase D (real gym footage) is still
+blocked as of this update — nothing below required or used real gym
+footage.** `STATUS.md` is the always-current engine done/left-to-do
 snapshot; `ROADMAP.md` is the phased engine execution plan (Phases A–E,
 plus F–L for the product-strategy docs); `DEVELOPMENT.md` is the full
 dated technical log. `design/PROTOTYPES.md` is the equivalent tracking
@@ -1192,3 +1194,242 @@ Design-skill installs (`impeccable`, `frontend-design`, `ui-ux-pro-max`,
 global `~/.claude/` config, not in this repo — a fresh clone or a
 different machine won't have them and would need reinstalling per the
 2026-08-27 session note above to reproduce this session's design tooling.
+
+## Session: 2026-09-07/08 — gym shoot postponed; four LinkedIn-inspired
+## engine experiments (A: back-rounding — failed; B: displacement
+## rep-count cross-check — shipped; C: barbell detector — trained but
+## not integrated; D: ViTPose+ benchmark — queued)
+
+**Phase D status first**: the 2026-08-29 shoot planned in the previous
+session never happened — postponed for logistics reasons, not run. No real
+gym footage exists anywhere in the repo as of this update. Phase D remains
+exactly as blocked as it has been since the project began.
+
+**How this session started**: the user shared two LinkedIn posts by Jeremy
+Park, PhD (a computer-vision PhD, DevRel at VLM Run) — one measuring
+deadlift back-curvature via person segmentation + a barbell detector +
+MediaPipe pose, one counting chin-up reps and detecting fatigue via
+ViTPose+ Large — and asked to use both to improve Joule's models/pipelines,
+footage-independent since the real shoot was blocked. Mapped both posts
+against this project's own documented gaps into four workstreams, all
+approved by the user; full plan and exploration notes in
+`.claude/plans/lovely-foraging-firefly.md` (three parallel `Explore` agents
+mapped `src/form.py`/`src/risk.py`/`src/angles.py`, the pose/detector/
+camera data flow, and the classifier + Fit3D/RepCount validation tooling
+before any code was written). Fit3D was read-only throughout (validation
+license only, per existing project rule); RepCount was used for validation
+plus, in workstream C, as the only viable real-footage target for
+equipment features (Fit3D has no bar-detection use case in scope for
+training, and RepCount itself isn't labeled for bars either — see below).
+
+### Workstream A — back-rounding / spinal-flexion metric: spiked, FAILED, stopped
+
+Motivation: `src/form.py` measures trunk *lean* (the rigid shoulder→hip
+segment angle) but nothing about spinal *curvature* — the injury-relevant
+signal for the deadlift/hinge family, and exactly what `src/risk.py` is
+pitched to catch but structurally can't with COCO-17's shoulder/hip-only
+trunk landmarks. Following Park's approach, tried to get a back contour
+from MediaPipe's person-segmentation mask instead of joint landmarks.
+
+Enabled `output_segmentation_masks=True` on `src/pose.py`'s
+`PoseEstimator` (new `segmentation` ctor flag, `last_mask` attribute) and
+found a real, reproducible **MediaPipe 1.0.0 Windows-build bug**: the
+segmentation-mask calculator aborts the whole process
+(`image_frame.cc:415 Check failed: 1 == ChannelSize() (1 vs. 4)`) when fed
+a *cropped* frame — exactly the padded-crop `PoseEstimator` normally uses.
+Full-frame input is stable (confirmed clean across 300+ frames × 3 clips,
+~20–30ms/frame). Root-caused precisely via a sequence of isolated repros
+(full frame vs. crop, with/without a prior detector call) before writing
+`tools/spike_back_round.py` around a self-contained full-frame MediaPipe
+landmarker rather than `PoseEstimator`.
+
+Three geometry attempts at "the back contour" on the same silhouette, each
+tested on Fit3D `deadlift`/`squat`/`dumbbell_reverse_lunge` (s03 + s10):
+(1) march perpendicular from the shoulder→hip chord until the mask ends —
+came out at 0.6–0.7× torso length, i.e. the ray punches through the whole
+body and out the far side (arms, the barbell, the far leg), not the spine;
+(2) scan the full perpendicular cross-section and take the posterior end
+of the contiguous run through the chord point — collapses at the flexed
+part of every rep (valid only for the top ~25% of each rep), and
+`corr(trunk_lean)` swung wildly per clip (−0.81 to +0.33) with no stable
+relationship; (3) torso-mask centroid offset from the chord — always
+computable, but equally unstable (`corr(trunk_lean)` −0.82 to +0.43,
+`bottom_cent` ranging −0.48 to +0.08, including a posterior-direction
+sign flip on one clip). **Verdict: not a fold-in — a dedicated R&D
+sub-project**, most likely needing proper limb/torso isolation, a sharper
+segmenter (RF-DETR, Park's actual choice, Apache-2.0), a per-subject
+standing-baseline reference, or simply real gym footage where backs
+actually round under load (Fit3D's coached reps mostly don't). `src/pose.py`
+reverted clean — the only surviving artifact is `tools/spike_back_round.py`
+and the write-up. Full numbers: `validation_results_backround/FINDINGS.md`
+(gitignored dir — the script that regenerates it is committed).
+
+### Workstream B — vertical-displacement rep-count cross-check: shipped, validating
+
+Motivation: Park's chin-up tracker counts reps from vertical displacement;
+Joule counts from joint-angle range, and RepCount's own historical figures
+show that signal is weak specifically for pull-ups (36.8% OBO). Added a
+second, **non-authoritative** counter alongside the existing one rather
+than replacing anything.
+
+Signal: hip-midpoint image-y, sign-flipped so "body higher" reads as the
+high/rest state (matching the existing knee/elbow convention), normalised
+by an exponentially-smoothed per-track torso length so it's scale-invariant
+across camera distance (`src/camera.py::_hip_height_signal`, new
+`DISP_MIN_RANGE = 0.15` torso-lengths in `src/config.py`). Reuses
+`StateMachine` unchanged — it's already signal-agnostic, only `min_range`
+needed a unit-appropriate value. New `pd['disp_sm']`/`pd['disp_series']` in
+`_init_person`; `src/output.py::build_track_dict` emits a
+`rep_count_crosscheck` block (`method`, `count`, `delta`, `agree` per
+family) plus a `displacement_series` debug series — additive fields only,
+`rep_counts` itself is untouched. Scoped to `src/camera.py` (single-camera
+path, which is what every RepCount/Fit3D validation tool already drives) —
+`src/fusion.py` is not wired up yet, flagged as a follow-up, not silently
+skipped.
+
+Quick 4-clip manual check before the full batch: on `stu8_38` (pull_up,
+GT 16) both counters agreed exactly (16/16). On `stu7_35` (pull_up, GT 22)
+the primary elbow-angle counter was badly wrong (3) — the cross-check
+disagreed (5), correctly flagging the primary result as untrustworthy
+rather than silently shipping a bad number. `stu9_64` (squat) and
+`stu8_42` (push_up) both matched. Full validation batch —
+`tools/benchmark_repcount.py test_videos/repcount --classes squat pull_up
+push_up --keep-results` (~53 licensed clips) — [running / see next update
+if this section wasn't refreshed after it finished; check
+`test_videos/repcount/bench_results/*.json`'s `rep_count_crosscheck` field
+and cross-reference `test_annotations.json` for the full tabulation].
+
+### Workstream C — barbell detector: trained, honestly validated, NOT integrated
+
+Motivation: `hinge` (deadlift) was investigated and explicitly rejected as
+a heuristic on 2026-08-12 — sit-ups share the same hip:knee ROM-ratio
+signature, no threshold separates them safely. **A barbell is present in a
+deadlift and never in a sit-up** — bar presence is a feature joint
+kinematics structurally cannot provide, and Park's post used exactly this
+kind of equipment detection.
+
+Sourced a public dataset since neither licensed dataset has bar labels
+(Fit3D validation-only by policy; RepCount has none). Found and verified
+via Roboflow's raw REST API (the Python SDK's `project.license` attribute
+returns `None` — had to query `api.roboflow.com/<owner>/<slug>` directly)
+that four barbell/plate candidates on Roboflow Universe are all
+**CC BY 4.0, public**: `computer-vision-1bdzc/barbell-detection-yolov5`
+(1,712 images, chosen — largest), `hackerfit/barbell-detector-svmfh-da6pw`
+(444), `gym-pal/barbell-object-detection` (208), `new-workspace-kvvq5/
+weights-plates` (74). Downloaded the first via the Roboflow Python SDK
+(`ROBOFLOW_API_KEY` env var, user's own free-tier account) to
+`datasets/barbell-yolov5-v6/` (gitignored, regenerable). Visual spot-check
+of 12 random training images before spending any compute: ~1 in 12 was an
+off-topic stock/clipart image (a Dreamstime watermarked render), the rest
+genuine diverse gym/weightlifting footage with sensible boxes — logged as
+an accepted, not hidden, data-quality caveat.
+
+Trained YOLOv8n (`tools/train_bar_detector.py`, new; same architecture
+family as the existing person detector) — first attempt at full
+size/epochs (`--epochs 25 --imgsz 640`) was killed via `TaskStop` after
+timing showed ~20 min/epoch (~8+ hours total, infeasible alongside the
+concurrently-running workstream-B batch); restarted at `--epochs 12
+--imgsz 320 --fraction 0.35 --patience 5`, ~2 min/epoch, done in ~20 min.
+**Roboflow-held-out validation looked strong**: precision 0.878, recall
+0.750, mAP50 0.852, mAP50-95 0.498, 16.9ms/image CPU inference.
+
+**Real-footage check (Fit3D deadlift/squat/barbell_row, RepCount squat)
+failed outright — 0 of 3 genuine bar-visible clips detected correctly.**
+Two Fit3D deadlift frames with the bar clearly held: no detection at all.
+One Fit3D barbell_row frame: confidently (0.82) boxed the red studio
+carpet, not the bar. One Fit3D squat frame and two RepCount "squat" clips
+(real bodyweight backyard exercises, no bar present) drew false-positive
+boxes on a floor mat and a wooden fence post respectively (0.41–0.65
+confidence — too wide a range for a threshold fix). Likely cause: the
+training images are mostly loaded-plate gym floors; Fit3D's bare
+motion-capture-studio bar and RepCount's unconstrained home-workout scenes
+are a real domain shift on top of the noted data-quality gap, compounded
+by the deliberately cheap 12-epoch/35%-data/320px training budget.
+
+**Decision, following the same discipline as workstream A**: did **not**
+proceed to extend `src/features.py`/retrain `models/exercise_clf.npz`/add
+a bar-gated hinge-row heuristic — feeding a signal that's wrong on ~100%
+of the real clips checked would actively harm classification, echoing why
+the first per-window confidence-gate attempt (2026-08-11) was reverted
+after it measurably hurt RepCount accuracy. What *is* shipped and safe:
+`src/bardetector.py` (`BarDetector`, lazily loaded, degrades to a no-op
+with a logged warning when no weight file exists — verified), the
+per-frame hook in `src/camera.py` (scene-level detection, once per frame,
+attached to every active person as `pd['bar_series']`), and
+`bar_series` in the output JSON (`src/output.py`). All gated behind
+`BAR_DETECT_ENABLED = False` (`src/config.py`) — **left off**. Trained
+weights at `models/bar_detector.pt` (6.2MB, gitignored like every other
+model weight in this repo) for whoever revisits this. Full write-up:
+`validation_results_backround/BAR_DETECTOR_FINDINGS.md`.
+
+### Workstream D — ViTPose+ Large backbone benchmark: tooling built, [run status]
+
+Motivation: does swapping MediaPipe for Park's stronger ViTPose+ Large
+close any of the Fit3D 10.1° mean / squat-pushup-tail error, and at what
+CPU cost? Measurement only, explicitly no `src/pose.py` change.
+
+Built `tools/bench_pose_backbone.py` — a standalone detect→pose→triangulate
+→score loop reusing `src/triangulation.py`'s real `triangulate_skeleton`/
+`compute_all_angles_3d` and `tools/validate_fit3d.py`'s `build_rig`/
+`load_gt_angles`/frame-offset-search scoring, so numbers land on the same
+scale as the existing Fit3D headline figures. Confirmed ViTPose+ Large
+(`usyd-community/vitpose-plus-large`, HuggingFace `transformers`, Apache
+2.0) works end-to-end after two real environment issues, both fixed and
+worth remembering: (1) the installed `transformers==5.16.1`'s
+`image_processing_vitpose.py` calls `scipy`'s `inv`/`affine_transform`
+without importing them when `scipy` isn't installed — a real upstream bug,
+fixed by `pip install scipy` (not a code change on our side); (2) the
+`vitpose-plus-*` checkpoints are mixture-of-experts across 6 pose datasets
+and raise `ValueError` without an explicit `dataset_index=torch.tensor([0])`
+(0 = COCO) on every forward call — undocumented in the model card's own
+copy-paste example. Verified keypoint label order (`Nose, L_Eye, ...,
+R_Ankle`) matches this project's COCO-17 order exactly, so no remap is
+needed. **Single-frame timing already answers half the question**:
+ViTPose+ Large is ~1200ms/inference on this CPU vs. MediaPipe's ~20–30ms —
+roughly **50–60× slower**, before any accuracy number is even in hand.
+[Full accuracy run status: queued behind workstream B to avoid CPU
+contention corrupting the timing numbers — see whether this ran and
+update with real per-joint error figures if so.]
+
+### Environment notes from this session (Windows machine)
+
+- `mediapipe`'s segmentation-mask path aborts the process on cropped
+  input (see workstream A) — full-frame only, on this machine's
+  `mediapipe` 1.0.0 build.
+- `transformers` + `scipy` + `roboflow` + `ultralytics` (already present)
+  now all importable in `.venv` — `scipy` was a real missing transitive
+  dependency for ViTPose+'s image processor, not optional.
+- A `pip install roboflow` with its normal dependency resolution failed
+  with a Windows file-lock error on `cv2.pyd` (a background process had
+  `opencv-python` loaded) — fixed with `pip install --no-deps roboflow`,
+  which was sufficient since every other dependency it needs was already
+  present.
+- `nohup <cmd> &` inside a single Bash tool call does **not** survive as a
+  tracked background task the way passing the command directly with
+  `run_in_background: true` does — the wrapper command (which just
+  launches and returns) is treated as "the task," and the detached child
+  gets reaped once it's considered done. Lost one benchmark run's first
+  video to this before catching it via an empty log file + a dead PID.
+- `google.colab`-style manual `nohup`/PID hunting aside, `TaskStop` (by
+  the harness's own background-task id) is the safe way to kill a
+  runaway background job without risking an OS-level `taskkill` catching
+  an unrelated concurrent job too — used this to stop the first
+  (25-epoch/640px) barbell-training attempt cleanly while the
+  workstream-B batch kept running untouched.
+
+### Repo hygiene
+
+New tracked files: `tools/spike_back_round.py`, `tools/bench_pose_backbone.py`,
+`tools/train_bar_detector.py`, `src/bardetector.py`. Modified:
+`src/camera.py` (disp-counter + bar-detector hooks), `src/output.py`
+(`rep_count_crosscheck`, `displacement_series`, `bar_series`),
+`src/config.py` (`DISP_COUNTER_ENABLED`, `DISP_MIN_RANGE`,
+`BAR_DETECT_ENABLED`, `BAR_DETECTOR_MODEL`, `BAR_DETECTOR_CONF`,
+`BAR_DETECTOR_IMGSZ`). `.gitignore` gained `validation_results_backround/`,
+`validation_results_backbone/`, `datasets/`, `runs/` — all large/regenerable,
+matching the existing `validation_results_fit3d/` pattern. `models/
+bar_detector.pt` exists on disk but is gitignored like every other model
+weight (`*.pt`); not force-committed, unlike the tiny `exercise_clf.npz`,
+because it is not (yet) a shipped, working artifact. A team-facing,
+non-technical PDF summarising this session was generated and saved to the
+user's own Downloads folder on request — not part of the repo.

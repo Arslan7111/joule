@@ -106,6 +106,27 @@ PROGRESS_LOG_FRAMES = 300          # log processing progress every N frames
 CLASSIFY_INTERVAL_SECONDS = 2.0    # re-classify each track this often
 CLASSIFY_WINDOW_SECONDS = 6.0      # trailing window of angle data to classify on
 
+# Vertical-displacement rep-count cross-check. A second, independent counter
+# driven by the hip-midpoint's vertical travel (normalised by torso length)
+# instead of a joint angle — more robust where the joint-angle signal is weak
+# (e.g. pull-ups filmed at an angle). Non-authoritative: it only annotates
+# agreement/disagreement with the primary count in the output JSON, it never
+# changes rep_counts. DISP_MIN_RANGE is the minimum vertical excursion, in
+# torso lengths, that counts as rep-sized motion (row/curl/press stay below it
+# and the cross-check correctly reports zero).
+DISP_COUNTER_ENABLED = True
+DISP_MIN_RANGE = 0.15
+
+# Barbell detection (equipment context). Trained on a public dataset
+# (Roboflow Universe, computer-vision-1bdzc/barbell-detection-yolov5, CC BY
+# 4.0) -- see tools/train_bar_detector.py. Off by default: no weight file is
+# committed, and no downstream feature/heuristic reads this yet (workstream C
+# integration is staged -- see validation_results_backround/ for status).
+BAR_DETECT_ENABLED = False
+BAR_DETECTOR_MODEL = 'models/bar_detector.pt'
+BAR_DETECTOR_CONF = 0.35
+BAR_DETECTOR_IMGSZ = 320
+
 # Reference-based form comparison (AIFit-style, src/signature.py).
 # References are built from recorded good executions with
 # tools/build_reference.py; when models/references/<exercise>.json exists,

@@ -8,19 +8,25 @@ import cv2
 import numpy as np
 
 from .angles import compute_all_angles
+from .bardetector import BarDetector
 from .config import (
     ANGLE_DEFINITIONS,
+    BAR_DETECT_ENABLED,
     BOTTOM_THRESHOLD,
     CLASSIFY_INTERVAL_SECONDS,
     CLASSIFY_WINDOW_SECONDS,
     COAST_DISPLAY_FRAMES,
     DEPTH_THRESHOLD,
+    DISP_COUNTER_ENABLED,
+    DISP_MIN_RANGE,
     HARD_EXAMPLE_CONF,
     HARD_EXAMPLE_MAX_PER_CAMERA,
     HARD_EXAMPLE_MIN_GAP_SECONDS,
     HYSTERESIS_FRAMES,
+    KEYPOINT_IDX,
     LOST_TRACK_WARNING_SECONDS,
     MIN_TRACK_AGE_FRAMES,
+    POSE_CONF_THRESHOLD,
     PROGRESS_LOG_FRAMES,
     REID_SAMPLE_INTERVAL_SECONDS,
     TOP_THRESHOLD,
@@ -85,7 +91,37 @@ def _init_person() -> dict:
         '_next_classify_t': CLASSIFY_INTERVAL_SECONDS,
         '_last_rep_totals': (0, 0),    # (squat, upper) — detect new reps for live form
         'last_form': None,             # form dict of the most recent rep
+        # Vertical-displacement rep-count cross-check (non-authoritative).
+        'disp_sm': StateMachine(min_range=DISP_MIN_RANGE),
+        'disp_series': [],             # (timestamp, hip-height signal in torso lengths)
+        '_torso_ema': None,            # smoothed torso length for scale normalisation
+        # Equipment context (workstream C) -- one detection per frame, scene-
+        # level, attached to every person active that frame. Not yet consumed
+        # by the classifier; recorded for inspection/validation while that
+        # integration is staged.
+        'bar_series': [],              # (timestamp, cx, cy, w, h, confidence)
     }
+
+
+def _hip_height_signal(keypoints, pd: dict):
+    """Hip-midpoint vertical position, normalised by a smoothed torso length and
+    sign-flipped so 'body higher' = larger value (matches the joint-angle
+    convention: top-of-rep is the high, resting state). Returns None when the
+    torso keypoints are not confidently visible."""
+    idx = (KEYPOINT_IDX['left_shoulder'], KEYPOINT_IDX['right_shoulder'],
+           KEYPOINT_IDX['left_hip'], KEYPOINT_IDX['right_hip'])
+    if any(keypoints[i, 2] < POSE_CONF_THRESHOLD for i in idx):
+        return None
+    ls, rs, lh, rh = (keypoints[i] for i in idx)
+    sh_mid = (ls[:2] + rs[:2]) / 2.0
+    hip_mid = (lh[:2] + rh[:2]) / 2.0
+    torso = float(np.hypot(*(sh_mid - hip_mid)))
+    if torso < 1.0:
+        return None
+    ema = pd['_torso_ema']
+    ema = torso if ema is None else 0.97 * ema + 0.03 * torso
+    pd['_torso_ema'] = ema
+    return -float(hip_mid[1]) / ema
 
 
 # Below this AGGREGATE confidence (the winning class's average confidence
@@ -211,6 +247,7 @@ class CameraProcessor:
 
         detector = PersonDetectorTracker()
         pose_est = PoseEstimator()
+        bar_det = BarDetector() if BAR_DETECT_ENABLED else None
         classifier = ExerciseClassifier() if self.auto_mode else None
         embedder = EmbeddingExtractor() if self.gallery is not None else None
         # In auto mode both state machines run; classification picks which counts.
@@ -294,6 +331,15 @@ class CameraProcessor:
                     logger.warning(f"[{self.camera_id}] frame {frame_idx}: detection error: {exc}")
                     detections = []
 
+                bar_box = None
+                if bar_det is not None and bar_det.available:
+                    try:
+                        bar_box = bar_det.detect(frame)
+                    except Exception as exc:
+                        logger.warning(
+                            f"[{self.camera_id}] frame {frame_idx}: bar detection error: {exc}"
+                        )
+
                 for track_id, x1, y1, x2, y2, conf in detections:
                     active_ids.add(track_id)
 
@@ -310,6 +356,13 @@ class CameraProcessor:
                     if pd is None:
                         continue       # identity pending — retry next frame
                     pd['frames'] += 1
+
+                    if bar_box is not None:
+                        bx1, by1, bx2, by2, bconf = bar_box
+                        pd['bar_series'].append((
+                            timestamp, (bx1 + bx2) / 2, (by1 + by2) / 2,
+                            bx2 - bx1, by2 - by1, bconf,
+                        ))
 
                     # Pose estimation with last-known-keypoints interpolation
                     keypoints = None
@@ -373,6 +426,13 @@ class CameraProcessor:
                             else re
                         )
                         pd['upper_sm'].update(elbow_avg, timestamp)
+
+                    # Vertical-displacement cross-check counter (non-authoritative)
+                    if DISP_COUNTER_ENABLED:
+                        sig = _hip_height_signal(keypoints, pd)
+                        if sig is not None:
+                            pd['disp_series'].append((timestamp, sig))
+                            pd['disp_sm'].update(sig, timestamp)
 
                     # Periodic exercise classification (auto mode)
                     if classifier is not None and timestamp >= pd['_next_classify_t']:

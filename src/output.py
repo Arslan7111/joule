@@ -118,6 +118,29 @@ def build_track_dict(person_id, td: dict, exercise: str = 'both') -> dict:
             for joint in sorted(set(_ALL_ANGLES) | set(td['angles'].keys()))
         },
     }
+
+    # Vertical-displacement rep-count cross-check — a second, independent counter
+    # (hip-midpoint vertical travel) reported alongside the authoritative
+    # joint-angle count, never replacing it. Useful where the angle signal is
+    # weak (e.g. pull-ups); disagreement is a flag to inspect, not an error.
+    disp_sm = td.get('disp_sm')
+    if disp_sm is not None and rep_counts:
+        d = disp_sm.rep_count
+        track['rep_count_crosscheck'] = {
+            'method': 'hip_vertical_displacement',
+            'count': d,
+            'delta': {fam: d - n for fam, n in rep_counts.items()},
+            'agree': {fam: abs(d - n) <= 1 for fam, n in rep_counts.items()},
+        }
+        track['displacement_series'] = _downsample_series(
+            td.get('disp_series', []), OUTPUT_FPS)
+
+    bar_series = td.get('bar_series')
+    if bar_series:
+        track['bar_series'] = [
+            [round(t, 3), round(cx, 1), round(cy, 1), round(w, 1), round(h, 1), round(c, 3)]
+            for t, cx, cy, w, h, c in bar_series
+        ]
     if exercise == 'auto':
         track['exercise_class'] = exercise_class
         track['exercise_confidence'] = round(float(td.get('exercise_conf', 0.0)), 3)
